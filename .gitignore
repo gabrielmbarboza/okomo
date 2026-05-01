@@ -1,0 +1,45 @@
+# See https://git-scm.com/docs/gitignore
+
+# Ignore bundler config.
+/.bundle
+
+# Ignore all environment files (except example).
+.env
+.env.*
+!.env.example
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignore storage (local file uploads).
+/storage/*
+!/storage/.keep
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+/config/credentials/*.key
+
+# Ignore vendor bundle
+/vendor/bundle
+
+# Ignore node_modules
+/node_modules
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

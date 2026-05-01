@@ -1,0 +1,96 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: okomo_app
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    environment:
+      - RAILS_ENV=${RAILS_ENV:-development}
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=${POSTGRES_USER:-okomo}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-okomo_dev}
+      - DATABASE_NAME=${POSTGRES_DB:-okomo_development}
+      - REDIS_URL=redis://redis:6379/0
+      - RAILS_LOG_TO_STDOUT=true
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+  db:
+    image: postgres:16-alpine
+    container_name: okomo_db
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-okomo}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-okomo_dev}
+      - POSTGRES_DB=${POSTGRES_DB:-okomo_development}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-okomo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: okomo_redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: okomo_sidekiq
+    command: bundle exec sidekiq
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    environment:
+      - RAILS_ENV=${RAILS_ENV:-development}
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=${POSTGRES_USER:-okomo}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-okomo_dev}
+      - DATABASE_NAME=${POSTGRES_DB:-okomo_development}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - with-sidekiq
+
+volumes:
+  postgres_data:
+  redis_data:
+  bundle_cache:
