@@ -7,7 +7,7 @@ module Catalog
     # This is a pure Ruby object (PORO) that encapsulates
     # business logic and rules for products
     #
-    class Product < BaseEntity
+    class Product
       attr_reader :id, :name, :description, :price, :sku, :status, :created_at, :updated_at
 
       VALID_STATUSES = %w[active inactive discontinued].freeze
