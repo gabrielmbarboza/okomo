@@ -25,7 +25,8 @@ WORKDIR /app
 
 # Install gems
 COPY Gemfile Gemfile.lock* ./
-RUN bundle install --jobs 4 --retry 3
+RUN bundle install --jobs 4 --retry 3 && \
+    chown -R ${UID}:${GID} /usr/local/bundle
 
 # Copy application code
 COPY --chown=appuser:appuser . .

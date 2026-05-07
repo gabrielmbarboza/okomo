@@ -1,12 +1,88 @@
+# Version control
 .git
+.gitignore
 .github
+
+# Environment files
 .env
 .env.*
 !.env.example
+
+# Rails specific
 log/*
 tmp/*
-vendor/bundle
-node_modules
+storage/*
+public/assets/*
+.byebug_history
+
+# Testing and development
+spec/
+test/
+.rspec
+.rspec_status
+coverage/
+.simplecov
+
+# Documentation
 *.md
+README*
+CHANGELOG*
+LICENSE*
+docs/
+
+# Docker files
 .dockerignore
 docker-compose*.yml
+Dockerfile*
+
+# Dependencies
+vendor/bundle
+node_modules
+.yarn
+.yarnrc
+package-lock.json
+yarn.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Ruby specific
+.ruby-version
+.ruby-gemset
+.bundle/
+.rubocop.yml
+.rubocop_todo.yml
+
+# Cache and temporary files
+.cache/
+.sass-cache/
+.leaflet/
+.eslintcache
+
+# Asset pipeline
+.sprockets*
+manifest*.yml
+
+# Database
+*.sqlite3
+*.sqlite
+*.db
+
+# Logs
+*.log
+
+# PID files
+*.pid
+
+# Coverage reports
+coverage/
+
+# Backup files
+*.bak
+*.backup
