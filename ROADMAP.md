@@ -1,222 +1,215 @@
-# 🧭 Okomo Roadmap (Senior-Level Execution Plan)
+# Okomo — Roadmap
 
-## 🎯 Goal
-Build a **production-like marketplace system** with solid architecture, real domain modeling, and strong interview-ready explanations.
+## 🎯 Objetivo
 
----
+Construir um marketplace funcional para pequenos artesãos e empreendedores utilizando
+Rails 8, PostgreSQL e Docker, com foco na evolução técnica para um nível mais alto de senioridade.
 
-# 🚀 PHASE 1 — FOUNDATION
+## Áreas de Conhecimento Desenvolvidas
 
-## 🎯 Objective
-Move from structure → real domain implementation
-
-### 🧹 Architectural Cleanup
-- [ ] Remove `base_*` classes (entity, service, repository, value_object)
-- [ ] Remove premature repositories
-- [ ] Simplify `catalog.rb`, `orders.rb` (keep only namespace if needed)
-
-### 🧱 Environment Setup
-- [ ] Validate `database.yml` (`host: db`)
-- [ ] Ensure UUID as default primary key
-- [ ] Confirm `.env` with UID/GID
-- [ ] Validate Docker setup (no root file issues)
+- Domain-Driven Design (DDD)
+- System Design
+- Software Architecture
+- Test-Driven Development (TDD)
+- DevOps
+- Observability
 
 ---
 
-# 🚀 PHASE 2 — CORE DOMAIN (ORDERS)
+# Fase 0 — Fundamentos de Produto e Arquitetura
 
-## 🎯 Objective
-Implement the core of the system
+## Produto
 
-### 🧠 Domain Modeling
-- [ ] Create `Order` entity
-- [ ] Create `OrderItem` entity
-- [ ] Define states:
-  - [ ] pending
-  - [ ] paid
-  - [ ] shipped
-  - [ ] cancelled
+- [ ] Criar `docs/product_vision.md`
+- [ ] Definir problema de negócio
+- [ ] Definir público-alvo
+- [ ] Definir proposta de valor
+- [ ] Definir diferenciais competitivos
+- [ ] Definir escopo do MVP
 
-### ⚙️ Business Rules
-- [ ] add_item
-- [ ] remove_item
-- [ ] calculate_total
-- [ ] apply_coupon (stub)
+## Requisitos Não Funcionais
 
-### 🔧 Use Cases
-- [ ] Create `CreateOrder`
-- [ ] Create `AddItemToOrder`
-- [ ] Create `RemoveItemFromOrder`
+- [ ] Criar `docs/non_functional_requirements.md`
+- [ ] Definir metas de performance
+- [ ] Definir requisitos de disponibilidade
+- [ ] Definir requisitos de segurança
+- [ ] Definir requisitos de escalabilidade
+- [ ] Definir requisitos de observabilidade
+- [ ] Definir objetivos de recuperação de falhas (RTO/RPO)
 
-### 💾 Persistence (Simple)
-- [ ] Create `OrderRecord`
-- [ ] Create `OrderItemRecord`
+## Architecture Decision Records (ADR)
 
----
+- [ ] Criar `docs/adr/`
+- [ ] ADR-001: Monolito Modular
+- [ ] ADR-002: PostgreSQL como Banco de Dados Principal
+- [ ] ADR-003: Chaves Primárias UUID
+- [ ] ADR-004: Locking Pessimista para Estoque
+- [ ] ADR-005: Estratégia de Snapshots para OrderItem
+- [ ] ADR-006: Checkout Inicia Reserva de Estoque
+- [ ] ADR-007: Variant gerencia Pricing e Inventory
 
-# 🚀 PHASE 3 — CATALOG
+## Estratégia de Testes
 
-## 🎯 Objective
-Provide products for orders
+- [ ] Criar `docs/testing_strategy.md`
+- [ ] Definir testes unitários
+- [ ] Definir testes de integração
+- [ ] Definir testes de API
+- [ ] Definir testes end-to-end
+- [ ] Definir estratégia de factories e fixtures
 
-- [ ] Create `Product`
-- [ ] Create `Variant`
-- [ ] Define pricing in Variant
+## Eventos de Domínio
 
-### ⚙️ Use Cases
-- [ ] CreateProduct
-- [ ] AddVariant
+- [ ] Criar `docs/domain_events.md`
+- [ ] Mapear OrderCreated
+- [ ] Mapear CheckoutStarted
+- [ ] Mapear InventoryReserved
+- [ ] Mapear PaymentAuthorized
+- [ ] Mapear PaymentFailed
+- [ ] Mapear OrderPaid
+- [ ] Mapear ShipmentCreated
 
----
+## Máquinas de Estado
 
-# 🚀 PHASE 4 — INVENTORY
+- [ ] Criar `docs/state_machines/`
+- [ ] Documentar estados de Order
+- [ ] Documentar estados de Payment
+- [ ] Documentar estados de Shipment
+- [ ] Documentar estados de InventoryReservation
 
-## 🎯 Objective
-Handle stock consistency
+## API e Segurança
 
-- [ ] Create `Inventory`
-- [ ] Create `StockReservation`
+- [ ] Criar `docs/api/`
+- [ ] Criar `docs/security.md`
+- [ ] Definir autenticação
+- [ ] Definir autorização
+- [ ] Definir rate limiting
+- [ ] Definir proteção contra fraude e abuso
 
-### ⚙️ Operations
-- [ ] reserve_stock
-- [ ] release_stock
-- [ ] confirm_stock
+## Operação e Infraestrutura
 
-### ⏱️ Background Jobs
-- [ ] Expiration job (Sidekiq)
+- [ ] Criar `docs/deployment.md`
+- [ ] Criar `docs/runbooks/`
+- [ ] Documentar processo de deploy
+- [ ] Documentar rollback
+- [ ] Documentar resposta a incidentes
+- [ ] Documentar troubleshooting de pagamentos e estoque
 
----
+## Planejamento do Produto
 
-# 🚀 PHASE 5 — SHIPPING
-
-## 🎯 Objective
-Handle delivery per seller
-
-- [ ] Create `Shipment`
-- [ ] Link Shipment to Order
-
-### ⚙️ Rules
-- [ ] calculate_shipping
-- [ ] paid_by (seller/customer)
-
----
-
-# 🚀 PHASE 6 — COUPONS
-
-## 🎯 Objective
-Controlled promotion engine
-
-- [ ] Create `Coupon`
-
-### 🎟️ Types
-- [ ] percentage
-- [ ] fixed amount
-- [ ] free shipping
-
-### ⚙️ Logic
-- [ ] applicable_to?(order)
-- [ ] calculate_discount(order)
+- [ ] Revisar `ROADMAP.md`
+- [ ] Priorizar backlog do MVP
+- [ ] Definir critérios de sucesso do projeto
 
 ---
 
-# 🚀 PHASE 7 — CHECKOUT & PAYMENT
+# Fase 1 — Fundamentos e Modelagem de Domínio
 
-## 🎯 Objective
-Full purchase flow
-
-### 🛒 Checkout Flow
-- [ ] reserve stock
-- [ ] apply coupon
-- [ ] calculate shipping
-
-### 💳 Payment
-- [ ] Create `Payment`
-- [ ] Simulate:
-  - [ ] success
-  - [ ] failure
-
-### 🔗 Integration
-- [ ] success → confirm stock
-- [ ] failure → release stock
+- [ ] Refinar linguagem ubíqua
+- [ ] Definir bounded contexts
+- [ ] Documentar casos de uso
+- [ ] Documentar fluxo de checkout
+- [ ] Documentar lifecycle de Inventory
+- [ ] Configurar RSpec
+- [ ] Configurar RuboCop
+- [ ] Configurar integração contínua (CI)
 
 ---
 
-# 🚀 PHASE 8 — CONCURRENCY
+# Fase 2 — Domínio de Catálogo
 
-## 🎯 Objective
-Ensure consistency
-
-- [ ] Implement pessimistic locking (PostgreSQL)
-- [ ] Ensure atomic operations for:
-  - [ ] order
-  - [ ] inventory
+- [ ] Criar Product
+- [ ] Criar Variant
+- [ ] Definir SKU
+- [ ] Definir preço por Variant
+- [ ] Criar casos de uso do catálogo
 
 ---
 
-# 🚀 PHASE 9 — API LAYER
+# Fase 3 — Domínio de Estoque
 
-## 🎯 Objective
-Expose the system
-
-### 🌐 Endpoints
-- [ ] create order
-- [ ] add item
-- [ ] checkout
-
-### ⚠️ Rule
-- Controllers must only orchestrate (no business logic)
+- [ ] Criar Inventory
+- [ ] Implementar `available_quantity`
+- [ ] Implementar `reserved_quantity`
+- [ ] Prevenir overselling
+- [ ] Implementar Inventory Reservation
+- [ ] Implementar expiração de reservas
+- [ ] Implementar Pessimistic Locking
 
 ---
 
-# 🚀 PHASE 10 — QUALITY
+# Fase 4 — Domínio de Pedidos
 
-## 🎯 Objective
-Production-level quality
-
-- [ ] Unit tests (domain)
-- [ ] Service tests
-- [ ] Structured logging
-- [ ] Error handling
-
----
-
-# 🚀 PHASE 11 — DIFFERENTIATION (INTERVIEW EDGE)
-
-## 🎯 Objective
-Stand out as senior
-
-- [ ] Document architectural decisions
-- [ ] Add trade-offs explanation
-- [ ] Add system diagram
-- [ ] Explain concurrency decisions
-- [ ] Explain inventory strategy
+- [ ] Criar Order
+- [ ] Criar OrderItem
+- [ ] Persistir snapshots financeiros
+- [ ] Implementar transições de estado
+- [ ] Persistir totais
+- [ ] Criar CreateOrder
+- [ ] Criar AddItem
+- [ ] Criar RemoveItem
+- [ ] Criar CancelOrder
 
 ---
 
-# 🧠 EXECUTION STRATEGY
+# Fase 5 — Domínio de Checkout
 
-## ❗ Golden Rule
-Do NOT build everything at once.
-
----
-
-## 💎 Recommended Order
-
-1. Orders (core)
-2. Catalog
-3. Inventory
-4. Checkout
-5. Shipping
-6. Coupon
-7. Payment
+- [ ] Iniciar Checkout
+- [ ] Reservar estoque
+- [ ] Aplicar Coupon
+- [ ] Calcular totais
+- [ ] Processar Payment
+- [ ] Liberar reservas em caso de falha
+- [ ] Expirar reservas abandonadas
 
 ---
 
-# 🔥 FINAL GOAL
+# Fase 6 — Domínio de Pagamentos
 
-- Real-world architecture
-- Strong domain modeling
-- Interview-ready explanations
-- Production-like system design
+- [ ] Criar Payment
+- [ ] Implementar estados de pagamento
+- [ ] Authorize Payment
+- [ ] Confirm Payment
+- [ ] Refund Payment
 
 ---
+
+# Fase 7 — Domínio de Entrega
+
+- [ ] Criar Shipment
+- [ ] Definir estratégias de frete
+- [ ] Implementar frete grátis
+- [ ] Integrar Shipment com Order
+- [ ] Integrar Shipment com Coupon
+
+---
+
+# Fase 8 — Domínio de Promoções
+
+- [ ] Criar Coupon
+- [ ] Criar regras de desconto
+- [ ] Implementar regras por categoria
+- [ ] Implementar regras por Variant
+- [ ] Implementar First Purchase
+- [ ] Implementar validade
+
+---
+
+# Fase 9 — Observabilidade e Resiliência
+
+- [ ] Implementar logging estruturado
+- [ ] Implementar métricas
+- [ ] Implementar monitoramento de erros
+- [ ] Implementar idempotência
+- [ ] Implementar estratégia de retry
+- [ ] Implementar jobs assíncronos
+
+---
+
+# Fase 10 — Evolução Arquitetural
+
+- [ ] Implementar Domain Events
+- [ ] Estudar arquitetura orientada a eventos
+- [ ] Configurar Read Replicas
+- [ ] Implementar estratégia de cache
+- [ ] Implementar processamento assíncrono
+- [ ] Planejar futura extração de serviços
