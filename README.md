@@ -7,6 +7,9 @@ API-only Ruby on Rails 8 application built with Domain-Driven Design (DDD) princ
 Para detalhes aprofundados sobre a arquitetura, segurança e operações, consulte os documentos na pasta `docs/`:
 
 - [**Roadmap do Projeto**](ROADMAP.md) - Status atual e planejamento das 10 fases.
+- [**Modelo de Domínio**](docs/domain.md) - Visão conceitual e bounded contexts.
+- [**Linguagem Ubíqua**](docs/ubiquitous_language.md) - Termos de negócio padronizados.
+- [**Casos de Uso**](docs/use_cases/) - Fluxos detalhados por bounded context.
 - [**Segurança e LGPD**](docs/security.md) - Padrões de autenticação, RBAC e criptografia.
 - [**Estratégia de Testes**](docs/testing_strategy.md) - Pirâmide de testes e padrões de qualidade.
 - [**Deployment e Infraestrutura**](docs/deployment.md) - Docker, Thruster, S3 e CI/CD.
