@@ -19,197 +19,155 @@ Rails 8, PostgreSQL e Docker, com foco na evolução técnica para um nível mai
 # Fase 0 — Fundamentos de Produto e Arquitetura
 
 ## Produto
-
-- [ ] Criar `docs/product_vision.md`
-- [ ] Definir problema de negócio
-- [ ] Definir público-alvo
-- [ ] Definir proposta de valor
-- [ ] Definir diferenciais competitivos
-- [ ] Definir escopo do MVP
+- [x] Criar `docs/product_vision.md`
+- [x] Definir problema de negócio
+- [x] Definir público-alvo
+- [x] Definir proposta de valor
+- [x] Definir diferenciais competitivos
+- [x] Definir escopo do MVP
 
 ## Requisitos Não Funcionais
-
-- [ ] Criar `docs/non_functional_requirements.md`
-- [ ] Definir metas de performance
-- [ ] Definir requisitos de disponibilidade
-- [ ] Definir requisitos de segurança
-- [ ] Definir requisitos de escalabilidade
-- [ ] Definir requisitos de observabilidade
-- [ ] Definir objetivos de recuperação de falhas (RTO/RPO)
+- [x] Criar `docs/non_functional_requirements.md`
+- [x] Definir metas de performance
+- [x] Definir requisitos de disponibilidade
+- [x] Definir requisitos de segurança
+- [x] Definir requisitos de escalabilidade
+- [x] Definir requisitos de observabilidade
+- [x] Definir objetivos de recuperação de falhas (RTO/RPO)
 
 ## Architecture Decision Records (ADR)
-
-- [ ] Criar `docs/adr/`
-- [ ] ADR-001: Monolito Modular
-- [ ] ADR-002: PostgreSQL como Banco de Dados Principal
-- [ ] ADR-003: Chaves Primárias UUID
-- [ ] ADR-004: Locking Pessimista para Estoque
-- [ ] ADR-005: Estratégia de Snapshots para OrderItem
-- [ ] ADR-006: Checkout Inicia Reserva de Estoque
-- [ ] ADR-007: Variant gerencia Pricing e Inventory
+- [x] Criar `docs/adr/`
+- [x] ADR-001: Monolito Modular
+- [x] ADR-002: PostgreSQL como Banco de Dados Principal
+- [x] ADR-003: Chaves Primárias UUID
+- [x] ADR-004: Locking Pessimista para Estoque
+- [x] ADR-005: Estratégia de Snapshots para OrderItem
+- [x] ADR-006: Checkout Inicia Reserva de Estoque
+- [x] ADR-007: Variant gerencia Pricing e Inventory
+- [x] ADR-008: Specification Pattern para regras de Coupon
+- [x] ADR-009: Idempotência em jobs de expiração de reserva
+- [x] ADR-010: Namespacing de rotas por bounded context
+- [x] ADR-011: Estratégia de testes por camada
+- [x] ADR-012: Estratégia de Criptografia de Dados em Repouso (ActiveRecord::Encryption)
 
 ## Estratégia de Testes
-
-- [ ] Criar `docs/testing_strategy.md`
-- [ ] Definir testes unitários
-- [ ] Definir testes de integração
-- [ ] Definir testes de API
-- [ ] Definir testes end-to-end
-- [ ] Definir estratégia de factories e fixtures
+- [x] Criar `docs/testing_strategy.md`
+- [x] Definir testes unitários e de integração
+- [x] Definir testes de contrato e end-to-end
+- [x] Definir estratégia de factories, concorrência e idempotência
 
 ## Eventos de Domínio
-
-- [ ] Criar `docs/domain_events.md`
-- [ ] Mapear OrderCreated
-- [ ] Mapear CheckoutStarted
-- [ ] Mapear InventoryReserved
-- [ ] Mapear PaymentAuthorized
-- [ ] Mapear PaymentFailed
-- [ ] Mapear OrderPaid
-- [ ] Mapear ShipmentCreated
+- [x] Criar `docs/domain_events.md`
+- [x] Mapear OrderCreated, InventoryReserved, PaymentCompleted e outros
 
 ## Máquinas de Estado
-
-- [ ] Criar `docs/state_machines/`
-- [ ] Documentar estados de Order
-- [ ] Documentar estados de Payment
-- [ ] Documentar estados de Shipment
-- [ ] Documentar estados de InventoryReservation
+- [x] Criar `docs/state_machines/`
+- [x] Documentar estados de Order, Payment, Shipment e InventoryReservation
 
 ## API e Segurança
-
-- [ ] Criar `docs/api/`
-- [ ] Criar `docs/security.md`
-- [ ] Definir autenticação
-- [ ] Definir autorização
-- [ ] Definir rate limiting
-- [ ] Definir proteção contra fraude e abuso
+- [x] Criar `docs/api/`
+- [x] Criar `docs/security.md`
+- [x] Definir autenticação (Devise/JWT) e autorização (RBAC)
+- [x] Definir rate limiting e proteção contra fraude/abuso
 
 ## Operação e Infraestrutura
-
-- [ ] Criar `docs/deployment.md`
-- [ ] Criar `docs/runbooks/`
-- [ ] Documentar processo de deploy
-- [ ] Documentar rollback
-- [ ] Documentar resposta a incidentes
-- [ ] Documentar troubleshooting de pagamentos e estoque
-
-## Planejamento do Produto
-
-- [ ] Revisar `ROADMAP.md`
-- [ ] Priorizar backlog do MVP
-- [ ] Definir critérios de sucesso do projeto
+- [x] Criar `docs/deployment.md`
+- [x] Criar `docs/runbooks/`
+- [x] Documentar processo de deploy (Docker/Thruster) e rollback
+- [x] Documentar resposta a incidentes (Pagamento e Estoque)
 
 ---
 
 # Fase 1 — Fundamentos e Modelagem de Domínio
 
-- [ ] Refinar linguagem ubíqua
-- [ ] Definir bounded contexts
-- [ ] Documentar casos de uso
-- [ ] Documentar fluxo de checkout
-- [ ] Documentar lifecycle de Inventory
-- [ ] Configurar RSpec
-- [ ] Configurar RuboCop
-- [ ] Configurar integração contínua (CI)
+- [ ] Refinar linguagem ubíqua e Bounded Contexts
+- [ ] Documentar casos de uso e fluxo de checkout
+- [ ] Configurar ambiente Docker Compose completo (App, DB, Redis, Sidekiq)
+- [ ] Configurar RSpec, RuboCop e CI (GitHub Actions)
+- [ ] Implementar BaseEntity para suporte nativo a UUID e Domain Events
 
 ---
 
-# Fase 2 — Domínio de Catálogo
+# Fase 2 — Domínio de Catálogo (Catalog)
 
-- [ ] Criar Product
-- [ ] Criar Variant
-- [ ] Definir SKU
-- [ ] Definir preço por Variant
-- [ ] Criar casos de uso do catálogo
-
----
-
-# Fase 3 — Domínio de Estoque
-
-- [ ] Criar Inventory
-- [ ] Implementar `available_quantity`
-- [ ] Implementar `reserved_quantity`
-- [ ] Prevenir overselling
-- [ ] Implementar Inventory Reservation
-- [ ] Implementar expiração de reservas
-- [ ] Implementar Pessimistic Locking
+- [ ] Criar Product e Variant
+- [ ] Definir SKU e Pricing por Variant
+- [ ] Implementar casos de uso do catálogo
+- [ ] Publicar eventos `ProductCreated` e `ProductUpdated`
 
 ---
 
-# Fase 4 — Domínio de Pedidos
+# Fase 3 — Domínio de Estoque (Inventory)
 
-- [ ] Criar Order
-- [ ] Criar OrderItem
-- [ ] Persistir snapshots financeiros
-- [ ] Implementar transições de estado
-- [ ] Persistir totais
-- [ ] Criar CreateOrder
-- [ ] Criar AddItem
-- [ ] Criar RemoveItem
-- [ ] Criar CancelOrder
+- [ ] Implementar Inventory (`available_quantity` e `reserved_quantity`)
+- [ ] Implementar Pessimistic Locking para prevenir overselling
+- [ ] Implementar Inventory Reservation e expiração de reservas
+- [ ] Implementar Job de Reconciliação de Estoque baseado no Runbook
+
+---
+
+# Fase 4 — Domínio de Pedidos (Orders)
+
+- [ ] Criar Order e OrderItem
+- [ ] Implementar persistência de snapshots financeiros
+- [ ] Implementar transições de estado (AASM ou similar)
+- [ ] Criar CRUD de pedidos (AddItem, RemoveItem, CancelOrder)
 
 ---
 
 # Fase 5 — Domínio de Checkout
 
-- [ ] Iniciar Checkout
-- [ ] Reservar estoque
-- [ ] Aplicar Coupon
-- [ ] Calcular totais
-- [ ] Processar Payment
-- [ ] Liberar reservas em caso de falha
-- [ ] Expirar reservas abandonadas
+- [ ] Implementar Iniciar Checkout com reserva automática de estoque
+- [ ] Integrar aplicação de Coupon
+- [ ] Calcular totais e disparar processamento de Payment
+- [ ] Implementar compensação: liberar reservas em falha ou abandono
 
 ---
 
-# Fase 6 — Domínio de Pagamentos
+# Fase 6 — Domínio de Pagamentos (Payments)
 
-- [ ] Criar Payment
-- [ ] Implementar estados de pagamento
-- [ ] Authorize Payment
-- [ ] Confirm Payment
-- [ ] Refund Payment
+- [ ] Criar entidade Payment e seus estados
+- [ ] Implementar Authorize, Confirm e Refund Payment
+- [ ] Integrar webhooks do gateway com tratamento de idempotência
 
 ---
 
-# Fase 7 — Domínio de Entrega
+# Fase 7 — Domínio de Entrega (Shipping)
 
-- [ ] Criar Shipment
-- [ ] Definir estratégias de frete
-- [ ] Implementar frete grátis
-- [ ] Integrar Shipment com Order
-- [ ] Integrar Shipment com Coupon
+- [ ] Criar Shipment e definir estratégias de frete
+- [ ] Implementar regras de frete grátis
+- [ ] Integrar Shipment com Order e fluxos de Coupon
 
 ---
 
-# Fase 8 — Domínio de Promoções
+# Fase 8 — Domínio de Promoções (Coupons)
 
-- [ ] Criar Coupon
-- [ ] Criar regras de desconto
-- [ ] Implementar regras por categoria
-- [ ] Implementar regras por Variant
-- [ ] Implementar First Purchase
-- [ ] Implementar validade
+- [ ] Criar Coupon e regras de desconto (Specification Pattern)
+- [ ] Implementar validade, limites de uso e regras por categoria/variant
+- [ ] Implementar regra de First Purchase
 
 ---
 
 # Fase 9 — Observabilidade e Resiliência
 
-- [ ] Implementar logging estruturado
-- [ ] Implementar métricas
-- [ ] Implementar monitoramento de erros
-- [ ] Implementar idempotência
-- [ ] Implementar estratégia de retry
-- [ ] Implementar jobs assíncronos
+- [ ] Implementar logging estruturado com request_id correlacionado
+- [ ] Configurar métricas (Prometheus/Grafana) e monitoramento de erros
+- [ ] Implementar estratégia de retry exponencial e idempotência global
 
 ---
 
 # Fase 10 — Evolução Arquitetural
 
-- [ ] Implementar Domain Events
-- [ ] Estudar arquitetura orientada a eventos
-- [ ] Configurar Read Replicas
-- [ ] Implementar estratégia de cache
-- [ ] Implementar processamento assíncrono
-- [ ] Planejar futura extração de serviços
+- [ ] Implementar Domain Events Store e Event Handlers assíncronos
+- [ ] Configurar Read Replicas no PostgreSQL
+- [ ] Implementar estratégia de cache agressiva com Redis
+- [ ] Planejar extração de Bounded Contexts para serviços independentes
+
+---
+
+## Critérios de Sucesso do Projeto
+
+1.  Cobertura de testes > 90% em lógica de domínio.
+2.  Resiliência comprovada (Zero Overselling).
+3.  Deploy automatizado e monitorado.
+4.  Conformidade técnica com os padrões ADR definidos.
