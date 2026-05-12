@@ -1,61 +1,67 @@
-# Domain - Okomo Marketplace
+# Modelo de Domínio — Okomo
 
-## Order
-Represents the customer's purchase intention.
-
-### Responsibilities:
-- Manage items
-- Apply discounts
-- Calculate total
-- Control state
-
-### States:
-- pending
-- paid
-- shipped
-- cancelled
-
-### Rules:
-- Must have at least one item
-- Total must be consistent with items and discounts
-- Can only be cancelled before shipping
-- Re-evaluates totals when items or coupons change
+> Este documento apresenta a visão conceitual do domínio do Okomo, descrevendo os principais Bounded Contexts, entidades, agregados e relacionamentos de negócio.
 
 ---
 
-## OrderItem
+# 1. Visão Geral do Domínio
 
-### Responsibilities:
-- Store product snapshot at purchase time
-- Maintain quantity and price
+O Okomo é uma plataforma SaaS de e-commerce voltada para pequenos artesãos e empreendedores, permitindo que Sellers criem suas próprias lojas virtuais e gerenciem:
 
-### Rules:
-- Price is immutable after order creation
-- Belongs to Order aggregate
+- catálogo de produtos;
+- estoque;
+- carrinho e checkout;
+- pedidos;
+- promoções e cupons;
+- pagamentos;
+- frete e entregas.
 
----
-
-## Product
-
-### Responsibilities:
-- Represent product information
+A arquitetura do domínio segue os princípios de Domain-Driven Design (DDD) e está organizada em Bounded Contexts.
 
 ---
 
-## Variant
+# 2. Bounded Contexts
 
-### Responsibilities:
-- Define purchasable variation
-- Holds current price
+| Bounded Context | Responsabilidade |
+|----------------|----------------|
+| Catalog | Gerenciamento de Product e Variant |
+| Inventory | Controle de estoque e reservas |
+| Cart | Intenção de compra do Buyer |
+| Checkout | Orquestração da finalização da compra |
+| Orders | Gestão de pedidos e snapshots financeiros |
+| Promotions | Promoções, descontos e cupons |
+| Payments | Processamento e conciliação de pagamentos |
+| Shipping | Cálculo de frete e entregas |
+| Store | Gestão da loja (`Seller`) |
+| Identity | Usuários, autenticação e autorização |
 
 ---
 
-## Coupon
+# 3. Modelo Conceitual de Alto Nível
 
-### Responsibilities:
-- Validate applicability
-- Calculate discount
+```text
+Store (Seller)
+   └── owns Product
+           └── has_many Variant
+                   └── has_one Inventory
 
-### Rules:
-- Can be invalid due to date, quantity, or product rules
-- Discount is stored as snapshot in Order
+Buyer
+   └── has_one Cart
+           └── contains CartItem
+
+Buyer
+   └── starts Checkout
+           ├── reserves Inventory
+           ├── applies Promotions
+           ├── creates Payment
+           └── confirms Order
+
+Order
+   ├── has_many OrderItem
+   ├── has_many Payments
+   └── has_one Shipment
+
+Promotion
+   ├── has_one Coupon (optional)
+   ├── has_many PromotionRule
+   └── generates Discount
