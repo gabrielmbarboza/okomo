@@ -260,13 +260,11 @@ Regras de negócio:
 Representa uma regra promocional que pode afetar uma Order.
 
 Possíveis tipos:
-
 * desconto percentual
 * desconto fixo
 * frete grátis
 
 Possíveis restrições:
-
 * primeira compra
 * valor mínimo
 * categoria específica
@@ -274,14 +272,14 @@ Possíveis restrições:
 * período de validade
 
 Regras de negócio:
-
 * cupons devem ser validados antes da aplicação
 * cupons inválidos não podem afetar a Order
 * alteração de itens pode invalidar o Coupon
+* Faz parte do bounded context Promotions (conforme ADR-008)
 
 ---
 
-# 🧠 Princípios de Domínio
+# Princípios de Domínio
 
 ## Princípio de Snapshot
 
