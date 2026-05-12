@@ -2,8 +2,12 @@
 
 ## 🎯 Objetivo
 
-Construir um marketplace funcional para pequenos artesãos e empreendedores utilizando
-Rails 8, PostgreSQL e Docker, com foco na evolução técnica para um nível mais alto de senioridade.
+Construir uma plataforma SaaS de e-commerce para pequenos artesãos e empreendedores utilizando
+Rails 8, PostgreSQL e Docker, com foco simultâneo em:
+
+1. Desenvolver um produto real e funcional;
+2. Consolidar conhecimentos avançados de engenharia de software;
+3. Evoluir a arquitetura de forma incremental até um nível empresarial.
 
 ## Áreas de Conhecimento Desenvolvidas
 
@@ -13,6 +17,8 @@ Rails 8, PostgreSQL e Docker, com foco na evolução técnica para um nível mai
 - Test-Driven Development (TDD)
 - DevOps
 - Observability
+- Security Engineering
+- Distributed Systems
 
 ---
 
@@ -37,28 +43,28 @@ Rails 8, PostgreSQL e Docker, com foco na evolução técnica para um nível mai
 
 ## Architecture Decision Records (ADR)
 - [x] Criar `docs/adr/`
-- [x] ADR-001: Monolito Modular
+- [x] ADR-001: Monólito Modular
 - [x] ADR-002: PostgreSQL como Banco de Dados Principal
-- [x] ADR-003: Chaves Primárias UUID
-- [x] ADR-004: Locking Pessimista para Estoque
-- [x] ADR-005: Estratégia de Snapshots para OrderItem
-- [x] ADR-006: Checkout Inicia Reserva de Estoque
-- [x] ADR-007: Variant gerencia Pricing e Inventory
-- [x] ADR-008: Specification Pattern para regras de Coupon
-- [x] ADR-009: Idempotência em jobs de expiração de reserva
-- [x] ADR-010: Namespacing de rotas por bounded context
-- [x] ADR-011: Estratégia de testes por camada
+- [x] ADR-003: UUID como Chaves Primárias
+- [x] ADR-004: Pessimistic Locking para Inventory
+- [x] ADR-005: Estratégia de Snapshot para OrderItem
+- [x] ADR-006: Checkout Inicia a Reserva de Inventory
+- [x] ADR-007: Variant é Responsável por Pricing e Inventory
+- [x] ADR-008: Promotions como Bounded Context e Coupon como Entidade
+- [x] ADR-009: Idempotência em Jobs de Expiração de Reserva
+- [x] ADR-010: Namespacing de Rotas por Bounded Context
+- [x] ADR-011: Estratégia de Testes por Camada
 - [x] ADR-012: Estratégia de Criptografia de Dados em Repouso (ActiveRecord::Encryption)
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`
-- [x] Definir testes unitários e de integração
-- [x] Definir testes de contrato e end-to-end
+- [x] Definir testes unitários, integração, contrato e end-to-end
 - [x] Definir estratégia de factories, concorrência e idempotência
 
-## Eventos de Domínio
+## Modelagem de Domínio
+- [x] Criar `docs/ubiquitous_language.md`
 - [x] Criar `docs/domain_events.md`
-- [x] Mapear OrderCreated, InventoryReserved, PaymentCompleted e outros
+- [x] Mapear Domain Events prioritários
 
 ## Máquinas de Estado
 - [x] Criar `docs/state_machines/`
@@ -68,106 +74,139 @@ Rails 8, PostgreSQL e Docker, com foco na evolução técnica para um nível mai
 - [x] Criar `docs/api/`
 - [x] Criar `docs/security.md`
 - [x] Definir autenticação (Devise/JWT) e autorização (RBAC)
-- [x] Definir rate limiting e proteção contra fraude/abuso
+- [x] Definir rate limiting e proteção contra abuso
 
 ## Operação e Infraestrutura
 - [x] Criar `docs/deployment.md`
 - [x] Criar `docs/runbooks/`
-- [x] Documentar processo de deploy (Docker/Thruster) e rollback
-- [x] Documentar resposta a incidentes (Pagamento e Estoque)
+- [x] Documentar deploy, rollback e resposta a incidentes
 
 ---
 
 # Fase 1 — Fundamentos e Modelagem de Domínio
 
-- [ ] Refinar linguagem ubíqua e Bounded Contexts
-- [ ] Documentar casos de uso e fluxo de checkout
-- [ ] Configurar ambiente Docker Compose completo (App, DB, Redis, Sidekiq)
-- [ ] Configurar RSpec, RuboCop e CI (GitHub Actions)
-- [ ] Implementar BaseEntity para suporte nativo a UUID e Domain Events
+- [x] Refinar Linguagem Ubíqua e Bounded Contexts
+- [x] Documentar casos de uso em `docs/use_cases/`
+- [ ] Configurar Docker Compose completo (App, PostgreSQL, Redis, Sidekiq)
+- [ ] Configurar RSpec, FactoryBot, RuboCop e GitHub Actions
+- [ ] Implementar `BaseEntity` com suporte a UUID e Domain Events
+- [ ] Implementar `BaseValueObject`
+- [ ] Implementar `BaseService`
+- [ ] Implementar `BaseRepository`
 
 ---
 
 # Fase 2 — Domínio de Catálogo (Catalog)
 
-- [ ] Criar Product e Variant
-- [ ] Definir SKU e Pricing por Variant
-- [ ] Implementar casos de uso do catálogo
-- [ ] Publicar eventos `ProductCreated` e `ProductUpdated`
+- [ ] Criar `Product`
+- [ ] Criar `Variant`
+- [ ] Implementar `Pricing` em `Variant`
+- [ ] Implementar SKU
+- [ ] Implementar publicação de produtos
+- [ ] Publicar `ProductCreated`, `VariantCreated` e `ProductPublished`
 
 ---
 
 # Fase 3 — Domínio de Estoque (Inventory)
 
-- [ ] Implementar Inventory (`available_quantity` e `reserved_quantity`)
-- [ ] Implementar Pessimistic Locking para prevenir overselling
-- [ ] Implementar Inventory Reservation e expiração de reservas
-- [ ] Implementar Job de Reconciliação de Estoque baseado no Runbook
+- [ ] Implementar `Inventory`
+- [ ] Implementar `InventoryReservation`
+- [ ] Implementar `available_quantity` e `reserved_quantity`
+- [ ] Implementar `reserve!`
+- [ ] Implementar `release!`
+- [ ] Implementar `commit!`
+- [ ] Implementar `Pessimistic Locking`
+- [ ] Implementar expiração de reservas
+- [ ] Implementar job de reconciliação
 
 ---
 
 # Fase 4 — Domínio de Pedidos (Orders)
 
-- [ ] Criar Order e OrderItem
-- [ ] Implementar persistência de snapshots financeiros
-- [ ] Implementar transições de estado (AASM ou similar)
-- [ ] Criar CRUD de pedidos (AddItem, RemoveItem, CancelOrder)
+- [ ] Criar `Order`
+- [ ] Criar `OrderItem`
+- [ ] Implementar snapshots financeiros
+- [ ] Implementar máquina de estados
+- [ ] Implementar `CreateOrder`
+- [ ] Implementar `AddItem`
+- [ ] Implementar `RemoveItem`
+- [ ] Implementar `CancelOrder`
 
 ---
 
-# Fase 5 — Domínio de Checkout
+# Fase 5 — Domínio de Promoções (Promotions)
 
-- [ ] Implementar Iniciar Checkout com reserva automática de estoque
-- [ ] Integrar aplicação de Coupon
-- [ ] Calcular totais e disparar processamento de Payment
-- [ ] Implementar compensação: liberar reservas em falha ou abandono
-
----
-
-# Fase 6 — Domínio de Pagamentos (Payments)
-
-- [ ] Criar entidade Payment e seus estados
-- [ ] Implementar Authorize, Confirm e Refund Payment
-- [ ] Integrar webhooks do gateway com tratamento de idempotência
+- [ ] Criar `Promotion`
+- [ ] Criar `Coupon`
+- [ ] Criar `PromotionRule`
+- [ ] Criar `Discount`
+- [ ] Implementar `Specification Pattern`
+- [ ] Implementar validade e limites de uso
+- [ ] Implementar promoções automáticas
+- [ ] Implementar `First Purchase`
+- [ ] Implementar `Free Shipping`
 
 ---
 
-# Fase 7 — Domínio de Entrega (Shipping)
+# Fase 6 — Domínio de Checkout
 
-- [ ] Criar Shipment e definir estratégias de frete
-- [ ] Implementar regras de frete grátis
-- [ ] Integrar Shipment com Order e fluxos de Coupon
+- [ ] Implementar `StartCheckout`
+- [ ] Reservar `Inventory`
+- [ ] Aplicar `Promotions`
+- [ ] Calcular totais
+- [ ] Criar `Payment`
+- [ ] Implementar compensação em falhas
+- [ ] Implementar expiração de checkout
 
 ---
 
-# Fase 8 — Domínio de Promoções (Coupons)
+# Fase 7 — Domínio de Pagamentos (Payments)
 
-- [ ] Criar Coupon e regras de desconto (Specification Pattern)
-- [ ] Implementar validade, limites de uso e regras por categoria/variant
-- [ ] Implementar regra de First Purchase
+- [ ] Criar `Payment`
+- [ ] Implementar estados do pagamento
+- [ ] Implementar `AuthorizePayment`
+- [ ] Implementar `CapturePayment`
+- [ ] Implementar `RefundPayment`
+- [ ] Integrar webhooks com idempotência
+
+---
+
+# Fase 8 — Domínio de Entrega (Shipping)
+
+- [ ] Criar `Shipment`
+- [ ] Criar `ShippingMethod`
+- [ ] Implementar cálculo de frete
+- [ ] Implementar frete grátis
+- [ ] Integrar com `Order` e `Promotions`
 
 ---
 
 # Fase 9 — Observabilidade e Resiliência
 
-- [ ] Implementar logging estruturado com request_id correlacionado
-- [ ] Configurar métricas (Prometheus/Grafana) e monitoramento de erros
-- [ ] Implementar estratégia de retry exponencial e idempotência global
+- [ ] Implementar logs estruturados com `request_id`
+- [ ] Configurar métricas (Prometheus/Grafana)
+- [ ] Monitorar erros
+- [ ] Implementar retries exponenciais
+- [ ] Consolidar idempotência global
 
 ---
 
 # Fase 10 — Evolução Arquitetural
 
-- [ ] Implementar Domain Events Store e Event Handlers assíncronos
+- [ ] Implementar Event Store
+- [ ] Implementar Event Handlers assíncronos
 - [ ] Configurar Read Replicas no PostgreSQL
-- [ ] Implementar estratégia de cache agressiva com Redis
+- [ ] Implementar cache avançado com Redis
 - [ ] Planejar extração de Bounded Contexts para serviços independentes
 
 ---
 
 ## Critérios de Sucesso do Projeto
 
-1.  Cobertura de testes > 90% em lógica de domínio.
-2.  Resiliência comprovada (Zero Overselling).
-3.  Deploy automatizado e monitorado.
-4.  Conformidade técnica com os padrões ADR definidos.
+1. Cobertura de testes superior a 90% na lógica de domínio.
+2. Zero Overselling comprovado por testes concorrentes.
+3. Deploy automatizado e monitorado.
+4. Conformidade com todos os ADRs definidos.
+5. MVP funcional com fluxo completo:
+   Catalog → Cart → Checkout → Promotions → Payments → Shipping.
+6. Projeto demonstrando domínio em DDD, arquitetura, concorrência e resiliência.
