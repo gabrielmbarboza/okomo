@@ -87,7 +87,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 - [x] Refinar Linguagem Ubíqua e Bounded Contexts
 - [x] Documentar casos de uso em `docs/use_cases/`
-- [ ] Configurar Docker Compose completo (App, PostgreSQL, Redis, Sidekiq)
+- [x] Configurar Docker Compose completo (App, PostgreSQL, Redis, Sidekiq)
 - [ ] Configurar RSpec, FactoryBot, RuboCop e GitHub Actions
 - [ ] Implementar `BaseEntity` com suporte a UUID e Domain Events
 - [ ] Implementar `BaseValueObject`
