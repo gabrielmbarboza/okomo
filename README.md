@@ -90,6 +90,11 @@ app/
 ├── controllers/          # Thin controllers (orchestration only)
 ├── models/               # Thin ActiveRecord models (data access only)
 └── domains/              # Business logic lives here
+    ├── shared/           # Shared kernel - base classes and utilities
+    │   ├── entities/     # BaseEntity with UUID support and equality
+    │   ├── value_objects/ # BaseValueObject with immutability
+    │   ├── services/     # BaseService with delegation pattern
+    │   └── repositories/ # BaseRepository for data access
     ├── catalog/
     │   ├── services/     # Business operations
     │   ├── entities/     # POROs (not ActiveRecord)
@@ -113,6 +118,8 @@ app/
 4. **Entities are POROs** — Not ActiveRecord, just plain Ruby objects.
 5. **Value objects are immutable** — Frozen after initialization, compared by value.
 6. **Domain Events** — Efeitos colaterais entre domínios devem ser tratados via eventos para garantir o desacoplamento.
+7. **Shared Kernel** — Base classes provide common functionality across domains.
+8. **Repository Pattern** — Data access abstracted through repositories.
 
 ### Example Usage
 
@@ -131,13 +138,31 @@ class Api::V1::OrdersController < ApplicationController
 end
 
 # Domain Service (business logic)
-class Orders::Services::CreateOrder < Orders::Services::BaseService
+class Orders::Services::CreateOrder < Shared::Services::BaseService
   def initialize(params)
     @params = params
   end
 
   def call
     # validate, create order, reserve inventory, etc.
+  end
+end
+
+# Domain Entity (business object)
+class Orders::Entities::Order < Shared::Entities::BaseEntity
+  attr_reader :id, :customer_id, :status, :total_amount
+  
+  def initialize(id:, customer_id:, status: 'pending', total_amount: 0)
+    super(id: id, customer_id: customer_id, status: status, total_amount: total_amount)
+  end
+end
+
+# Domain Value Object (immutable)
+class Orders::ValueObjects::Money < Shared::ValueObjects::BaseValueObject
+  attr_reader :amount, :currency
+  
+  def initialize(amount:, currency: 'BRL')
+    super(amount: amount, currency: currency)
   end
 end
 ```
