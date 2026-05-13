@@ -29,6 +29,37 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 
 ## Eventos Identificados
 
+### Identidade (Identity)
+
+#### User Events
+- `UserCreated` - Novo usuário criado
+- `UserUpdated` - Usuário atualizado
+- `UserActivated` - Usuário ativado
+- `UserDeactivated` - Usuário desativado
+- `UserPasswordChanged` - Senha do usuário alterada
+- `UserEmailVerified` - E-mail do usuário verificado
+- `UserEmailChanged` - E-mail do usuário alterado
+
+#### Seller Events
+- `SellerCreated` - Novo seller criado
+- `SellerUpdated` - Seller atualizado
+- `SellerActivated` - Seller ativado
+- `SellerDeactivated` - Seller desativado
+- `SellerTaxInfoUpdated` - Informações fiscais do seller atualizadas
+- `SellerCommercialInfoUpdated` - Informações comerciais do seller atualizadas
+- `SellerVerificationRequested` - Verificação do seller solicitada
+- `SellerVerificationCompleted` - Verificação do seller concluída
+
+#### Buyer Events
+- `BuyerCreated` - Novo buyer criado
+- `BuyerUpdated` - Buyer atualizado
+- `BuyerActivated` - Buyer ativado
+- `BuyerDeactivated` - Buyer desativado
+- `BuyerAddressAdded` - Endereço do buyer adicionado
+- `BuyerAddressUpdated` - Endereço do buyer atualizado
+- `BuyerAddressRemoved` - Endereço do buyer removido
+- `BuyerPreferencesUpdated` - Preferências do buyer atualizadas
+
 ### Catálogo (Catalog)
 
 #### Product Events

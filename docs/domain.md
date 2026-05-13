@@ -40,10 +40,15 @@ A arquitetura do domínio segue os princípios de Domain-Driven Design (DDD) e e
 # 3. Modelo Conceitual de Alto Nível
 
 ```text
-Store (Seller)
-   └── owns Product
-           └── has_many Variant
-                   └── has_one Inventory
+User (Identity Context)
+   ├── has_one Seller (optional)
+   └── has_one Buyer (optional)
+
+Seller
+   └── owns Store
+           └── owns Product
+                   └── has_many Variant
+                           └── has_one Inventory
 
 Buyer
    └── has_one Cart

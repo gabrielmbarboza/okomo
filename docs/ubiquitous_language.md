@@ -16,9 +16,28 @@ O objetivo é:
 
 # 👥 Atores
 
+## User
+
+Conta de acesso ao sistema que representa a identidade básica de um usuário na plataforma.
+
+Responsabilidades:
+
+* autenticação e credenciais
+* gerenciamento de status da conta
+* configurações básicas de perfil
+* vinculação com papéis de negócio (Seller/Buyer)
+
+Observações:
+
+* um User pode ser Seller, Buyer ou ambos
+* gerenciado pelo Bounded Context Identity
+* separado conceitualmente dos papéis de negócio
+
+---
+
 ## Seller
 
-Pessoa física ou jurídica responsável pela venda de produtos na plataforma.
+Papel de negócio que representa a capacidade de vender no marketplace.
 
 Responsabilidades:
 
@@ -28,17 +47,21 @@ Responsabilidades:
 * gerenciar estoque
 * criar cupons e promoções
 * configurar estratégias de frete
+* gerenciar dados fiscais (CNPJ/MEI)
+* configurar informações comerciais
 
 Observações:
 
-* um Seller pode possuir uma ou múltiplas Stores
+* um Seller está vinculado a um User
+* pode possuir uma ou múltiplas Stores
 * espera-se que o Seller possua registro legal válido (MEI/CNPJ)
+* gerenciado pelo Bounded Context Identity
 
 ---
 
 ## Buyer
 
-Pessoa responsável por realizar compras na plataforma.
+Papel de negócio que representa a capacidade de comprar na plataforma.
 
 Responsabilidades:
 
@@ -47,6 +70,15 @@ Responsabilidades:
 * criar pedidos
 * realizar checkout
 * concluir pagamento
+* gerenciar histórico de pedidos
+* configurar preferências de compra
+* gerenciar endereços de entrega
+
+Observações:
+
+* um Buyer está vinculado a um User
+* pode ter histórico e preferências específicas
+* gerenciado pelo Bounded Context Identity
 
 ---
 
