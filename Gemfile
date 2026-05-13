@@ -13,6 +13,7 @@ gem "sidekiq", "~> 7.0"
 
 # API
 gem "rack-cors", "~> 2.0"
+gem "jwt", "~> 2.7"
 
 # Environment Variables
 gem "dotenv-rails", "~> 3.0"
