@@ -2,20 +2,20 @@
 
 API-only Ruby on Rails 8 application built with Domain-Driven Design (DDD) principles.
 
-## 🛠 Documentação Técnica e Governança
+## 🛠 Technical Documentation & Governance
 
-Para detalhes aprofundados sobre a arquitetura, segurança e operações, consulte os documentos na pasta `docs/`:
+For in-depth details about architecture, security, and operations, consult the documents in the `docs/` folder:
 
-- [**Roadmap do Projeto**](ROADMAP.md) - Status atual e planejamento das 10 fases.
-- [**Modelo de Domínio**](docs/domain.md) - Visão conceitual e bounded contexts.
-- [**Linguagem Ubíqua**](docs/ubiquitous_language.md) - Termos de negócio padronizados.
-- [**Casos de Uso**](docs/use_cases/) - Fluxos detalhados por bounded context.
-- [**Segurança e LGPD**](docs/security.md) - Padrões de autenticação, RBAC e criptografia.
-- [**Estratégia de Testes**](docs/testing_strategy.md) - Pirâmide de testes e padrões de qualidade.
-- [**Deployment e Infraestrutura**](docs/deployment.md) - Docker, Thruster, S3 e CI/CD.
-- [**Runbook Operacional**](docs/runbooks/operational_runbook.md) - Procedimentos de crise e manutenção.
-- [**Eventos de Domínio**](docs/domain_events.md) - Mapeamento da comunicação entre contextos.
-- [**Architecture Decision Records (ADR)**](docs/adr/) - Registro de decisões arquiteturais fundamentais.
+- [**Project Roadmap**](ROADMAP.md) - Current status and 10-phase planning.
+- [**Domain Model**](docs/domain.md) - Conceptual vision and bounded contexts.
+- [**Ubiquitous Language**](docs/ubiquitous_language.md) - Standardized business terms (PT-BR).
+- [**Use Cases**](docs/use_cases/) - Detailed flows by bounded context.
+- [**Security & Privacy**](docs/security.md) - Authentication, RBAC, and encryption patterns.
+- [**Testing Strategy**](docs/testing_strategy.md) - Testing pyramid and quality patterns.
+- [**Deployment & Infrastructure**](docs/deployment.md) - Docker, Thruster, S3, and CI/CD.
+- [**Operational Runbook**](docs/runbooks/operational_runbook.md) - Crisis procedures and maintenance.
+- [**Domain Events**](docs/domain_events.md) - Inter-context communication mapping.
+- [**Architecture Decision Records (ADR)**](docs/adr/) - Fundamental architectural decisions registry.
 
 ---
 
@@ -117,7 +117,7 @@ app/
 3. **Domain services** — All business logic lives in `app/domains/<domain>/services/`.
 4. **Entities are POROs** — Not ActiveRecord, just plain Ruby objects.
 5. **Value objects are immutable** — Frozen after initialization, compared by value.
-6. **Domain Events** — Efeitos colaterais entre domínios devem ser tratados via eventos para garantir o desacoplamento.
+6. **Domain Events** — Side effects between domains should be handled via events to ensure decoupling.
 7. **Shared Kernel** — Base classes provide common functionality across domains.
 8. **Repository Pattern** — Data access abstracted through repositories.
 
@@ -182,11 +182,11 @@ end
 
 ---
 
-## 🛡️ Segurança e Resiliência
+## 🛡️ Security & Resilience
 
-- **Pessimistic Locking**: Aplicado no domínio de `Inventory` para garantir Zero Overselling.
-- **Idempotência**: Garantida em todos os Jobs do Sidekiq e processamento de Webhooks.
-- **Auditoria**: Snapshot financeiro em `OrderItem` para garantir imutabilidade de preços históricos.
+- **Pessimistic Locking**: Applied in the `Inventory` domain to ensure Zero Overselling.
+- **Idempotency**: Guaranteed in all Sidekiq jobs and webhook processing.
+- **Audit**: Financial snapshot in `OrderItem` to ensure historical price immutability.
 
 ## Environment Variables
 
@@ -194,4 +194,4 @@ See [.env.example](.env.example) for all available configuration options.
 
 ## License
 
-Proprietary. Todos os direitos reservados.
+Proprietary. All rights reserved.
