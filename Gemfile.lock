@@ -101,6 +101,13 @@ GEM
     drb (2.2.3)
     erb (6.0.4)
     erubi (1.13.1)
+    factory_bot (6.6.0)
+      activesupport (>= 6.1.0)
+    factory_bot_rails (6.5.1)
+      factory_bot (~> 6.5)
+      railties (>= 6.1.0)
+    faker (3.8.0)
+      i18n (>= 1.8.11, < 2)
     globalid (1.3.0)
       activesupport (>= 6.1)
     i18n (1.14.8)
@@ -281,6 +288,8 @@ GEM
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
+    shoulda-matchers (6.5.0)
+      activesupport (>= 5.2.0)
     sidekiq (7.3.9)
       base64
       connection_pool (>= 2.3.0)
@@ -321,6 +330,8 @@ DEPENDENCIES
   bundler-audit
   debug
   dotenv-rails (~> 3.0)
+  factory_bot_rails
+  faker
   oj (~> 3.16)
   pg (~> 1.1)
   puma (>= 5.0)
@@ -329,6 +340,7 @@ DEPENDENCIES
   redis (~> 5.0)
   rspec-rails (~> 8.0)
   rubocop-rails-omakase
+  shoulda-matchers (~> 6.0)
   sidekiq (~> 7.0)
   tzinfo-data
 
