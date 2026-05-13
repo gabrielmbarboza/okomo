@@ -188,6 +188,52 @@ end
 - **Idempotency**: Guaranteed in all Sidekiq jobs and webhook processing.
 - **Audit**: Financial snapshot in `OrderItem` to ensure historical price immutability.
 
+---
+
+## Git Commit Convention
+
+Este projeto segue a especificação [Conventional Commits](https://www.conventionalcommits.org/) para padronizar as mensagens de commit e facilitar a leitura do histórico de alterações.
+
+A estrutura básica é:
+
+```
+<tipo>(<escopo>): <descrição>
+```
+
+### Tipos Comuns
+
+- `feat`: Nova funcionalidade
+- `fix`: Correção de bug
+- `docs`: Alterações na documentação
+- `test`: Adição ou alteração de testes
+- `refactor`: Refatoração de código
+- `chore`: Tarefas de manutenção ou configuração
+
+### Exemplos
+
+```
+feat(identity): implement user registration
+fix(inventory): prevent overselling with pessimistic locking
+docs(adr): add ADR-014 for authentication
+test(orders): add CreateOrder service specs
+refactor(payments): extract gateway interface
+chore(ci): configure GitHub Actions
+```
+
+---
+
+## Project Governance
+
+Este projeto segue padrões de governança para garantir um ambiente colaborativo saudável e sustentável.
+
+- [**Código de Conduta**](CODE_OF_CONDUCT.md) - Diretrizes de comportamento para todos os participantes.
+- [**Guia de Contribuição**](CONTRIBUTING.md) - Instruções para contribuir com o projeto.
+- [**Política de Segurança**](docs/security.md) - Padrões de segurança e privacidade.
+
+Todos os participantes são esperados a agir com respeito, empatia e profissionalismo.
+
+---
+
 ## Environment Variables
 
 See [.env.example](.env.example) for all available configuration options.

@@ -81,6 +81,11 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Criar `docs/runbooks/`
 - [x] Documentar deploy, rollback e resposta a incidentes
 
+## Governança do Projeto
+- [x] Documentar convenção de commits no README
+- [x] Criar CODE_OF_CONDUCT.md
+- [x] Criar CONTRIBUTING.md
+
 ---
 
 # Fase 1 — Fundamentos e Modelagem de Domínio
