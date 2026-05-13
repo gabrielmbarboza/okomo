@@ -89,9 +89,9 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Documentar casos de uso em `docs/use_cases/`
 - [x] Configurar Docker Compose completo (App, PostgreSQL, Redis, Sidekiq)
 - [x] Configurar RSpec, FactoryBot, Faker, RuboCop, Brakeman, Bundler Audit e GitHub Actions
-- [ ] Implementar `BaseEntity` com suporte a UUID e Domain Events
-- [ ] Implementar `BaseValueObject`
-- [ ] Implementar `BaseService`
+- [x] Implementar `BaseEntity` com suporte a UUID e Domain Events
+- [x] Implementar `BaseValueObject`
+- [x] Implementar `BaseService`
 - [ ] Implementar `BaseRepository`
 
 ---
