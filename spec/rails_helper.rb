@@ -16,6 +16,11 @@ require Rails.root.join('app', 'domains', 'orders', 'entities', 'order_item')
 require Rails.root.join('app', 'domains', 'orders', 'entities', 'order')
 require Rails.root.join('app', 'domains', 'orders', 'services', 'create_order')
 
+# Load shared kernel modules
+require Rails.root.join('app', 'domains', 'shared', 'entities', 'base_entity')
+require Rails.root.join('app', 'domains', 'shared', 'value_objects', 'base_value_object')
+require Rails.root.join('app', 'domains', 'shared', 'services', 'base_service')
+
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
 # run as spec files by default. This means that files in spec/support that end
