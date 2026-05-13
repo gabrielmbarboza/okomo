@@ -96,14 +96,18 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 2 — Domínio de Identidade (Identity)
+# Fase 2 — Identity e Access Management
 
-- [ ] Criar User
-- [ ] Criar Seller
-- [ ] Criar Buyer
-- [ ] Implementar casos de uso de cadastro
-- [ ] Definir autenticação e autorização
-- [ ] Publicar eventos `UserRegistered`, `SellerCreated` e `BuyerCreated`
+- [ ] Criar User, Role e SellerProfile
+- [ ] Implementar RegisterUser
+- [ ] Implementar confirmação de e-mail
+- [ ] Implementar AuthenticateUser
+- [ ] Implementar geração e validação de JWT
+- [ ] Implementar RequestPasswordRecovery e ResetPassword
+- [ ] Implementar RequestSellerRegistration
+- [ ] Implementar ApproveSeller, RejectSeller e SuspendSeller
+- [ ] Implementar RBAC (buyer, seller, admin)
+- [ ] Criar testes unitários e de integração
 
 ---
 
@@ -118,7 +122,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 4 — Domínio de Estoque (Inventory)
+# Fase 5 — Domínio de Estoque (Inventory)
 
 - [ ] Implementar `Inventory`
 - [ ] Implementar `InventoryReservation`
@@ -171,7 +175,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 8 — Domínio de Pagamentos (Payments)
+# Fase 9 — Domínio de Pagamentos (Payments)
 
 - [ ] Criar `Payment`
 - [ ] Implementar estados do pagamento
@@ -202,7 +206,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 11 — Evolução Arquitetural
+# Fase 12 — Evolução Arquitetural
 
 - [ ] Implementar Event Store
 - [ ] Implementar Event Handlers assíncronos

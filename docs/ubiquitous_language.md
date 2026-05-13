@@ -82,6 +82,104 @@ Observações:
 
 ---
 
+## Role
+
+Permissão atribuída ao usuário que define suas capacidades na plataforma.
+
+Possíveis roles:
+
+* buyer
+* seller
+* admin
+
+Observações:
+
+* um User pode possuir múltiplos roles simultaneamente
+* todo User com e-mail confirmado recebe automaticamente o role buyer
+* seller é um role adicional que exige solicitação e aprovação
+* gerenciado pelo Bounded Context Identity
+
+---
+
+## SellerProfile
+
+Perfil contendo dados cadastrais e status de moderação do vendedor.
+
+Responsabilidades:
+
+* armazenar informações fiscais (CNPJ/MEI)
+* armazenar informações comerciais
+* controlar status de aprovação
+* armazenar dados de contato e endereço comercial
+
+Observações:
+
+* vinculado a um Seller
+* passa por processo de moderação antes da aprovação
+* gerenciado pelo Bounded Context Identity
+
+---
+
+## Email Confirmation
+
+Processo de validação do endereço de e-mail do usuário.
+
+Objetivo:
+
+* garantir que o e-mail pertence ao usuário
+* prevenir contas falsas ou temporárias
+* habilitar automaticamente o role buyer
+
+Fluxo:
+
+1. usuário se registra
+2. sistema envia e-mail de confirmação
+3. usuário clica no link de confirmação
+4. e-mail é marcado como confirmado
+5. role buyer é atribuído automaticamente
+
+---
+
+## Password Recovery
+
+Processo de redefinição de senha quando o usuário a esquece.
+
+Fluxo:
+
+1. usuário solicita recuperação de senha
+2. sistema envia e-mail com token de recuperação
+3. usuário define nova senha via link seguro
+4. token é invalidado após uso
+5. senha é atualizada
+
+Observações:
+
+* tokens têm expiração curta (ex: 1 hora)
+* tokens são invalidados após uso
+* gerenciado pelo Bounded Context Identity
+
+---
+
+## JWT Token
+
+Token stateless utilizado para autenticação na API.
+
+Características:
+
+* não requer armazenamento no servidor
+* contém informações do usuário no payload
+* possui expiração configurável
+* assinado com secret key
+
+Observações:
+
+* access tokens têm curta duração (ex: 15 minutos)
+* refresh tokens podem ser implementados para melhor UX
+* transportado via header Authorization: Bearer <token>
+* gerenciado pelo Bounded Context Identity
+
+---
+
 # 🏪 Comércio (Store)
 
 ## Store

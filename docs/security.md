@@ -10,16 +10,48 @@ Este documento define as diretrizes de segurança do Okomo, cobrindo desde o ace
 
 ## 1. Autenticação (Authentication)
 
-O Okomo utiliza uma abordagem híbrida para garantir que apenas usuários legítimos acessem o sistema.
+O Okomo utiliza uma abordagem nativa do Rails para garantir que apenas usuários legítimos acessem o sistema, conforme ADR-014.
 
 ### 1.1. Estratégia por Perfil
-* **Sellers & Buyers:** Autenticação baseada em sessões seguras (Cookies HTTP-only e Secure) via **Devise**.
+* **Sellers & Buyers:** Autenticação via **has_secure_password** com bcrypt para hash de senhas e **JWT** para autenticação stateless na API.
 * **API Integrations:** Autenticação via **Bearers Tokens (JWT)** com tempo de expiração curto (Short-lived tokens).
-* **Admin:** Autenticação multi-fator (MFA) obrigatória para acesso ao painel administrativo.
+* **Admin:** Autenticação multi-fator (MFA) obrigatória para acesso ao painel administrativo (evolução futura).
 
-### 1.2. Requisitos de Senha
-* Mínimo de 12 caracteres.
-* Uso de algoritmos de hashing modernos (Argon2 ou BCrypt com alto custo de processamento).
+### 1.2. has_secure_password com bcrypt
+* Utiliza o método nativo `has_secure_password` do Rails
+* Hash de senhas realizado com bcrypt (cost factor configurável)
+* Senhas nunca são armazenadas em texto plano
+* Validação automática de senhas durante autenticação
+
+### 1.3. JWT Stateless Authentication
+* Tokens JWT para autenticação stateless na API
+* Access tokens com curta duração (ex: 15 minutos)
+* Payload contém user_id e email
+* Assinatura com secret key armazenada em Rails.credentials
+* Algoritmo HS256 para assinatura
+
+### 1.4. Refresh Tokens (Evolução Futura)
+* Refresh tokens com duração mais longa (ex: 7 dias)
+* Implementação opcional para melhor experiência do usuário
+* Armazenamento seguro em Redis para revogação
+
+### 1.5. Confirmação Obrigatória de E-mail
+* Todo novo usuário deve confirmar e-mail antes de acessar a plataforma
+* Tokens de confirmação com expiração (ex: 24 horas)
+* Role buyer atribuído automaticamente após confirmação
+* Prevenção de contas falsas ou temporárias
+
+### 1.6. Recuperação Segura de Senha
+* Processo de recuperação via token seguro
+* Tokens com expiração curta (ex: 1 hora)
+* Tokens invalidados após uso
+* Envio de e-mail com link seguro
+* Auditoria de todas as tentativas de recuperação
+
+### 1.7. Requisitos de Senha
+* Mínimo de 8 caracteres
+* Hash com bcrypt (cost factor configurável)
+* Validação de força opcional (evolução futura)
 
 ---
 
@@ -32,7 +64,16 @@ Utilizamos o padrão **RBAC (Role-Based Access Control)** para definir permissõ
 * **Seller:** Acesso exclusivo aos seus produtos (`Catalog`), estoque (`Inventory`) e pedidos recebidos (`Orders`).
 * **Buyer:** Acesso ao histórico de compras e perfil pessoal.
 
-### 2.2. Isolamento de Dados (Multitenancy)
+### 2.2. RBAC com buyer, seller e admin
+* Implementação de Role-Based Access Control (RBAC)
+* Roles armazenados como entidades separadas no Bounded Context Identity
+* Um User pode possuir múltiplos roles simultaneamente
+* Role buyer atribuído automaticamente após confirmação de e-mail
+* Role seller exige solicitação e aprovação manual
+* Role admin para gestão administrativa da plataforma
+* Validação de permissões em nível de controller e serviço
+
+### 2.3. Isolamento de Dados (Multitenancy)
 Como o Okomo é um SaaS, o isolamento é crítico:
 * **Scope Leaking:** Todas as queries em contextos de `Seller` devem ser escopadas pelo `seller_id` no nível do banco de dados ou via `acts_as_tenant`.
 * **UUIDs:** O uso de UUIDs em todas as chaves primárias previne ataques de **ID Enumeration**, impedindo que um atacante tente acessar o pedido #1, #2, #3 sequencialmente.
@@ -73,7 +114,26 @@ O Rails 8 já oferece proteções nativas que são configuradas como padrão no 
 
 ---
 
-## 6. Logs de Auditoria (Audit Trail)
+## 6. Secrets e Credenciais
+
+Secrets sensíveis são armazenados de forma segura utilizando Rails.credentials.
+
+### 6.1. Armazenamento de Secrets
+* JWT_SECRET_KEY: Chave secreta para assinatura de tokens JWT
+* SMTP credentials: Credenciais para envio de e-mails
+* API keys: Chaves de integrações externas
+* Database credentials: Credenciais de banco de dados
+
+### 6.2. Boas Práticas
+* Secrets nunca commitados no repositório
+* Uso de Rails.credentials.edit para gerenciar secrets
+* Variáveis de ambiente para secrets em produção
+* Rotação periódica de secrets críticos
+* Acesso restrito a secrets em equipe
+
+---
+
+## 7. Logs de Auditoria (Audit Trail)
 
 Operações críticas devem deixar rastro para análise forense:
 
@@ -83,7 +143,7 @@ Operações críticas devem deixar rastro para análise forense:
 
 ---
 
-## 7. Conformidade (LGPD)
+## 8. Conformidade (LGPD)
 
 * **Minimização:** Coletamos apenas os dados necessários para o processamento da venda.
 * **Criptografia:** Dados sensíveis (como endereços e telefones) criptografados em repouso.

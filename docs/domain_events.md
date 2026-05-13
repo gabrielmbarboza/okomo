@@ -39,6 +39,16 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 - `UserPasswordChanged` - Senha do usuário alterada
 - `UserEmailVerified` - E-mail do usuário verificado
 - `UserEmailChanged` - E-mail do usuário alterado
+- `UserRegistered` - Novo usuário registrado no sistema
+- `UserEmailConfirmed` - E-mail do usuário confirmado com sucesso
+- `UserAuthenticated` - Usuário autenticado com sucesso
+- `PasswordRecoveryRequested` - Usuário solicitou recuperação de senha
+- `PasswordResetCompleted` - Senha redefinida com sucesso
+
+**Consumidores Típicos:**
+- `SendConfirmationEmailJob` - Envia e-mail de confirmação após UserRegistered
+- `SendPasswordRecoveryEmailJob` - Envia e-mail de recuperação após PasswordRecoveryRequested
+- `Audit Logging` - Registra eventos de segurança e autenticação
 
 #### Seller Events
 - `SellerCreated` - Novo seller criado
@@ -49,6 +59,17 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 - `SellerCommercialInfoUpdated` - Informações comerciais do seller atualizadas
 - `SellerVerificationRequested` - Verificação do seller solicitada
 - `SellerVerificationCompleted` - Verificação do seller concluída
+- `SellerRegistrationRequested` - Solicitação para se tornar vendedor
+- `SellerApproved` - Vendedor aprovado para vender na plataforma
+- `SellerRejected` - Vendedor rejeitado na solicitação
+- `SellerSuspended` - Vendedor suspenso temporariamente
+
+**Consumidores Típicos:**
+- `NotifySellerApprovalJob` - Notifica seller após aprovação
+- `NotifySellerRejectionJob` - Notifica seller após rejeição
+- `NotifySellerSuspensionJob` - Notifica seller após suspensão
+- `NotifyAdminJob` - Notifica administradores sobre novas solicitações
+- `Audit Logging` - Registra mudanças de status de seller
 
 #### Buyer Events
 - `BuyerCreated` - Novo buyer criado
