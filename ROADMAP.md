@@ -96,7 +96,18 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 2 — Domínio de Catálogo (Catalog)
+# Fase 2 — Domínio de Identidade (Identity)
+
+- [ ] Criar User
+- [ ] Criar Seller
+- [ ] Criar Buyer
+- [ ] Implementar casos de uso de cadastro
+- [ ] Definir autenticação e autorização
+- [ ] Publicar eventos `UserRegistered`, `SellerCreated` e `BuyerCreated`
+
+---
+
+# Fase 3 — Domínio de Catálogo (Catalog)
 
 - [ ] Criar `Product`
 - [ ] Criar `Variant`
@@ -107,7 +118,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 3 — Domínio de Estoque (Inventory)
+# Fase 4 — Domínio de Estoque (Inventory)
 
 - [ ] Implementar `Inventory`
 - [ ] Implementar `InventoryReservation`
@@ -121,7 +132,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 4 — Domínio de Pedidos (Orders)
+# Fase 5 — Domínio de Pedidos (Orders)
 
 - [ ] Criar `Order`
 - [ ] Criar `OrderItem`
@@ -134,7 +145,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 5 — Domínio de Promoções (Promotions)
+# Fase 6 — Domínio de Promoções (Promotions)
 
 - [ ] Criar `Promotion`
 - [ ] Criar `Coupon`
@@ -148,7 +159,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 6 — Domínio de Checkout
+# Fase 7 — Domínio de Checkout
 
 - [ ] Implementar `StartCheckout`
 - [ ] Reservar `Inventory`
@@ -160,7 +171,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 7 — Domínio de Pagamentos (Payments)
+# Fase 8 — Domínio de Pagamentos (Payments)
 
 - [ ] Criar `Payment`
 - [ ] Implementar estados do pagamento
@@ -171,7 +182,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 8 — Domínio de Entrega (Shipping)
+# Fase 9 — Domínio de Entrega (Shipping)
 
 - [ ] Criar `Shipment`
 - [ ] Criar `ShippingMethod`
@@ -181,7 +192,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 9 — Observabilidade e Resiliência
+# Fase 10 — Observabilidade e Resiliência
 
 - [ ] Implementar logs estruturados com `request_id`
 - [ ] Configurar métricas (Prometheus/Grafana)
@@ -191,7 +202,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ---
 
-# Fase 10 — Evolução Arquitetural
+# Fase 11 — Evolução Arquitetural
 
 - [ ] Implementar Event Store
 - [ ] Implementar Event Handlers assíncronos
