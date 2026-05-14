@@ -1,76 +1,76 @@
-# Código de Conduta
+# Code of Conduct
 
-## Nosso Compromisso
+## Our Pledge
 
-Para promover um ambiente aberto e acolhedor, nós, como mantenedores e contribuidores, comprometemo-nos a tornar a participação em nosso projeto e em nossa comunidade uma experiência livre de assédio para todos, independentemente de idade, tamanho corporal, deficiência, etnia, características de gênero e expressão, nível de experiência, educação, status socioeconômico, nacionalidade, aparência pessoal, raça, religião ou identidade e orientação sexual.
+To promote an open and welcoming environment, we as maintainers and contributors pledge to make participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
-## Nossos Padrões
+## Our Standards
 
-Comportamentos positivos incluem:
+Positive behaviors include:
 
-* Usar linguagem acolhedora e inclusiva
-* Ser respeitoso com diferentes pontos de vista e experiências
-* Aceitar graciosamente críticas construtivas
-* Focar no que é melhor para a comunidade
-* Demonstrar empatia com outros membros da comunidade
+* Using welcoming and inclusive language
+* Being respectful of differing viewpoints and experiences
+* Gracefully accepting constructive criticism
+* Focusing on what is best for the community
+* Showing empathy towards other community members
 
-Comportamentos inaceitáveis incluem:
+Unacceptable behaviors include:
 
-* O uso de linguagem sexualizada ou imagens/sexualidade não solicitada
-* Comentários de trolling, insultantes ou depreciativos, e ataques pessoais ou políticos
-* Assédio público ou privado
-* Publicar informações privadas de outras pessoas, como endereço físico ou e-mail, sem permissão explícita
-* Qualquer outra conduta que possa ser razoavelmente considerada inadequada em um ambiente profissional
+* The use of sexualized language or imagery and unwelcome sexual attention or advances
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email address, without explicit permission
+* Any other conduct which could reasonably be considered inappropriate in a professional setting
 
-## Responsabilidades da Liderança
+## Leadership Responsibilities
 
-Os mantenedores do projeto são responsáveis por esclarecer os padrões de comportamento aceitável e devem tomar medidas corretivas apropriadas e justas em resposta a qualquer instância de comportamento inaceitável.
+Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
 
-Os mantenedores do projeto têm o direito e a responsabilidade de remover, editar ou rejeitar comentários, commits, código, edições de wiki, issues e outras contribuições que não estejam alinhadas com este Código de Conduta, e podem banir temporariamente ou permanentemente qualquer contribuidor por comportamentos que considerem inadequados, ameaçadores, ofensivos ou prejudiciais.
+Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, or to ban temporarily or permanently any contributor for other behaviors that they deem inappropriate, threatening, offensive, or harmful.
 
-## Escopo
+## Scope
 
-Este Código de Conduta aplica-se tanto dentro dos espaços do projeto quanto em espaços públicos quando um indivíduo estiver representando o projeto ou sua comunidade. Exemplos de representação de um projeto ou comunidade incluem o uso de um endereço de e-mail oficial do projeto, postagem em uma conta oficial de mídia social ou atuação como representante designado em um evento online ou offline. A representação de um projeto pode ser ainda mais definida e esclarecida pelos mantenedores do projeto.
+This Code of Conduct applies both within project spaces and in public spaces when an individual is representing the project or its community. Examples of representing a project or community include using an official project email address, posting via an official social media account, or acting as an appointed representative at an online or offline event. Representation of a project may be further defined and clarified by project maintainers.
 
-## Aplicação
+## Enforcement
 
-Instâncias de comportamento abusivo, assédio ou inaceitável de outra forma podem ser relatadas aos mantenedores do projeto responsáveis pela aplicação em [inserir e-mail de contato]. Todas as reclamações serão revisadas e investigadas e resultarão em uma resposta que seja considerada necessária e apropriada às circunstâncias. Os mantenedores do projeto têm a obrigação de manter a confidencialidade em relação ao autor de uma reclamação. Mais detalhes de políticas específicas de aplicação podem ser publicados separadamente.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainers responsible for enforcement at [insert contact email]. All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances. The project maintainers have the obligation to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
 
-Os mantenedores do projeto que não seguirem ou fizerem cumprir o Código de Conduta de boa-fé podem enfrentar consequências temporárias ou permanentes conforme determinado por outros membros da liderança do projeto.
+Project maintainers who do not follow or enforce the Code of Conduct in good faith may face temporary or permanent repercussions as determined by other members of the project's leadership.
 
-## Diretrizes de Aplicação
+## Enforcement Guidelines
 
-Os mantenedores do projeto seguirão estas Diretrizes de Impacto da Comunidade ao determinar as consequências de qualquer ação que considerem inaceitável para esta comunidade:
+Project maintainers will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:
 
-### 1. Correção
+### 1. Correction
 
-**Impacto na Comunidade**: Uso de linguagem inadequada ou outro comportamento considerado não profissional ou indesejado na comunidade.
+**Community Impact**: Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.
 
-**Consequência**: Aviso escrito e privado por parte dos mantenedores do projeto, esclarecendo a natureza da violação e uma explicação de por que o comportamento foi inadequado. Será solicitado um pedido público de desculpas.
+**Consequence**: A private, written warning from project maintainers, clarifying the nature of the violation and an explanation of why the behavior was inappropriate. A public apology may be requested.
 
-### 2. Aviso
+### 2. Warning
 
-**Impacto na Comunidade**: Uma violação por meio de um único incidente ou uma série de incidentes.
+**Community Impact**: A violation through a single incident or a series of incidents.
 
-**Consequência**: Aviso com consequências para comportamento repetido. Nenhuma interação com as pessoas envolvidas, incluindo interação não solicitada com aqueles que estão aplicando o Código de Conduta, por um período especificado. Isso inclui evitar interações em comunidades sociais, bem como em canais do projeto. Violar estes termos pode levar a um banimento temporário ou permanente.
+**Consequence**: A warning with consequences for continued behavior. No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time. This includes avoiding interactions in community spaces as well as in external channels like social media. Violating these terms may lead to a temporary or permanent ban.
 
-### 3. Banimento Temporário
+### 3. Temporary Ban
 
-**Impacto na Comunidade**: Uma violação grave dos padrões da comunidade, incluindo sustentação de comportamento inadequado.
+**Community Impact**: A serious violation of community standards, including sustained inappropriate behavior.
 
-**Consequência**: Banimento temporário de qualquer tipo de interação ou comunicação pública com a comunidade por um período especificado. Nenhuma interação pública ou privada com as pessoas envolvidas, incluindo interação não solicitada com aqueles que estão aplicando o Código de Conduta. Não é permitido comentar ou participar de projetos da comunidade, incluindo canais de mídia social. Violar estes termos pode levar a um banimento permanente.
+**Consequence**: A temporary ban from any sort of interaction or public communication with the community for a specified period of time. No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period. Violating these terms may lead to a permanent ban.
 
-### 4. Banimento Permanente
+### 4. Permanent Ban
 
-**Impacto na Comunidade**: Demonstrar um padrão de violação dos padrões da comunidade, incluindo sustentação de comportamento inadequado, assédio de um indivíduo ou agressão ou denigração de classes de indivíduos.
+**Community Impact**: Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or denigration of classes of individuals.
 
-**Consequência**: Banimento permanente de qualquer tipo de interação pública com a comunidade. Nenhuma interação pública ou privada com as pessoas envolvidas, incluindo interação não solicitada com aqueles que estão aplicando o Código de Conduta. Não é permitido comentar ou participar de projetos da comunidade, incluindo canais de mídia social. Violar estes termos pode levar a um banimento permanente.
+**Consequence**: A permanent ban from any sort of public interaction within the community. No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed. Violating these terms may lead to a permanent ban.
 
-## Atribuição
+## Attribution
 
-Este Código de Conduta é adaptado do [Contributor Covenant][homepage], versão 2.1, disponível em [https://www.contributorcovenant.org/version/2/1/code_of_conduct.html][v2.1].
+This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 2.1, available at [https://www.contributorcovenant.org/version/2/1/code_of_conduct.html][v2.1].
 
-As Diretrizes de Impacto na Comunidade foram inspiradas por [Mozilla's code of conduct enforcement ladder][mozilla coc].
+Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcement ladder][mozilla coc].
 
 [homepage]: https://www.contributorcovenant.org
 [v2.1]: https://www.contributorcovenant.org/version/2/1/code_of_conduct.html
