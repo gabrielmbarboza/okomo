@@ -256,24 +256,24 @@ Generates `app/domains/orders/events/order_created.rb` with payload and timestam
 
 ## Git Commit Convention
 
-Este projeto segue a especificação [Conventional Commits](https://www.conventionalcommits.org/) para padronizar as mensagens de commit e facilitar a leitura do histórico de alterações.
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification to standardize commit messages and facilitate reading the change history.
 
-A estrutura básica é:
+The basic structure is:
 
 ```
-<tipo>(<escopo>): <descrição>
+<type>(<scope>): <description>
 ```
 
-### Tipos Comuns
+### Common Types
 
-- `feat`: Nova funcionalidade
-- `fix`: Correção de bug
-- `docs`: Alterações na documentação
-- `test`: Adição ou alteração de testes
-- `refactor`: Refatoração de código
-- `chore`: Tarefas de manutenção ou configuração
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `test`: Test additions or changes
+- `refactor`: Code refactoring
+- `chore`: Maintenance or configuration tasks
 
-### Exemplos
+### Examples
 
 ```
 feat(identity): implement user registration
@@ -288,13 +288,13 @@ chore(ci): configure GitHub Actions
 
 ## Project Governance
 
-Este projeto segue padrões de governança para garantir um ambiente colaborativo saudável e sustentável.
+This project follows governance standards to ensure a healthy and sustainable collaborative environment.
 
-- [**Código de Conduta**](CODE_OF_CONDUCT.md) - Diretrizes de comportamento para todos os participantes.
-- [**Guia de Contribuição**](CONTRIBUTING.md) - Instruções para contribuir com o projeto.
-- [**Política de Segurança**](docs/security.md) - Padrões de segurança e privacidade.
+- [**Code of Conduct**](CODE_OF_CONDUCT.md) - Behavior guidelines for all participants.
+- [**Contribution Guide**](CONTRIBUTING.md) - Instructions for contributing to the project.
+- [**Security Policy**](docs/security.md) - Security and privacy standards.
 
-Todos os participantes são esperados a agir com respeito, empatia e profissionalismo.
+All participants are expected to act with respect, empathy, and professionalism.
 
 ---
 
