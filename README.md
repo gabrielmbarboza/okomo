@@ -167,6 +167,70 @@ class Orders::ValueObjects::Money < Shared::ValueObjects::BaseValueObject
 end
 ```
 
+### Custom Generators
+
+Okomo includes custom generators to automate the creation of bounded contexts and domain artifacts, ensuring architectural consistency and reducing repetitive work.
+
+#### Create a Bounded Context
+
+```bash
+bin/rails generate domain Identity
+```
+
+Creates the complete directory structure for the bounded context:
+
+```
+app/domains/identity/
+├── identity.rb
+├── entities/
+├── services/
+├── repositories/
+├── value_objects/
+├── events/
+├── specifications/
+└── policies/
+```
+
+#### Create an Entity
+
+```bash
+bin/rails generate domain_entity Identity User
+```
+
+Generates `app/domains/identity/entities/user.rb` inheriting from `Shared::Entities::BaseEntity`.
+
+#### Create a Service
+
+```bash
+bin/rails generate domain_service Identity RegisterUser
+```
+
+Generates `app/domains/identity/services/register_user.rb` inheriting from `Shared::Services::BaseService`.
+
+#### Create a Value Object
+
+```bash
+bin/rails generate domain_value_object Orders Money
+```
+
+Generates `app/domains/orders/value_objects/money.rb` inheriting from `Shared::ValueObjects::BaseValueObject`.
+
+#### Create a Repository
+
+```bash
+bin/rails generate domain_repository Orders OrderRepository
+```
+
+Generates `app/domains/orders/repositories/order_repository.rb`.
+
+#### Create a Domain Event
+
+```bash
+bin/rails generate domain_event Orders OrderCreated
+```
+
+Generates `app/domains/orders/events/order_created.rb` with payload and timestamp.
+
 ---
 
 ## ⚙️ Configuration
