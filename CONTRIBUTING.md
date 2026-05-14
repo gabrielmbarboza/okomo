@@ -1,106 +1,139 @@
-# Guia de Contribuição
+# Contribution Guide
 
-Obrigado pelo seu interesse em contribuir com o Okomo! Este guia fornece instruções sobre como configurar o ambiente, executar testes e enviar contribuições.
+Thank you for your interest in contributing to Okomo! This guide provides instructions on how to set up the environment, run tests, and submit contributions.
 
-## Visão Geral do Processo de Contribuição
+## Contribution Process Overview
 
-1. Fork o repositório
-2. Crie uma branch para sua feature (`git checkout -b feature/nome-da-feature`)
-3. Faça suas alterações seguindo as convenções do projeto
-4. Execute os testes e garanta que todos passem
-5. Faça commit das alterações seguindo a Conventional Commits
-6. Push para sua branch (`git push origin feature/nome-da-feature`)
-7. Abra um Pull Request descrevendo suas alterações
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/feature-name`)
+3. Make your changes following the project conventions
+4. Run tests and ensure they all pass
+5. Commit your changes following Conventional Commits
+6. Push to your branch (`git push origin feature/feature-name`)
+7. Open a Pull Request describing your changes
 
-## Setup do Ambiente com Docker
+## Environment Setup with Docker
 
-O Okomo utiliza Docker e Docker Compose para facilitar a configuração do ambiente de desenvolvimento.
+Okomo uses Docker and Docker Compose to facilitate development environment setup.
 
-### Pré-requisitos
+### Prerequisites
 
 - Docker
 - Docker Compose
 
-### Passos de Configuração
+### Setup Steps
 
 ```bash
-# 1. Clone o repositório
+# 1. Clone the repository
 git clone <repo-url> && cd okomo
 
-# 2. Copie as variáveis de ambiente
+# 2. Copy environment variables
 cp .env.example .env
 
-# 3. Construa e inicie todos os serviços
+# 3. Build and start all services
 docker-compose up --build
 
-# 4. Em outro terminal, crie e migre o banco de dados
+# 4. In another terminal, create and migrate the database
 docker-compose exec app bundle exec rails db:create db:migrate
 
-# 5. Execute os testes
+# 5. Run tests
 docker-compose exec app bundle exec rspec
 ```
 
-### Comandos Úteis
+### Useful Commands
 
 ```bash
-# Console Rails
+# Rails console
 docker-compose exec app bundle exec rails console
 
-# Executar migrações
+# Run migrations
 docker-compose exec app bundle exec rails db:migrate
 
-# Executar testes
+# Run tests
 docker-compose exec app bundle exec rspec
 
-# Executar testes específicos
+# Run specific tests
 docker-compose exec app bundle exec rspec spec/path/to/spec.rb
 
-# Executar RuboCop
+# Run RuboCop
 docker-compose exec app bundle exec rubocop
 
-# Parar todos os serviços
+# Stop all services
 docker-compose down
 
-# Parar e remover volumes (reset de dados)
+# Stop and remove volumes (reset data)
 docker-compose down -v
 ```
 
-## Execução de Testes
+## Custom Generators
 
-O Okomo utiliza RSpec como framework de testes. Execute a suíte completa de testes antes de enviar qualquer contribuição:
+Okomo includes custom generators to automate the creation of bounded contexts and domain artifacts, following the project's DDD conventions.
+
+### Create a Bounded Context
+
+```bash
+bin/rails generate domain Identity
+```
+
+Creates the complete directory structure for the bounded context.
+
+### Create Domain Artifacts
+
+```bash
+# Create an entity
+bin/rails generate domain_entity Identity User
+
+# Create a service
+bin/rails generate domain_service Identity RegisterUser
+
+# Create a value object
+bin/rails generate domain_value_object Orders Money
+
+# Create a repository
+bin/rails generate domain_repository Orders OrderRepository
+
+# Create a domain event
+bin/rails generate domain_event Orders OrderCreated
+```
+
+For more details about the generators, see the [README](README.md#custom-generators) and [ADR-015](docs/adr/ADR-015-custom-rails-generators-for-domain-scaffolding.md).
+
+## Test Execution
+
+Okomo uses RSpec as the testing framework. Run the complete test suite before submitting any contribution:
 
 ```bash
 docker-compose exec app bundle exec rspec
 ```
 
-### Cobertura de Testes
+### Test Coverage
 
-Mantenha a cobertura de testes acima de 90% para a lógica de domínio. Use SimpleCov para verificar a cobertura:
+Maintain test coverage above 90% for domain logic. Use SimpleCov to check coverage:
 
 ```bash
 docker-compose exec app bundle exec rspec
 ```
 
-O relatório de cobertura será gerado em `coverage/index.html`.
+The coverage report will be generated at `coverage/index.html`.
 
-## Convenção de Commits
+## Commit Convention
 
-Este projeto segue a especificação [Conventional Commits](https://www.conventionalcommits.org/). A estrutura básica é:
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification. The basic structure is:
 
 ```
-<tipo>(<escopo>): <descrição>
+<type>(<scope>): <description>
 ```
 
-### Tipos Comuns
+### Common Types
 
-- `feat`: Nova funcionalidade
-- `fix`: Correção de bug
-- `docs`: Alterações na documentação
-- `test`: Adição ou alteração de testes
-- `refactor`: Refatoração de código
-- `chore`: Tarefas de manutenção ou configuração
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `test`: Test additions or changes
+- `refactor`: Code refactoring
+- `chore`: Maintenance or configuration tasks
 
-### Exemplos
+### Examples
 
 ```
 feat(identity): implement user registration
@@ -111,31 +144,31 @@ refactor(payments): extract gateway interface
 chore(ci): configure GitHub Actions
 ```
 
-## Regras de Pull Request
+## Pull Request Rules
 
-Ao abrir um Pull Request:
+When opening a Pull Request:
 
-1. **Descreva claramente o propósito**: Explique o que sua PR faz e por que é necessária.
-2. **Referencie issues relacionadas**: Se sua PR resolve uma issue, inclua `Fixes #123` na descrição.
-3. **Mantenha o foco**: Cada PR deve abordar uma única concern ou feature.
-4. **Testes completos**: Inclua testes para novas funcionalidades e atualize testes existentes se necessário.
-5. **Documentação atualizada**: Atualize a documentação relevante (README, docs/, etc.) se sua alteração afeta a interface pública ou o comportamento do sistema.
-6. **CI/CD passing**: Garanta que todos os checks do CI/CD passem antes de solicitar revisão.
+1. **Describe the purpose clearly**: Explain what your PR does and why it's necessary.
+2. **Reference related issues**: If your PR resolves an issue, include `Fixes #123` in the description.
+3. **Keep focus**: Each PR should address a single concern or feature.
+4. **Complete tests**: Include tests for new features and update existing tests if necessary.
+5. **Updated documentation**: Update relevant documentation (README, docs/, etc.) if your change affects the public interface or system behavior.
+6. **CI/CD passing**: Ensure all CI/CD checks pass before requesting review.
 
-### Processo de Revisão
+### Review Process
 
-- Mantenedores revisarão sua PR e fornecerão feedback
-- Responda aos comentários e faça as alterações solicitadas
-- Após a aprovação, sua PR será mergeada na branch principal
+- Maintainers will review your PR and provide feedback
+- Respond to comments and make requested changes
+- After approval, your PR will be merged into the main branch
 
-## Código de Conduta
+## Code of Conduct
 
-Ao participar deste projeto, você concorda em seguir o [Código de Conduta](CODE_OF_CONDUCT.md). Todos os participantes são esperados a agir com respeito, empatia e profissionalismo.
+By participating in this project, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md). All participants are expected to act with respect, empathy, and professionalism.
 
-## Perguntas?
+## Questions?
 
-Se você tiver dúvidas sobre o processo de contribuição ou sobre o projeto em geral, sinta-se à vontade para abrir uma issue ou entrar em contato com os mantenedores.
+If you have questions about the contribution process or the project in general, feel free to open an issue or contact the maintainers.
 
 ---
 
-Obrigado por contribuir com o Okomo! 🚀
+Thank you for contributing to Okomo! 🚀
