@@ -100,6 +100,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Implementar `BaseValueObject`
 - [x] Implementar `BaseService`
 - [ ] Implementar `BaseRepository`
+- [x] Criar generators customizados para scaffolding de bounded contexts e artefatos de domínio
 
 ---
 

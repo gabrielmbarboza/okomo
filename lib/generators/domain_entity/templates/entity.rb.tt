@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+module <%= domain.camelize %>
+  module Entities
+    class <%= class_name %> < Shared::Entities::BaseEntity
+    end
+  end
+end

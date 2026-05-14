@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+module <%= domain.camelize %>
+  module Services
+    class <%= class_name %> < Shared::Services::BaseService
+      def call
+        raise NotImplementedError
+      end
+    end
+  end
+end

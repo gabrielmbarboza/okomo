@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+module DomainService
+  class DomainServiceGenerator < Rails::Generators::NamedBase
+    source_root File.expand_path('templates', __dir__)
+
+    argument :domain, type: :string, required: true, banner: 'DOMAIN'
+
+    def create_service_file
+      template 'service.rb.tt', File.join('app/domains', domain.underscore, 'services', "#{file_name}.rb")
+    end
+  end
+end

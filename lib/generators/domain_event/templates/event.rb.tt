@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+module <%= domain.camelize %>
+  module Events
+    class <%= class_name %>
+      attr_reader :payload, :occurred_at
+
+      def initialize(payload = {})
+        @payload = payload
+        @occurred_at = Time.current
+        freeze
+      end
+    end
+  end
+end

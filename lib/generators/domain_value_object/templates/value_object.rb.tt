@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+module <%= domain.camelize %>
+  module ValueObjects
+    class <%= class_name %> < Shared::ValueObjects::BaseValueObject
+    end
+  end
+end
