@@ -12,12 +12,12 @@ module Domain
     private
 
     def create_domain_module
-      template 'domain.rb.tt', File.join('app/domains', class_path, "#{file_name}.rb")
+      template 'domain.rb.tt', File.join('app/domains', file_name, "#{file_name}.rb")
     end
 
     def create_subdirectories
       %w[entities services repositories value_objects events specifications policies].each do |dir|
-        empty_directory File.join('app/domains', class_path, dir)
+        empty_directory File.join('app/domains', file_name, dir)
       end
     end
   end
