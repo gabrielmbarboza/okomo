@@ -12,6 +12,7 @@ For in-depth details about architecture, security, and operations, consult the d
 - [**Use Cases**](docs/use_cases/) - Detailed flows by bounded context.
 - [**Security & Privacy**](docs/security.md) - Authentication, RBAC, and encryption patterns.
 - [**Testing Strategy**](docs/testing_strategy.md) - Testing pyramid and quality patterns.
+- [**Data Model**](docs/data_model/) - Conceptual, logical, and DBML diagrams (PostgreSQL).
 - [**Deployment & Infrastructure**](docs/deployment.md) - Docker, Thruster, S3, and CI/CD.
 - [**Operational Runbook**](docs/runbooks/operational_runbook.md) - Crisis procedures and maintenance.
 - [**Domain Events**](docs/domain_events.md) - Inter-context communication mapping.

@@ -1,0 +1,147 @@
+// Okomo — Identity Bounded Context Data Model (DBML)
+// Visualize at: https://dbdiagram.io/
+//
+// Este arquivo descreve o modelo lógico do bounded context Identity
+// Inclui: Users, Roles, Seller Profiles, Tokens de confirmação e reset
+
+Table users {
+  id uuid [pk, note: "Primary key, gerado aleatoriamente"]
+  name varchar [note: "Nome do usuário"]
+  email varchar [unique, not null, note: "Email único, validado"]
+  password_digest varchar [not null, note: "Hash bcrypt da senha"]
+  status varchar [not null, default: "pending_confirmation", note: "pending_confirmation, active, suspended, deleted"]
+  email_confirmed_at timestamp [note: "Null até confirmação"]
+  last_login_at timestamp [note: "Rastreia último acesso"]
+  created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+  updated_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+
+  indexes {
+    email [unique, name: "users_email_idx"]
+    status [name: "users_status_idx"]
+    created_at [name: "users_created_at_idx"]
+  }
+
+  note: "Armazena dados de usuários e estado de autenticação"
+}
+
+Table roles {
+  id uuid [pk]
+  name varchar [unique, not null, note: "buyer, seller, admin, moderator"]
+  description text [note: "Descrição das responsabilidades"]
+  created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+  updated_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+
+  indexes {
+    name [unique, name: "roles_name_idx"]
+  }
+
+  note: "Define papéis e permissões no sistema. Predefinidos: buyer, seller, admin, moderator"
+}
+
+Table user_roles {
+  id uuid [pk]
+  user_id uuid [not null, note: "Referência para users"]
+  role_id uuid [not null, note: "Referência para roles"]
+  created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+
+  indexes {
+    (user_id, role_id) [unique, name: "user_roles_user_id_role_id_idx"]
+    user_id [name: "user_roles_user_id_idx"]
+    role_id [name: "user_roles_role_id_idx"]
+  }
+
+  note: "Relacionamento muitos-para-muitos entre usuários e papéis"
+}
+
+Table seller_profiles {
+  id uuid [pk]
+  user_id uuid [unique, not null, note: "Um-para-um com users"]
+  display_name varchar [not null, note: "Nome público do vendedor"]
+  description text [note: "Descrição da loja"]
+  status varchar [not null, default: "pending_review", note: "pending_review, approved, rejected, suspended"]
+  requested_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+  reviewed_at timestamp [note: "Data da revisão"]
+  reviewed_by_id uuid [note: "Usuário admin/moderador que revisou"]
+  rejection_reason text [note: "Motivo da rejeição, se aplicável"]
+  approved_at timestamp [note: "Data da aprovação"]
+  suspended_at timestamp [note: "Data da suspensão"]
+  created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+  updated_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+
+  indexes {
+    user_id [unique, name: "seller_profiles_user_id_idx"]
+    status [name: "seller_profiles_status_idx"]
+    requested_at [name: "seller_profiles_requested_at_idx"]
+    reviewed_by_id [name: "seller_profiles_reviewed_by_id_idx"]
+  }
+
+  note: "Perfis de vendedor com processo de aprovação"
+}
+
+Table email_confirmation_tokens {
+  id uuid [pk]
+  user_id uuid [not null, note: "Referência para users"]
+  token_digest varchar [unique, not null, note: "SHA256 do token (nunca texto plano)"]
+  expires_at timestamp [not null, note: "Expira após 24h"]
+  used_at timestamp [note: "Null até ser utilizado"]
+  created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+
+  indexes {
+    token_digest [unique, name: "email_confirmation_tokens_token_digest_idx"]
+    user_id [name: "email_confirmation_tokens_user_id_idx"]
+    expires_at [name: "email_confirmation_tokens_expires_at_idx"]
+    used_at [name: "email_confirmation_tokens_used_at_idx"]
+  }
+
+  note: "Tokens temporários para confirmar propriedade de email. Expira e não reutilizável."
+}
+
+Table password_reset_tokens {
+  id uuid [pk]
+  user_id uuid [not null, note: "Referência para users"]
+  token_digest varchar [unique, not null, note: "SHA256 do token (nunca texto plano)"]
+  expires_at timestamp [not null, note: "Expira após 2h"]
+  used_at timestamp [note: "Null até ser utilizado"]
+  created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+
+  indexes {
+    token_digest [unique, name: "password_reset_tokens_token_digest_idx"]
+    user_id [name: "password_reset_tokens_user_id_idx"]
+    expires_at [name: "password_reset_tokens_expires_at_idx"]
+    used_at [name: "password_reset_tokens_used_at_idx"]
+  }
+
+  note: "Tokens temporários para reset de senha. Expira e não reutilizável após uso."
+}
+
+// Relacionamentos
+
+Ref: users.id < user_roles.user_id [
+  delete: cascade,
+  note: "Deletar usuário remove todas as roles atribuídas"
+]
+
+Ref: roles.id < user_roles.role_id [
+  delete: restrict,
+  note: "Não pode deletar role que está atribuída a usuários"
+]
+
+Ref: users.id - seller_profiles.user_id [
+  delete: cascade,
+  note: "Um-para-um: cada usuário tem no máximo um perfil de vendedor"
+]
+
+Ref: users.id < seller_profiles.reviewed_by_id [
+  delete: setnull,
+  note: "Admin/Moderador que revisou o perfil"
+]
+
+Ref: users.id < email_confirmation_tokens.user_id [
+  delete: cascade,
+  note: "Deletar usuário remove tokens de confirmação de email"
+]
+
+Ref: users.id < password_reset_tokens.user_id [
+  delete: cascade,
+  note: "Deletar usuário remove tokens de reset de senha"
+]

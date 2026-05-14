@@ -63,6 +63,13 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Definir testes unitários, integração, contrato e end-to-end
 - [x] Definir estratégia de factories, concorrência e idempotência
 
+## Modelagem de Dados
+- [x] Criar `docs/data_model/README.md`
+- [x] Documentar modelo conceitual do Identity em `docs/data_model/conceptual_model.md`
+- [x] Documentar modelo lógico para PostgreSQL em `docs/data_model/logical_model.md`
+- [x] Definir convenções de nomenclatura em `docs/data_model/naming_conventions.md`
+- [x] Gerar diagrama DBML para visualização em dbdiagram.io (`docs/data_model/dbdiagram/identity.dbml`)
+
 ## Modelagem de Domínio
 - [x] Criar `docs/ubiquitous_language.md`
 - [x] Criar `docs/domain_events.md`
