@@ -55,6 +55,8 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] ADR-010: Namespacing de Rotas por Bounded Context
 - [x] ADR-011: Estratégia de Testes por Camada
 - [x] ADR-012: Estratégia de Criptografia de Dados em Repouso (ActiveRecord::Encryption)
+- [x] ADR-013: Identity como Bounded Context para User, Seller, Buyer
+- [x] ADR-014: Autenticação Nativa Rails com has_secure_password e JWT
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`
@@ -103,14 +105,14 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 # Fase 2 — Identity e Access Management
 
-- [ ] Criar User, Role e SellerProfile
-- [ ] Implementar RegisterUser
+- [ ] Criar `User`, `Role` e `SellerProfile`
+- [ ] Implementar `RegisterUser`
 - [ ] Implementar confirmação de e-mail
-- [ ] Implementar AuthenticateUser
+- [ ] Implementar `AuthenticateUser`
 - [ ] Implementar geração e validação de JWT
-- [ ] Implementar RequestPasswordRecovery e ResetPassword
-- [ ] Implementar RequestSellerRegistration
-- [ ] Implementar ApproveSeller, RejectSeller e SuspendSeller
+- [ ] Implementar `RequestPasswordRecovery` e `ResetPassword`
+- [ ] Implementar `RequestSellerRegistration`
+- [ ] Implementar `ApproveSeller`, `RejectSeller` e `SuspendSeller`
 - [ ] Implementar RBAC (buyer, seller, admin)
 - [ ] Criar testes unitários e de integração
 
