@@ -143,7 +143,32 @@ Operações críticas devem deixar rastro para análise forense:
 
 ---
 
-## 8. Conformidade (LGPD)
+## 8. Gestão de Dependências e Vulnerabilidades
+
+A segurança em produção depende também da manutenção contínua de dependências atualizadas. O Okomo implementa uma política de upgrade contínuo para Ruby, Rails, e gems críticas.
+
+### 8.1. Automação de Detecção
+* **Dependabot ou Renovate:** Monitoramento automático de vulnerabilidades e novas versões
+* **Alertas de Segurança:** Notificações imediatas para vulnerabilidades críticas e exploits conhecidos
+* **Auditoria Periódica:** Execução de `bundler-audit` e `brakeman` no CI/CD
+
+### 8.2. Política de Atualização
+Para detalhes completos sobre cadências, critérios de aceitação e estratégia de rollback, consulte [ADR-016: Política Contínua de Atualização de Ruby, Rails e Dependências](adr/ADR-016-continuous-upgrade-policy.md).
+
+* **Vulnerabilidades Críticas:** Aplicadas com prioridade máxima
+* **Ruby e Rails Patch:** Mensal
+* **Minor Releases:** Trimestral
+* **Major Upgrades:** Planejamento anual ou conforme necessidade
+
+### 8.3. Validação em Produção
+* Staging deployment com suite de testes completa
+* Monitoramento de 24h pós-deploy
+* Rollback automatizado em caso de anomalias críticas
+* Documentação de cada upgrade para auditoria
+
+---
+
+## 9. Conformidade (LGPD)
 
 * **Minimização:** Coletamos apenas os dados necessários para o processamento da venda.
 * **Criptografia:** Dados sensíveis (como endereços e telefones) criptografados em repouso.

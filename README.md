@@ -17,6 +17,7 @@ For in-depth details about architecture, security, and operations, consult the d
 - [**Operational Runbook**](docs/runbooks/operational_runbook.md) - Crisis procedures and maintenance.
 - [**Domain Events**](docs/domain_events.md) - Inter-context communication mapping.
 - [**Architecture Decision Records (ADR)**](docs/adr/) - Fundamental architectural decisions registry.
+- [**Continuous Upgrade Policy**](docs/adr/ADR-016-continuous-upgrade-policy.md) - Ruby, Rails, and dependency version management strategy.
 
 ---
 

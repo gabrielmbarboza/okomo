@@ -57,6 +57,8 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] ADR-012: Estratégia de Criptografia de Dados em Repouso (ActiveRecord::Encryption)
 - [x] ADR-013: Identity como Bounded Context para User, Seller, Buyer
 - [x] ADR-014: Autenticação Nativa Rails com has_secure_password e JWT
+- [x] ADR-015: Custom Rails Generators para Domain Scaffolding
+- [x] ADR-016: Política Contínua de Atualização de Ruby, Rails e Dependências
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`
@@ -94,6 +96,9 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Documentar convenção de commits no README
 - [x] Criar CODE_OF_CONDUCT.md
 - [x] Criar CONTRIBUTING.md
+- [ ] Configurar Dependabot ou Renovate para atualização automática de dependências
+- [ ] Definir e implementar política contínua de atualização de Ruby, Rails e dependências (ADR-016)
+- [ ] Documentar processo de upgrade e rollback em runbook
 
 ---
 
