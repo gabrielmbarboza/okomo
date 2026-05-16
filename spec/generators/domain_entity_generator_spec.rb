@@ -18,13 +18,13 @@ describe 'Domain Entity Generator' do
     let(:entity_name) { 'Order' }
 
     it 'creates the entity file in the correct directory' do
-      generator = run_generator(DomainEntity::DomainEntityGenerator, [entity_name, domain])
+      generator = run_generator(DomainEntity::DomainEntityGenerator, [domain, entity_name])
 
       expect(file_exists?(generator, 'app/domains/orders/entities/order.rb')).to be true
     end
 
     it 'generates the correct module structure' do
-      generator = run_generator(DomainEntity::DomainEntityGenerator, [entity_name, domain])
+      generator = run_generator(DomainEntity::DomainEntityGenerator, [domain, entity_name])
 
       content = read_generated_file(generator, 'app/domains/orders/entities/order.rb')
 
@@ -33,7 +33,7 @@ describe 'Domain Entity Generator' do
     end
 
     it 'generates the class with correct inheritance' do
-      generator = run_generator(DomainEntity::DomainEntityGenerator, [entity_name, domain])
+      generator = run_generator(DomainEntity::DomainEntityGenerator, [domain, entity_name])
 
       content = read_generated_file(generator, 'app/domains/orders/entities/order.rb')
 
@@ -41,7 +41,7 @@ describe 'Domain Entity Generator' do
     end
 
     it 'generates frozen_string_literal directive' do
-      generator = run_generator(DomainEntity::DomainEntityGenerator, [entity_name, domain])
+      generator = run_generator(DomainEntity::DomainEntityGenerator, [domain, entity_name])
 
       content = read_generated_file(generator, 'app/domains/orders/entities/order.rb')
 
@@ -51,13 +51,13 @@ describe 'Domain Entity Generator' do
 
   context 'when using different entity and domain names' do
     it 'generates underscored file names from camelized entity names' do
-      generator = run_generator(DomainEntity::DomainEntityGenerator, ['OrderItem', 'Orders'])
+      generator = run_generator(DomainEntity::DomainEntityGenerator, ['Orders', 'OrderItem'])
 
       expect(file_exists?(generator, 'app/domains/orders/entities/order_item.rb')).to be true
     end
 
     it 'handles different domain names' do
-      generator = run_generator(DomainEntity::DomainEntityGenerator, ['Product', 'Inventory'])
+      generator = run_generator(DomainEntity::DomainEntityGenerator, ['Inventory', 'Product'])
 
       expect(file_exists?(generator, 'app/domains/inventory/entities/product.rb')).to be true
 
@@ -66,7 +66,7 @@ describe 'Domain Entity Generator' do
     end
 
     it 'generates correct class names from different inputs' do
-      generator = run_generator(DomainEntity::DomainEntityGenerator, ['PaymentMethod', 'Payments'])
+      generator = run_generator(DomainEntity::DomainEntityGenerator, ['Payments', 'PaymentMethod'])
 
       content = read_generated_file(generator, 'app/domains/payments/entities/payment_method.rb')
 
