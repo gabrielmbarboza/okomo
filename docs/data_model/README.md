@@ -10,6 +10,17 @@ Esta documentação descreve a estrutura e os relacionamentos das entidades de d
 - Discussões sobre modelagem entre bounded contexts
 - Visualização de relacionamentos complexos
 
+## 🎯 Comece por Aqui: Visão Global
+
+Para uma compreensão rápida do modelo de dados em toda a plataforma:
+
+- **[Visão Global do Modelo](overview.md)**: Documento estratégico descrevendo todos os Bounded Contexts, entidades principais e relacionamentos entre contextos.
+- **[Diagrama DBML Global](dbdiagram/okomo_overview.dbml)**: Diagrama consolidado com visão de alto nível de toda a arquitetura. **Visualize em [dbdiagram.io](https://dbdiagram.io/)**.
+
+Este é o melhor ponto de partida para novo desenvolvedores ou antes de iniciar uma grande mudança de arquitetura.
+
+---
+
 ## Níveis de Modelagem
 
 ### Modelo Conceitual
@@ -42,10 +53,12 @@ As entidades de domínio (classes Ruby em `app/domains/*/entities/`) podem ou n�
 ```
 docs/data_model/
 ├── README.md                    # Este arquivo
+├── overview.md                  # 🎯 Visão global consolidada de todos os contextos
 ├── conceptual_model.md          # Modelo conceitual (domínio)
 ├── logical_model.md             # Modelo lógico (PostgreSQL)
 ├── naming_conventions.md        # Convenções de nomenclatura
 └── dbdiagram/
+    ├── okomo_overview.dbml      # 🎯 Diagrama DBML global consolidado
     ├── identity.dbml            # Diagramas DBML para Identity
     ├── orders.dbml              # (futuro) Diagramas DBML para Orders
     ├── inventory.dbml           # (futuro) Diagramas DBML para Inventory
@@ -98,7 +111,26 @@ Table user_roles {
 Ref: users.id < user_roles.user_id
 ```
 
-## Convenções de Nomenclatura
+## Relacionamento entre Diagramas Global e Específicos
+
+### Diagrama Global (`okomo_overview.dbml`)
+
+O diagrama global oferece uma visão **arquitetônica consolidada** de todos os Bounded Contexts. É útil para:
+
+- **Comunicação entre domínios**: Entender como um contexto se integra com outros
+- **Planejamento de features**: Identificar impactos em cascata
+- **Onboarding**: Visão rápida da plataforma
+- **Revisões de arquitetura**: Validar decisões de design
+
+### Diagramas Específicos (`identity.dbml`, `orders.dbml`, etc.)
+
+Cada Bounded Context tem seu próprio diagrama DBML com **detalhes completos**:
+- Todas as colunas e tipos de dados
+- Constraints e índices detalhados
+- Relacionamentos internos do contexto
+- Decisões de design e notas técnicas
+
+**Filosofia:** O modelo de dados é tratado como um artefato evolutivo. O diagrama global fornece a "bússola arquitetônica", enquanto diagramas específicos refletem a realidade implementada e evoluem incrementalmente.
 
 Para detalhes completos, consulte `naming_conventions.md`.
 

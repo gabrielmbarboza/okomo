@@ -1,0 +1,398 @@
+// Okomo — Global Data Model Overview (DBML)
+// Visualize at: https://dbdiagram.io/
+//
+// Este arquivo descreve a visão global e consolidada do modelo de dados
+// Inclui representação de alto nível de todos os Bounded Contexts:
+// Identity, Catalog, Inventory, Orders, Checkout, Payments, Shipping, Promotions
+//
+// Nota: Este diagrama fornece uma visão arquitetônica consolidada.
+// Modelos lógicos detalhados de cada bounded context estão em arquivos específicos.
+
+// ============================================================
+// IDENTITY CONTEXT
+// ============================================================
+
+Table users {
+  id uuid [pk, note: "Primary key"]
+  email varchar [unique, not null]
+  password_digest varchar [not null]
+  status varchar [not null, default: "pending_confirmation"]
+  email_confirmed_at timestamp
+  last_login_at timestamp
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  note: "Conta de acesso e identidade do usuário na plataforma"
+}
+
+Table roles {
+  id uuid [pk]
+  name varchar [unique, not null, note: "buyer, seller, admin"]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  note: "Papéis e permissões do sistema"
+}
+
+Table user_roles {
+  id uuid [pk]
+  user_id uuid [not null]
+  role_id uuid [not null]
+  created_at timestamp [not null]
+
+  indexes {
+    (user_id, role_id) [unique]
+  }
+
+  note: "Relacionamento muitos-para-muitos entre usuários e papéis"
+}
+
+Table seller_profiles {
+  id uuid [pk]
+  user_id uuid [unique, not null, note: "Relacionamento um-para-um"]
+  display_name varchar [not null]
+  status varchar [not null, default: "pending_review", note: "pending_review, approved, rejected, suspended"]
+  requested_at timestamp [not null]
+  reviewed_by_id uuid [note: "Admin/Moderador"]
+  approved_at timestamp
+  suspended_at timestamp
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  note: "Perfil de vendedor com processo de aprovação"
+}
+
+// ============================================================
+// CATALOG CONTEXT
+// ============================================================
+
+Table products {
+  id uuid [pk]
+  seller_profile_id uuid [not null, note: "Propriedade do vendedor"]
+  name varchar [not null]
+  description text
+  status varchar [not null, default: "draft", note: "draft, published, archived"]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    seller_profile_id
+  }
+
+  note: "Produto conceitual pertencente a um vendedor"
+}
+
+Table variants {
+  id uuid [pk]
+  product_id uuid [not null]
+  name varchar [not null]
+  sku varchar [note: "Stock Keeping Unit"]
+  price decimal [not null]
+  status varchar [not null, default: "draft", note: "draft, published, archived"]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    product_id
+    sku [unique]
+  }
+
+  note: "Variante de um produto com preço e atributos específicos"
+}
+
+// ============================================================
+// INVENTORY CONTEXT
+// ============================================================
+
+Table inventories {
+  id uuid [pk]
+  variant_id uuid [unique, not null, note: "Um-para-um com variants"]
+  quantity integer [not null, default: 0]
+  reserved_quantity integer [not null, default: 0]
+  updated_at timestamp [not null]
+
+  indexes {
+    variant_id
+  }
+
+  note: "Controle de estoque e reservas por variante"
+}
+
+Table inventory_reservations {
+  id uuid [pk]
+  inventory_id uuid [not null]
+  order_item_id uuid [note: "Referência para OrderItem"]
+  quantity integer [not null]
+  status varchar [not null, default: "pending", note: "pending, confirmed, released, expired"]
+  expires_at timestamp [not null]
+  released_at timestamp
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    inventory_id
+    order_item_id
+    status
+    expires_at
+  }
+
+  note: "Reserva de estoque com expiração. Pessimistic locking aplicado."
+}
+
+// ============================================================
+// ORDERS CONTEXT
+// ============================================================
+
+Table orders {
+  id uuid [pk]
+  user_id uuid [not null, note: "Comprador (Buyer)"]
+  status varchar [not null, default: "pending", note: "pending, confirmed, shipped, delivered, cancelled"]
+  total_amount decimal [not null]
+  discount_amount decimal [default: 0]
+  coupon_id uuid [note: "Coupon aplicado opcionalmente"]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    user_id
+    status
+    coupon_id
+    created_at
+  }
+
+  note: "Pedido do comprador com snapshot de preços"
+}
+
+Table order_items {
+  id uuid [pk]
+  order_id uuid [not null]
+  variant_id uuid [not null]
+  quantity integer [not null]
+  unit_price decimal [not null, note: "Snapshot do preço no momento da compra"]
+  line_total decimal [not null]
+  created_at timestamp [not null]
+
+  indexes {
+    order_id
+    variant_id
+  }
+
+  note: "Item do pedido com preço garantido (snapshot)"
+}
+
+// ============================================================
+// CHECKOUT CONTEXT
+// ============================================================
+
+Table checkout_sessions {
+  id uuid [pk]
+  order_id uuid [unique, not null, note: "Um-para-um com orders"]
+  status varchar [not null, default: "pending", note: "pending, in_progress, completed, abandoned"]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    order_id
+    status
+  }
+
+  note: "Sessão de checkout, orquestra finalização da compra"
+}
+
+// ============================================================
+// PAYMENTS CONTEXT
+// ============================================================
+
+Table payments {
+  id uuid [pk]
+  order_id uuid [not null]
+  amount decimal [not null]
+  status varchar [not null, default: "pending", note: "pending, processing, approved, declined, refunded"]
+  payment_method varchar [note: "credit_card, pix, transfer"]
+  gateway_transaction_id varchar [note: "ID da transação no gateway de pagamento"]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    order_id
+    status
+    gateway_transaction_id
+  }
+
+  note: "Processamento e conciliação de pagamentos"
+}
+
+// ============================================================
+// SHIPPING CONTEXT
+// ============================================================
+
+Table shipments {
+  id uuid [pk]
+  order_id uuid [unique, not null, note: "Um-para-um com orders"]
+  tracking_number varchar
+  status varchar [not null, default: "pending", note: "pending, processing, shipped, in_transit, delivered, failed"]
+  shipping_method varchar [note: "standard, express, etc"]
+  estimated_delivery_at timestamp
+  delivered_at timestamp
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    order_id
+    status
+    tracking_number
+  }
+
+  note: "Cálculo de frete e gestão de entregas"
+}
+
+// ============================================================
+// PROMOTIONS CONTEXT
+// ============================================================
+
+Table coupons {
+  id uuid [pk]
+  created_by_id uuid [not null, note: "Seller que criou o coupon"]
+  code varchar [unique, not null]
+  discount_value decimal [not null]
+  discount_type varchar [not null, note: "percentage, fixed"]
+  status varchar [not null, default: "active", note: "active, inactive, expired"]
+  valid_from timestamp
+  valid_until timestamp
+  max_uses integer
+  current_uses integer [default: 0]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    code
+    status
+    valid_until
+  }
+
+  note: "Cupom de desconto gerenciado por vendedor"
+}
+
+Table coupon_redemptions {
+  id uuid [pk]
+  coupon_id uuid [not null]
+  user_id uuid [not null]
+  order_id uuid [not null, note: "Onde o cupom foi aplicado"]
+  redeemed_at timestamp [not null]
+  created_at timestamp [not null]
+
+  indexes {
+    coupon_id
+    user_id
+    order_id
+  }
+
+  note: "Utilização de cupom em um pedido"
+}
+
+// ============================================================
+// FOREIGN KEY RELATIONSHIPS
+// ============================================================
+
+// Identity relationships
+Ref: users.id < user_roles.user_id [
+  delete: cascade,
+  note: "Deletar usuário remove roles"
+]
+
+Ref: roles.id < user_roles.role_id [
+  delete: restrict,
+  note: "Não pode deletar role em uso"
+]
+
+Ref: users.id - seller_profiles.user_id [
+  delete: cascade,
+  note: "Um-para-um: cada user pode ter um seller_profile"
+]
+
+Ref: users.id < seller_profiles.reviewed_by_id [
+  delete: setnull,
+  note: "Admin que revisou o perfil"
+]
+
+// Catalog relationships
+Ref: seller_profiles.id < products.seller_profile_id [
+  delete: cascade,
+  note: "Vendedor possui produtos"
+]
+
+Ref: products.id < variants.product_id [
+  delete: cascade,
+  note: "Produto possui variantes"
+]
+
+// Inventory relationships
+Ref: variants.id - inventories.variant_id [
+  delete: cascade,
+  note: "Um-para-um: cada variante tem um estoque"
+]
+
+Ref: inventories.id < inventory_reservations.inventory_id [
+  delete: cascade,
+  note: "Estoque pode ter múltiplas reservas"
+]
+
+// Orders relationships
+Ref: users.id < orders.user_id [
+  delete: restrict,
+  note: "Comprador do pedido"
+]
+
+Ref: orders.id < order_items.order_id [
+  delete: cascade,
+  note: "Pedido possui itens"
+]
+
+Ref: variants.id < order_items.variant_id [
+  delete: restrict,
+  note: "Item do pedido referencia variante"
+]
+
+Ref: coupons.id < orders.coupon_id [
+  delete: setnull,
+  note: "Pedido pode ter um coupon aplicado (opcional)"
+]
+
+// Checkout relationships
+Ref: orders.id - checkout_sessions.order_id [
+  delete: cascade,
+  note: "Um-para-um: cada pedido tem uma sessão de checkout"
+]
+
+// Payments relationships
+Ref: orders.id < payments.order_id [
+  delete: restrict,
+  note: "Pedido pode ter múltiplos pagamentos"
+]
+
+// Shipping relationships
+Ref: orders.id - shipments.order_id [
+  delete: cascade,
+  note: "Um-para-um: cada pedido tem uma entrega (opcional)"
+]
+
+// Promotions relationships
+Ref: users.id < coupons.created_by_id [
+  delete: restrict,
+  note: "Seller criou o coupon"
+]
+
+Ref: coupons.id < coupon_redemptions.coupon_id [
+  delete: cascade,
+  note: "Coupon pode ter múltiplas redenções"
+]
+
+Ref: users.id < coupon_redemptions.user_id [
+  delete: restrict,
+  note: "Comprador resgatou o coupon"
+]
+
+Ref: orders.id < coupon_redemptions.order_id [
+  delete: restrict,
+  note: "Coupon foi resgatado neste pedido"
+]

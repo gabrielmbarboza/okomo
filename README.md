@@ -13,6 +13,8 @@ For in-depth details about architecture, security, and operations, consult the d
 - [**Security & Privacy**](docs/security.md) - Authentication, RBAC, and encryption patterns.
 - [**Testing Strategy**](docs/testing_strategy.md) - Testing pyramid and quality patterns.
 - [**Data Model**](docs/data_model/) - Conceptual, logical, and DBML diagrams (PostgreSQL).
+  - [**Global Data Model Overview**](docs/data_model/overview.md) - Architectural view of all Bounded Contexts.
+  - [**Global DBML Diagram**](docs/data_model/dbdiagram/okomo_overview.dbml) - Consolidated ER model. Visualize at [dbdiagram.io](https://dbdiagram.io).
 - [**Deployment & Infrastructure**](docs/deployment.md) - Docker, Thruster, S3, and CI/CD.
 - [**Operational Runbook**](docs/runbooks/operational_runbook.md) - Crisis procedures and maintenance.
 - [**Domain Events**](docs/domain_events.md) - Inter-context communication mapping.

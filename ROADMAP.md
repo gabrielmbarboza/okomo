@@ -71,6 +71,11 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Documentar modelo lógico para PostgreSQL em `docs/data_model/logical_model.md`
 - [x] Definir convenções de nomenclatura em `docs/data_model/naming_conventions.md`
 - [x] Gerar diagrama DBML para visualização em dbdiagram.io (`docs/data_model/dbdiagram/identity.dbml`)
+- [x] Criar diagrama global consolidado (`docs/data_model/dbdiagram/okomo_overview.dbml`)
+- [x] Documentar visão arquitetônica global em `docs/data_model/overview.md`
+- [x] ADR-017: Modelagem Evolutiva do Modelo de Dados
+- [ ] Refinar diagramas específicos por Bounded Context conforme implementação evolui
+- [ ] Revisar o modelo ER antes de cada nova fase de desenvolvimento
 
 ## Modelagem de Domínio
 - [x] Criar `docs/ubiquitous_language.md`
