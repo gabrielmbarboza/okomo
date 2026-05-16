@@ -1,37 +1,33 @@
 // Okomo — Global Data Model Overview (DBML)
 // Visualize at: https://dbdiagram.io/
 //
-// Este arquivo descreve a visão global e consolidada do modelo de dados
-// Inclui representação de alto nível de todos os Bounded Contexts:
+// This file describes the global and consolidated view of the data model.
+// Includes high-level representation of all Bounded Contexts:
 // Identity, Catalog, Inventory, Orders, Checkout, Payments, Shipping, Promotions
 //
-// Nota: Este diagrama fornece uma visão arquitetônica consolidada.
-// Modelos lógicos detalhados de cada bounded context estão em arquivos específicos.
+// Note: This diagram provides a consolidated architectural view.
+// Detailed logical models for each bounded context are in separate files.
 
 // ============================================================
 // IDENTITY CONTEXT
 // ============================================================
 
 Table users {
-  id uuid [pk, note: "Primary key"]
+  id uuid [pk]
   email varchar [unique, not null]
   password_digest varchar [not null]
-  status varchar [not null, default: "pending_confirmation"]
+  status varchar [not null, default: 'pending_confirmation']
   email_confirmed_at timestamp
   last_login_at timestamp
   created_at timestamp [not null]
   updated_at timestamp [not null]
-
-  note: "Conta de acesso e identidade do usuário na plataforma"
 }
 
 Table roles {
   id uuid [pk]
-  name varchar [unique, not null, note: "buyer, seller, admin"]
+  name varchar [unique, not null]
   created_at timestamp [not null]
   updated_at timestamp [not null]
-
-  note: "Papéis e permissões do sistema"
 }
 
 Table user_roles {
@@ -43,23 +39,19 @@ Table user_roles {
   indexes {
     (user_id, role_id) [unique]
   }
-
-  note: "Relacionamento muitos-para-muitos entre usuários e papéis"
 }
 
 Table seller_profiles {
   id uuid [pk]
-  user_id uuid [unique, not null, note: "Relacionamento um-para-um"]
+  user_id uuid [unique, not null]
   display_name varchar [not null]
-  status varchar [not null, default: "pending_review", note: "pending_review, approved, rejected, suspended"]
+  status varchar [not null, default: 'pending_review']
   requested_at timestamp [not null]
-  reviewed_by_id uuid [note: "Admin/Moderador"]
+  reviewed_by_id uuid
   approved_at timestamp
   suspended_at timestamp
   created_at timestamp [not null]
   updated_at timestamp [not null]
-
-  note: "Perfil de vendedor com processo de aprovação"
 }
 
 // ============================================================
@@ -68,27 +60,25 @@ Table seller_profiles {
 
 Table products {
   id uuid [pk]
-  seller_profile_id uuid [not null, note: "Propriedade do vendedor"]
+  seller_profile_id uuid [not null]
   name varchar [not null]
   description text
-  status varchar [not null, default: "draft", note: "draft, published, archived"]
+  status varchar [not null, default: 'draft']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 
   indexes {
     seller_profile_id
   }
-
-  note: "Produto conceitual pertencente a um vendedor"
 }
 
 Table variants {
   id uuid [pk]
   product_id uuid [not null]
   name varchar [not null]
-  sku varchar [note: "Stock Keeping Unit"]
+  sku varchar
   price decimal [not null]
-  status varchar [not null, default: "draft", note: "draft, published, archived"]
+  status varchar [not null, default: 'draft']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 
@@ -96,8 +86,6 @@ Table variants {
     product_id
     sku [unique]
   }
-
-  note: "Variante de um produto com preço e atributos específicos"
 }
 
 // ============================================================
@@ -106,7 +94,7 @@ Table variants {
 
 Table inventories {
   id uuid [pk]
-  variant_id uuid [unique, not null, note: "Um-para-um com variants"]
+  variant_id uuid [unique, not null]
   quantity integer [not null, default: 0]
   reserved_quantity integer [not null, default: 0]
   updated_at timestamp [not null]
@@ -114,16 +102,14 @@ Table inventories {
   indexes {
     variant_id
   }
-
-  note: "Controle de estoque e reservas por variante"
 }
 
 Table inventory_reservations {
   id uuid [pk]
   inventory_id uuid [not null]
-  order_item_id uuid [note: "Referência para OrderItem"]
+  order_item_id uuid
   quantity integer [not null]
-  status varchar [not null, default: "pending", note: "pending, confirmed, released, expired"]
+  status varchar [not null, default: 'pending']
   expires_at timestamp [not null]
   released_at timestamp
   created_at timestamp [not null]
@@ -135,8 +121,6 @@ Table inventory_reservations {
     status
     expires_at
   }
-
-  note: "Reserva de estoque com expiração. Pessimistic locking aplicado."
 }
 
 // ============================================================
@@ -145,11 +129,11 @@ Table inventory_reservations {
 
 Table orders {
   id uuid [pk]
-  user_id uuid [not null, note: "Comprador (Buyer)"]
-  status varchar [not null, default: "pending", note: "pending, confirmed, shipped, delivered, cancelled"]
+  user_id uuid [not null]
+  status varchar [not null, default: 'pending']
   total_amount decimal [not null]
   discount_amount decimal [default: 0]
-  coupon_id uuid [note: "Coupon aplicado opcionalmente"]
+  coupon_id uuid
   created_at timestamp [not null]
   updated_at timestamp [not null]
 
@@ -159,8 +143,6 @@ Table orders {
     coupon_id
     created_at
   }
-
-  note: "Pedido do comprador com snapshot de preços"
 }
 
 Table order_items {
@@ -168,7 +150,7 @@ Table order_items {
   order_id uuid [not null]
   variant_id uuid [not null]
   quantity integer [not null]
-  unit_price decimal [not null, note: "Snapshot do preço no momento da compra"]
+  unit_price decimal [not null]
   line_total decimal [not null]
   created_at timestamp [not null]
 
@@ -176,8 +158,6 @@ Table order_items {
     order_id
     variant_id
   }
-
-  note: "Item do pedido com preço garantido (snapshot)"
 }
 
 // ============================================================
@@ -186,8 +166,8 @@ Table order_items {
 
 Table checkout_sessions {
   id uuid [pk]
-  order_id uuid [unique, not null, note: "Um-para-um com orders"]
-  status varchar [not null, default: "pending", note: "pending, in_progress, completed, abandoned"]
+  order_id uuid [unique, not null]
+  status varchar [not null, default: 'pending']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 
@@ -195,8 +175,6 @@ Table checkout_sessions {
     order_id
     status
   }
-
-  note: "Sessão de checkout, orquestra finalização da compra"
 }
 
 // ============================================================
@@ -207,9 +185,9 @@ Table payments {
   id uuid [pk]
   order_id uuid [not null]
   amount decimal [not null]
-  status varchar [not null, default: "pending", note: "pending, processing, approved, declined, refunded"]
-  payment_method varchar [note: "credit_card, pix, transfer"]
-  gateway_transaction_id varchar [note: "ID da transação no gateway de pagamento"]
+  status varchar [not null, default: 'pending']
+  payment_method varchar
+  gateway_transaction_id varchar
   created_at timestamp [not null]
   updated_at timestamp [not null]
 
@@ -218,8 +196,6 @@ Table payments {
     status
     gateway_transaction_id
   }
-
-  note: "Processamento e conciliação de pagamentos"
 }
 
 // ============================================================
@@ -228,10 +204,10 @@ Table payments {
 
 Table shipments {
   id uuid [pk]
-  order_id uuid [unique, not null, note: "Um-para-um com orders"]
+  order_id uuid [unique, not null]
   tracking_number varchar
-  status varchar [not null, default: "pending", note: "pending, processing, shipped, in_transit, delivered, failed"]
-  shipping_method varchar [note: "standard, express, etc"]
+  status varchar [not null, default: 'pending']
+  shipping_method varchar
   estimated_delivery_at timestamp
   delivered_at timestamp
   created_at timestamp [not null]
@@ -242,8 +218,6 @@ Table shipments {
     status
     tracking_number
   }
-
-  note: "Cálculo de frete e gestão de entregas"
 }
 
 // ============================================================
@@ -252,11 +226,11 @@ Table shipments {
 
 Table coupons {
   id uuid [pk]
-  created_by_id uuid [not null, note: "Seller que criou o coupon"]
+  created_by_id uuid [not null]
   code varchar [unique, not null]
   discount_value decimal [not null]
-  discount_type varchar [not null, note: "percentage, fixed"]
-  status varchar [not null, default: "active", note: "active, inactive, expired"]
+  discount_type varchar [not null]
+  status varchar [not null, default: 'active']
   valid_from timestamp
   valid_until timestamp
   max_uses integer
@@ -269,15 +243,13 @@ Table coupons {
     status
     valid_until
   }
-
-  note: "Cupom de desconto gerenciado por vendedor"
 }
 
 Table coupon_redemptions {
   id uuid [pk]
   coupon_id uuid [not null]
   user_id uuid [not null]
-  order_id uuid [not null, note: "Onde o cupom foi aplicado"]
+  order_id uuid [not null]
   redeemed_at timestamp [not null]
   created_at timestamp [not null]
 
@@ -286,8 +258,6 @@ Table coupon_redemptions {
     user_id
     order_id
   }
-
-  note: "Utilização de cupom em um pedido"
 }
 
 // ============================================================
@@ -296,103 +266,84 @@ Table coupon_redemptions {
 
 // Identity relationships
 Ref: users.id < user_roles.user_id [
-  delete: cascade,
-  note: "Deletar usuário remove roles"
+  delete: cascade
 ]
 
 Ref: roles.id < user_roles.role_id [
-  delete: restrict,
-  note: "Não pode deletar role em uso"
+  delete: restrict
 ]
 
 Ref: users.id - seller_profiles.user_id [
-  delete: cascade,
-  note: "Um-para-um: cada user pode ter um seller_profile"
+  delete: cascade
 ]
 
 Ref: users.id < seller_profiles.reviewed_by_id [
-  delete: setnull,
-  note: "Admin que revisou o perfil"
+  delete: setnull
 ]
 
 // Catalog relationships
 Ref: seller_profiles.id < products.seller_profile_id [
-  delete: cascade,
-  note: "Vendedor possui produtos"
+  delete: cascade
 ]
 
 Ref: products.id < variants.product_id [
-  delete: cascade,
-  note: "Produto possui variantes"
+  delete: cascade
 ]
 
 // Inventory relationships
 Ref: variants.id - inventories.variant_id [
-  delete: cascade,
-  note: "Um-para-um: cada variante tem um estoque"
+  delete: cascade
 ]
 
 Ref: inventories.id < inventory_reservations.inventory_id [
-  delete: cascade,
-  note: "Estoque pode ter múltiplas reservas"
+  delete: cascade
 ]
 
 // Orders relationships
 Ref: users.id < orders.user_id [
-  delete: restrict,
-  note: "Comprador do pedido"
+  delete: restrict
 ]
 
 Ref: orders.id < order_items.order_id [
-  delete: cascade,
-  note: "Pedido possui itens"
+  delete: cascade
 ]
 
 Ref: variants.id < order_items.variant_id [
-  delete: restrict,
-  note: "Item do pedido referencia variante"
+  delete: restrict
 ]
 
 Ref: coupons.id < orders.coupon_id [
-  delete: setnull,
-  note: "Pedido pode ter um coupon aplicado (opcional)"
+  delete: setnull
 ]
 
 // Checkout relationships
 Ref: orders.id - checkout_sessions.order_id [
-  delete: cascade,
-  note: "Um-para-um: cada pedido tem uma sessão de checkout"
+  delete: cascade
 ]
 
 // Payments relationships
 Ref: orders.id < payments.order_id [
-  delete: restrict,
-  note: "Pedido pode ter múltiplos pagamentos"
+  delete: restrict
 ]
 
 // Shipping relationships
 Ref: orders.id - shipments.order_id [
-  delete: cascade,
-  note: "Um-para-um: cada pedido tem uma entrega (opcional)"
+  delete: cascade
 ]
 
 // Promotions relationships
 Ref: users.id < coupons.created_by_id [
-  delete: restrict,
-  note: "Seller criou o coupon"
+  delete: restrict
 ]
 
 Ref: coupons.id < coupon_redemptions.coupon_id [
-  delete: cascade,
-  note: "Coupon pode ter múltiplas redenções"
+  delete: cascade
 ]
 
 Ref: users.id < coupon_redemptions.user_id [
-  delete: restrict,
-  note: "Comprador resgatou o coupon"
+  delete: restrict
 ]
 
 Ref: orders.id < coupon_redemptions.order_id [
-  delete: restrict,
-  note: "Coupon foi resgatado neste pedido"
+  delete: restrict
 ]
