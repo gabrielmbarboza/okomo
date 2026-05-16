@@ -278,7 +278,7 @@ Ref: users.id - seller_profiles.user_id [
 ]
 
 Ref: users.id < seller_profiles.reviewed_by_id [
-  delete: setnull
+  delete: set null
 ]
 
 // Catalog relationships
@@ -313,7 +313,7 @@ Ref: variants.id < order_items.variant_id [
 ]
 
 Ref: coupons.id < orders.coupon_id [
-  delete: setnull
+  delete: set null
 ]
 
 // Checkout relationships
