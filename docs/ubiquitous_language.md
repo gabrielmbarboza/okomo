@@ -16,6 +16,64 @@ O objetivo é:
 
 # 👥 Atores
 
+## BaseEntity
+
+Classe base do Shared Kernel usada por entidades de domínio.
+
+Responsabilidades:
+
+* fornecer inicialização comum para entidades
+* registrar atributos declarativos
+* aplicar valores padrão
+* executar validações declarativas simples
+* preservar igualdade estrutural entre entidades
+
+Observações:
+
+* `BaseEntity` não depende de ActiveModel ou ActiveRecord
+* cada bounded context continua responsável pelas suas regras de negócio
+* entidades podem declarar atributos com `attribute` e `attributes`
+
+---
+
+## Declarative Entity Infrastructure
+
+Infraestrutura de modelagem que permite declarar atributos, defaults e validações
+diretamente nas entidades de domínio.
+
+Responsabilidades:
+
+* reduzir código repetitivo de `initialize`
+* padronizar validações de presença e inclusão
+* manter entidades como POROs
+* oferecer uma experiência familiar para quem trabalha com Rails, sem acoplar o domínio ao framework
+
+Observações:
+
+* métodos técnicos como `attribute`, `attributes` e `validates` permanecem em inglês
+* validações complexas continuam podendo ser implementadas em métodos de domínio específicos
+
+---
+
+## Domain Validation
+
+Regra declarativa ou explícita que protege invariantes dentro de uma entidade de domínio.
+
+Responsabilidades:
+
+* impedir criação de entidades em estado inválido
+* validar presença de dados obrigatórios
+* validar inclusão em catálogos fechados, como status e roles
+* produzir erros claros para testes e camada de aplicação
+
+Observações:
+
+* `Domain Validation` levanta `ArgumentError` quando uma regra é violada
+* validações não substituem regras de negócio mais ricas das entidades
+* validações não dependem de banco de dados
+
+---
+
 ## User
 
 Conta de acesso ao sistema que representa a identidade básica de um usuário na plataforma.

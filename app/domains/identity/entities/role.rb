@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Identity
   module Entities
     # Role representa um catálogo global de permissões da plataforma.
@@ -18,27 +20,14 @@ module Identity
 
       VALID_NAMES = [BUYER, SELLER, PLATFORM_ADMIN].freeze
 
-      attr_accessor :id,
-                    :name,
-                    :description,
-                    :created_at,
-                    :updated_at
+      attribute :id, default: -> { SecureRandom.uuid }
+      attributes :name, :description
+      attribute :created_at, default: -> { Time.current }
+      attribute :updated_at, default: ->(role) { role.created_at }
 
-      def initialize(id:, name:, description: nil, created_at: nil, updated_at: nil)
-        @id = id
-        @name = name
-        @description = description
-        @created_at = created_at || Time.current
-        @updated_at = updated_at || @created_at
-
-        validate!
-      end
-
-      def validate!
-        raise ArgumentError, "id cannot be nil" if @id.nil?
-        raise ArgumentError, "name cannot be nil or empty" if @name.blank?
-        raise ArgumentError, "name must be one of: #{VALID_NAMES.join(', ')}" unless VALID_NAMES.include?(@name)
-      end
+      validates :id, presence: { message: "id cannot be nil" }
+      validates :name, presence: true
+      validates :name, inclusion: { in: VALID_NAMES }
 
       def buyer?
         @name == BUYER

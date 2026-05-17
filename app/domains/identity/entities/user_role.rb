@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Identity
   module Entities
     # UserRole representa a atribuição auditável de um Role a um User em um ponto
@@ -14,45 +16,23 @@ module Identity
     #
     # O role 'buyer' nunca pode ser revogado após atribuição.
     class UserRole < Shared::Entities::BaseEntity
-      attr_accessor :id,
-                    :user_id,
-                    :role_id,
-                    :granted_at,
-                    :revoked_at,
-                    :granted_by_user_id,
-                    :revoked_by_user_id,
-                    :reason,
-                    :created_at,
-                    :updated_at
+      attribute :id, default: -> { SecureRandom.uuid }
+      attributes :user_id,
+                 :role_id,
+                 :revoked_at,
+                 :granted_by_user_id,
+                 :revoked_by_user_id,
+                 :reason
+      attribute :granted_at, default: ->(user_role) { user_role.revoked_at || Time.current }
+      attribute :created_at, default: ->(user_role) { user_role.granted_at }
+      attribute :updated_at, default: ->(user_role) { user_role.created_at }
 
-      def initialize(id:,
-                     user_id:,
-                     role_id:,
-                     granted_at: nil,
-                     revoked_at: nil,
-                     granted_by_user_id: nil,
-                     revoked_by_user_id: nil,
-                     reason: nil,
-                     created_at: nil,
-                     updated_at: nil)
-        @id = id
-        @user_id = user_id
-        @role_id = role_id
-        @granted_at = granted_at || revoked_at || Time.current
-        @revoked_at = revoked_at
-        @granted_by_user_id = granted_by_user_id
-        @revoked_by_user_id = revoked_by_user_id
-        @reason = reason
-        @created_at = created_at || @granted_at
-        @updated_at = updated_at || @created_at
-
-        validate!
-      end
+      validates :user_id, presence: { message: "user_id cannot be nil" }
+      validates :role_id, presence: { message: "role_id cannot be nil" }
+      validates :granted_at, presence: { message: "granted_at cannot be nil" }
 
       def validate!
-        raise ArgumentError, "user_id cannot be nil" if @user_id.nil?
-        raise ArgumentError, "role_id cannot be nil" if @role_id.nil?
-        raise ArgumentError, "granted_at cannot be nil" if @granted_at.nil?
+        super
         raise ArgumentError, "revoked_at cannot be before granted_at" if @revoked_at && @revoked_at < @granted_at
       end
 

@@ -35,50 +35,22 @@ module Identity
 
       VALID_STATUSES = [PENDING_CONFIRMATION, ACTIVE, BLOCKED, DEACTIVATED].freeze
 
-      attr_accessor :id,
-                    :name,
-                    :email,
-                    :password_digest,
-                    :status,
-                    :email_confirmed_at,
-                    :last_login_at,
-                    :user_roles,
-                    :seller_profile,
-                    :created_at,
-                    :updated_at
+      attribute :id, default: -> { SecureRandom.uuid }
+      attributes :name,
+                 :email,
+                 :password_digest,
+                 :email_confirmed_at,
+                 :last_login_at,
+                 :seller_profile
+      attribute :status, default: PENDING_CONFIRMATION
+      attribute :user_roles, default: -> { [] }
+      attribute :created_at, default: -> { Time.current }
+      attribute :updated_at, default: ->(user) { user.created_at }
 
-      def initialize(id:,
-                     email:,
-                     password_digest:,
-                     status: PENDING_CONFIRMATION,
-                     name: nil,
-                     email_confirmed_at: nil,
-                     last_login_at: nil,
-                     user_roles: [],
-                     seller_profile: nil,
-                     created_at: nil,
-                     updated_at: nil)
-        @id = id
-        @name = name
-        @email = email
-        @password_digest = password_digest
-        @status = status
-        @email_confirmed_at = email_confirmed_at
-        @last_login_at = last_login_at
-        @user_roles = user_roles || []
-        @seller_profile = seller_profile
-        @created_at = created_at || Time.current
-        @updated_at = updated_at || @created_at
-
-        validate!
-      end
-
-      def validate!
-        raise ArgumentError, "id cannot be nil" if @id.nil?
-        raise ArgumentError, "email cannot be nil or empty" if @email.blank?
-        raise ArgumentError, "password_digest cannot be nil or empty" if @password_digest.blank?
-        raise ArgumentError, "status must be one of: #{VALID_STATUSES.join(', ')}" unless VALID_STATUSES.include?(@status)
-      end
+      validates :id, presence: { message: "id cannot be nil" }
+      validates :email, presence: true
+      validates :password_digest, presence: true
+      validates :status, inclusion: { in: VALID_STATUSES }
 
       # Verifica se o email foi confirmado
       def email_confirmed?

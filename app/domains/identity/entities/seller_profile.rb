@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Identity
   module Entities
     # SellerProfile representa o perfil de um vendedor na plataforma, incluindo
@@ -40,83 +42,33 @@ module Identity
 
       VALID_DOCUMENT_TYPES = [DOC_TYPE_CPF, DOC_TYPE_CNPJ, DOC_TYPE_MEI].freeze
 
-      attr_accessor :id,
-                    :user_id,
-                    :display_name,
-                    :description,
-                    :status,
-                    :document_type,
-                    :document_number,
-                    :legal_name,
-                    :contact_email,
-                    :contact_phone,
-                    :commercial_address,
-                    :requested_at,
-                    :reviewed_at,
-                    :reviewed_by_user_id,
-                    :approved_at,
-                    :rejected_at,
-                    :rejection_reason,
-                    :suspended_at,
-                    :suspension_reason,
-                    :created_at,
-                    :updated_at
+      attribute :id, default: -> { SecureRandom.uuid }
+      attributes :user_id,
+                 :display_name,
+                 :description,
+                 :document_type,
+                 :document_number,
+                 :legal_name,
+                 :contact_email,
+                 :contact_phone,
+                 :commercial_address,
+                 :reviewed_at,
+                 :reviewed_by_user_id,
+                 :approved_at,
+                 :rejected_at,
+                 :rejection_reason,
+                 :suspended_at,
+                 :suspension_reason
+      attribute :status, default: PENDING_REVIEW
+      attribute :requested_at, default: -> { Time.current }
+      attribute :created_at, default: ->(seller_profile) { seller_profile.requested_at }
+      attribute :updated_at, default: ->(seller_profile) { seller_profile.created_at }
 
-      def initialize(id:,
-                     user_id:,
-                     display_name:,
-                     description: nil,
-                     status: PENDING_REVIEW,
-                     document_type: nil,
-                     document_number: nil,
-                     legal_name: nil,
-                     contact_email: nil,
-                     contact_phone: nil,
-                     commercial_address: nil,
-                     requested_at: nil,
-                     reviewed_at: nil,
-                     reviewed_by_user_id: nil,
-                     approved_at: nil,
-                     rejected_at: nil,
-                     rejection_reason: nil,
-                     suspended_at: nil,
-                     suspension_reason: nil,
-                     created_at: nil,
-                     updated_at: nil)
-        @id = id
-        @user_id = user_id
-        @display_name = display_name
-        @description = description
-        @status = status
-        @document_type = document_type
-        @document_number = document_number
-        @legal_name = legal_name
-        @contact_email = contact_email
-        @contact_phone = contact_phone
-        @commercial_address = commercial_address
-        @requested_at = requested_at || Time.current
-        @reviewed_at = reviewed_at
-        @reviewed_by_user_id = reviewed_by_user_id
-        @approved_at = approved_at
-        @rejected_at = rejected_at
-        @rejection_reason = rejection_reason
-        @suspended_at = suspended_at
-        @suspension_reason = suspension_reason
-        @created_at = created_at || @requested_at
-        @updated_at = updated_at || @created_at
-
-        validate!
-      end
-
-      def validate!
-        raise ArgumentError, "id cannot be nil" if @id.nil?
-        raise ArgumentError, "user_id cannot be nil" if @user_id.nil?
-        raise ArgumentError, "display_name cannot be nil or empty" if @display_name.blank?
-        raise ArgumentError, "status must be one of: #{VALID_STATUSES.join(', ')}" unless VALID_STATUSES.include?(@status)
-        if @document_type.present? && !VALID_DOCUMENT_TYPES.include?(@document_type)
-          raise ArgumentError, "document_type must be one of: #{VALID_DOCUMENT_TYPES.join(', ')}"
-        end
-      end
+      validates :id, presence: { message: "id cannot be nil" }
+      validates :user_id, presence: { message: "user_id cannot be nil" }
+      validates :display_name, presence: true
+      validates :status, inclusion: { in: VALID_STATUSES }
+      validates :document_type, inclusion: { in: VALID_DOCUMENT_TYPES }
 
       # Verifica se SellerProfile está em revisão
       def pending_review?

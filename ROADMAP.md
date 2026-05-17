@@ -60,6 +60,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] ADR-015: Custom Rails Generators para Domain Scaffolding
 - [x] ADR-016: Política Contínua de Atualização de Ruby, Rails e Dependências
 - [x] ADR-018: Roles e UserRole como Entidades Auditáveis
+- [x] ADR-020: Infraestrutura Declarativa para Entidades de Domínio
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`
@@ -121,6 +122,8 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Configurar Docker Compose completo (App, PostgreSQL, Redis, Sidekiq)
 - [x] Configurar RSpec, FactoryBot, Faker, RuboCop, Brakeman, Bundler Audit e GitHub Actions
 - [x] Implementar `BaseEntity` com suporte a UUID e Domain Events
+- [x] Evoluir BaseEntity para suportar attributes e validações declarativas
+- [x] Refatorar entidades existentes para usar infraestrutura declarativa
 - [x] Implementar `BaseValueObject`
 - [x] Implementar `BaseService`
 - [ ] Implementar `BaseRepository`

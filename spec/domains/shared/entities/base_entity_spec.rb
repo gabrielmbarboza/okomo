@@ -40,6 +40,187 @@ RSpec.describe Shared::Entities::BaseEntity do
     end
   end
 
+  describe '.attributes' do
+    let(:declarative_class) do
+      Class.new(described_class) do
+        attributes :id, :name
+      end
+    end
+
+    it 'registra atributos declarados' do
+      expect(declarative_class.attribute_names).to eq(%i[id name])
+    end
+
+    it 'cria accessors automaticamente' do
+      entity = declarative_class.new(id: 1, name: 'John')
+
+      expect(entity.id).to eq(1)
+      expect(entity.name).to eq('John')
+
+      entity.name = 'Jane'
+      expect(entity.name).to eq('Jane')
+    end
+  end
+
+  describe '.attribute' do
+    it 'registra a definição de um atributo com default literal' do
+      declarative_class = Class.new(described_class) do
+        attribute :status, default: 'pending'
+      end
+
+      expect(declarative_class.attribute_definitions).to eq(
+        status: { default: 'pending' }
+      )
+    end
+
+    it 'aplica default literal quando atributo não é informado' do
+      declarative_class = Class.new(described_class) do
+        attribute :status, default: 'pending'
+      end
+
+      expect(declarative_class.new.status).to eq('pending')
+    end
+
+    it 'não substitui valor explicitamente informado por default' do
+      declarative_class = Class.new(described_class) do
+        attribute :status, default: 'pending'
+      end
+
+      expect(declarative_class.new(status: 'active').status).to eq('active')
+    end
+
+    it 'avalia default callable por instância' do
+      declarative_class = Class.new(described_class) do
+        attribute :items, default: -> { [] }
+      end
+
+      first = declarative_class.new
+      second = declarative_class.new
+
+      first.items << 'item'
+
+      expect(first.items).to eq(['item'])
+      expect(second.items).to eq([])
+    end
+
+    it 'permite default callable dependente da instância' do
+      declarative_class = Class.new(described_class) do
+        attribute :created_at, default: -> { Time.zone.parse('2026-05-17 10:00:00') }
+        attribute :updated_at, default: ->(entity) { entity.created_at }
+      end
+
+      entity = declarative_class.new
+
+      expect(entity.updated_at).to eq(entity.created_at)
+    end
+  end
+
+  describe '.validates' do
+    it 'registra validações declarativas' do
+      declarative_class = Class.new(described_class) do
+        attributes :name
+        validates :name, presence: true
+      end
+
+      expect(declarative_class.validations).to eq(
+        [
+          {
+            attribute: :name,
+            options: { presence: true }
+          }
+        ]
+      )
+    end
+
+    it 'valida presença contra nil' do
+      declarative_class = Class.new(described_class) do
+        attributes :name
+        validates :name, presence: true
+      end
+
+      expect {
+        declarative_class.new(name: nil)
+      }.to raise_error(ArgumentError, 'name cannot be nil or empty')
+    end
+
+    it 'valida presença contra string em branco' do
+      declarative_class = Class.new(described_class) do
+        attributes :name
+        validates :name, presence: true
+      end
+
+      expect {
+        declarative_class.new(name: '   ')
+      }.to raise_error(ArgumentError, 'name cannot be nil or empty')
+    end
+
+    it 'valida presença contra array vazio' do
+      declarative_class = Class.new(described_class) do
+        attributes :items
+        validates :items, presence: true
+      end
+
+      expect {
+        declarative_class.new(items: [])
+      }.to raise_error(ArgumentError, 'items cannot be nil or empty')
+    end
+
+    it 'permite mensagem customizada de presença' do
+      declarative_class = Class.new(described_class) do
+        attributes :user_id
+        validates :user_id, presence: { message: 'user_id cannot be nil' }
+      end
+
+      expect {
+        declarative_class.new(user_id: nil)
+      }.to raise_error(ArgumentError, 'user_id cannot be nil')
+    end
+
+    it 'valida inclusão em coleção configurada' do
+      declarative_class = Class.new(described_class) do
+        VALID_STATUSES = %w[pending active].freeze
+
+        attributes :status
+        validates :status, inclusion: { in: VALID_STATUSES }
+      end
+
+      expect {
+        declarative_class.new(status: 'blocked')
+      }.to raise_error(ArgumentError, 'status must be one of: pending, active')
+    end
+
+    it 'permite valores incluídos na coleção' do
+      declarative_class = Class.new(described_class) do
+        attributes :status
+        validates :status, inclusion: { in: %w[pending active] }
+      end
+
+      expect(declarative_class.new(status: 'active').status).to eq('active')
+    end
+
+    it 'ignora inclusão para valor nil quando presença não foi exigida' do
+      declarative_class = Class.new(described_class) do
+        attributes :document_type
+        validates :document_type, inclusion: { in: %w[cpf cnpj mei] }
+      end
+
+      expect(declarative_class.new(document_type: nil).document_type).to be_nil
+    end
+  end
+
+  describe '#validate!' do
+    it 'retorna a própria entidade quando válida' do
+      declarative_class = Class.new(described_class) do
+        attributes :name
+        validates :name, presence: true
+      end
+
+      entity = declarative_class.new(name: 'John')
+
+      expect(entity.validate!).to eq(entity)
+    end
+  end
+
   describe '#==' do
     context 'when entities have same class and all attributes equal' do
       it 'returns true' do

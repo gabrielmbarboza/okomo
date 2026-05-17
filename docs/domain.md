@@ -73,7 +73,74 @@ Promotion
 
 ---
 
-# 4. Bounded Context: Identity
+# 4. Shared Kernel
+
+## Responsabilidade
+
+O Shared Kernel reúne infraestrutura mínima compartilhada entre bounded
+contexts, sem carregar regras específicas de negócio.
+
+## Entidades Base
+
+### Shared::Entities::BaseEntity
+
+`Shared::Entities::BaseEntity` é a classe base para entidades de domínio
+implementadas como POROs.
+
+**Responsabilidades:**
+
+* fornecer inicialização automática baseada em atributos declarados
+* registrar atributos com `attributes`
+* registrar atributos individuais e defaults com `attribute`
+* executar validações declarativas com `validates`
+* preservar igualdade e `hash` entre entidades
+
+**Atributos Declarativos:**
+
+Entidades podem declarar múltiplos atributos com `attributes`:
+
+```ruby
+attributes :email, :password_digest, :status
+```
+
+Para defaults, a entidade usa `attribute`:
+
+```ruby
+attribute :created_at, default: -> { Time.current }
+attribute :user_roles, default: -> { [] }
+```
+
+Defaults callable são avaliados por instância, evitando compartilhamento de
+objetos mutáveis entre entidades.
+
+**Inicialização Automática:**
+
+O `initialize` de `BaseEntity` recebe keyword arguments, atribui valores
+informados, aplica defaults ausentes e executa `validate!`.
+
+**Suporte a Validações:**
+
+Validações simples são declaradas com `validates`:
+
+```ruby
+validates :email, presence: true
+validates :status, inclusion: { in: VALID_STATUSES }
+```
+
+As validações suportadas inicialmente são:
+
+* `presence: true` - rejeita `nil`, strings em branco e coleções vazias
+* `inclusion: { in: [...] }` - exige que o valor pertença à coleção configurada
+
+**Decisão Arquitetônica:**
+
+A infraestrutura permanece independente de ActiveModel e ActiveRecord. O
+domínio continua framework-agnostic, e integrações com persistência ou APIs
+devem permanecer fora das entidades.
+
+---
+
+# 5. Bounded Context: Identity
 
 ## Responsabilidade
 
