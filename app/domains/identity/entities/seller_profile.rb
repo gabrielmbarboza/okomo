@@ -29,18 +29,18 @@ module Identity
     # - suspension_reason: Motivo da suspensão
     # - created_at, updated_at: Timestamps
     class SellerProfile < Shared::Entities::BaseEntity
-      PENDING_REVIEW = 'pending_review'
-      APPROVED = 'approved'
-      REJECTED = 'rejected'
-      SUSPENDED = 'suspended'
+      PENDING_REVIEW = "pending_review"
+      APPROVED = "approved"
+      REJECTED = "rejected"
+      SUSPENDED = "suspended"
 
-      VALID_STATUSES = [PENDING_REVIEW, APPROVED, REJECTED, SUSPENDED].freeze
+      VALID_STATUSES = [ PENDING_REVIEW, APPROVED, REJECTED, SUSPENDED ].freeze
 
-      DOC_TYPE_CPF = 'cpf'
-      DOC_TYPE_CNPJ = 'cnpj'
-      DOC_TYPE_MEI = 'mei'
+      DOC_TYPE_CPF = "cpf"
+      DOC_TYPE_CNPJ = "cnpj"
+      DOC_TYPE_MEI = "mei"
 
-      VALID_DOCUMENT_TYPES = [DOC_TYPE_CPF, DOC_TYPE_CNPJ, DOC_TYPE_MEI].freeze
+      VALID_DOCUMENT_TYPES = [ DOC_TYPE_CPF, DOC_TYPE_CNPJ, DOC_TYPE_MEI ].freeze
 
       attribute :id, default: -> { SecureRandom.uuid }
       attributes :user_id,
@@ -63,6 +63,12 @@ module Identity
       attribute :requested_at, default: -> { Time.current }
       attribute :created_at, default: ->(seller_profile) { seller_profile.requested_at }
       attribute :updated_at, default: ->(seller_profile) { seller_profile.created_at }
+
+      sensitive_attributes :document_number,
+                           :legal_name,
+                           :contact_email,
+                           :contact_phone,
+                           :commercial_address
 
       validates :id, presence: { message: "id cannot be nil" }
       validates :user_id, presence: { message: "user_id cannot be nil" }

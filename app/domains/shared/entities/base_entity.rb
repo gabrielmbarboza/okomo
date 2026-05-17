@@ -24,6 +24,11 @@ module Shared
           }
         end
 
+        def sensitive_attributes(*names)
+          @sensitive_attributes ||= []
+          @sensitive_attributes |= names.map(&:to_sym)
+        end
+
         def attribute_definitions
           inherited = superclass.respond_to?(:attribute_definitions) ? superclass.attribute_definitions : {}
 
@@ -38,6 +43,12 @@ module Shared
           inherited = superclass.respond_to?(:validations) ? superclass.validations : []
 
           inherited + (@validations ||= [])
+        end
+
+        def sensitive_attribute_names
+          inherited = superclass.respond_to?(:sensitive_attribute_names) ? superclass.sensitive_attribute_names : []
+
+          inherited | (@sensitive_attributes || [])
         end
       end
 
@@ -69,10 +80,33 @@ module Shared
       alias_method :eql?, :==
 
       def hash
-        [self.class, *instance_variables.map { |var| instance_variable_get(var) }].hash
+        [ self.class, *instance_variables.map { |var| instance_variable_get(var) } ].hash
+      end
+
+      def to_h(redact: false)
+        self.class.attribute_names.to_h do |attribute_name|
+          value = public_send(attribute_name)
+          value = "[FILTERED]" if redact && sensitive_attribute?(attribute_name) && !value.nil?
+
+          [ attribute_name, value ]
+        end
+      end
+
+      def as_json(*)
+        to_h(redact: true)
+      end
+
+      def inspect
+        attributes = to_h(redact: true).map { |name, value| "#{name}: #{value.inspect}" }.join(", ")
+
+        "#<#{self.class.name || 'AnonymousEntity'} #{attributes}>"
       end
 
       private
+
+      def sensitive_attribute?(attribute_name)
+        self.class.sensitive_attribute_names.include?(attribute_name.to_sym)
+      end
 
       def assign_declared_attributes(attrs)
         self.class.attribute_definitions.each do |name, definition|

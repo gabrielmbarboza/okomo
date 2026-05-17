@@ -55,7 +55,8 @@ O Okomo é organizado em **8 Bounded Contexts** principais, cada um responsável
 **Principais Entidades:**
 
 - **User**: Conta de acesso à plataforma. Representada como um usuário autenticável com e-mail e senha.
-  - Atributos: id (UUID), email, password_digest, status, email_confirmed_at, created_at, updated_at
+  - Atributos: id (UUID), name, email, password_digest, status, email_confirmed_at, terms_accepted_at, privacy_policy_accepted_at, consent_version, blocked_at, deactivated_at, anonymized_at, deleted_at, created_at, updated_at
+  - Estratégia LGPD: anonimização seletiva em vez de exclusão física como padrão.
 
 - **Role**: Catálogo global de papéis da plataforma (`buyer`, `seller`, `platform_admin`).
   - Atributos: id (UUID), name, description, created_at, updated_at
@@ -74,6 +75,8 @@ O Okomo é organizado em **8 Bounded Contexts** principais, cada um responsável
 - Um SellerProfile é revisado por um User com role `platform_admin`
 - Todo User confirmado recebe role `buyer`
 - O role `buyer` não pode ser revogado
+- Orders, Payments, CouponRedemptions e auditoria podem reter referência técnica a `user_id` após anonimização.
+- Dados pessoais diretos de User e SellerProfile devem ser removidos, substituídos ou criptografados conforme política de retenção.
 
 **Diagrama DBML específico:** `docs/data_model/dbdiagram/identity.dbml`
 
@@ -285,9 +288,15 @@ Estados são armazenados como varchar com valores pré-definidos (não enum PG).
 - Compatibilidade com ORMs
 - Clareza em queries SQL
 
-### Soft Deletes
+### Soft Deletes e Anonimização
 
-Atualmente não implementado, mas `status` é usado como alternativa (ex: "deleted").
+Soft delete (`deleted_at`) pode existir como ferramenta técnica, mas não é a estratégia de privacidade principal. Para LGPD, o modelo deve suportar anonimização seletiva:
+
+- preservar IDs técnicos quando necessários para retenção fiscal, antifraude, auditoria, Orders e Payments;
+- remover ou substituir dados pessoais diretos quando a retenção legal permitir;
+- marcar `anonymized_at` em `users`;
+- impedir login e uso operacional da conta anonimizada;
+- evitar `DELETE CASCADE` de `users` para registros históricos obrigatórios.
 
 ### Snapshots de Preço
 

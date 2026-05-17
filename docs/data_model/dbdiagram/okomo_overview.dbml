@@ -14,11 +14,21 @@
 
 Table users {
   id uuid [pk]
+  name varchar
   email varchar [unique, not null]
   password_digest varchar [not null]
   status varchar [not null, default: 'pending_confirmation']
   email_confirmed_at timestamp
   last_login_at timestamp
+  terms_accepted_at timestamp
+  privacy_policy_accepted_at timestamp
+  consent_version varchar
+  consent_ip_address inet
+  consent_user_agent text
+  blocked_at timestamp
+  deactivated_at timestamp
+  anonymized_at timestamp
+  deleted_at timestamp
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -277,7 +287,7 @@ Table coupon_redemptions {
 
 // Identity relationships
 Ref: users.id < user_roles.user_id [
-  delete: cascade
+  delete: restrict
 ]
 
 Ref: roles.id < user_roles.role_id [
@@ -285,7 +295,7 @@ Ref: roles.id < user_roles.role_id [
 ]
 
 Ref: users.id - seller_profiles.user_id [
-  delete: cascade
+  delete: restrict
 ]
 
 Ref: users.id < seller_profiles.reviewed_by_user_id [

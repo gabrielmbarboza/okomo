@@ -35,13 +35,25 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 
 - `UserRegistered` - Novo usuário criou uma conta
   - Quando: Após criação bem-sucedida de User
-  - Dados: user_id, email, created_at
+  - Dados: user_id, created_at
   - Consumidores: SendConfirmationEmailJob, AuditLogging
+  - Privacidade: não carregar email quando `user_id` for suficiente
 
 - `UserEmailConfirmed` - E-mail do usuário foi confirmado
   - Quando: Após validação bem-sucedida do token de confirmação
-  - Dados: user_id, email, confirmed_at
+  - Dados: user_id, confirmed_at
   - Consumidores: GrantBuyerRoleJob, SendWelcomeEmailJob, AuditLogging
+
+- `ConsentAccepted` - Titular aceitou Termos de Uso e Política de Privacidade
+  - Quando: Durante cadastro ou aceite de nova versão de documentos
+  - Dados: user_id, consent_version, terms_accepted_at, privacy_policy_accepted_at, accepted_at
+  - Consumidores: AuditLogging
+  - Privacidade: IP/User-Agent só entram em metadados protegidos quando necessários e proporcionais
+
+- `ConsentRevoked` - Titular revogou consentimento quando aplicável
+  - Quando: Após solicitação válida de revogação
+  - Dados: user_id, consent_version, revoked_at
+  - Consumidores: AuditLogging, ConsentReviewJob
 
 - `RoleGranted` - Um role foi concedido a um usuário
   - Quando: Após atribuição bem-sucedida de um role
@@ -56,13 +68,36 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 
 - `PasswordRecoveryRequested` - Usuário solicitou recuperação de senha
   - Quando: Após validação do e-mail em pedido de recuperação
-  - Dados: user_id, email, requested_at
+  - Dados: user_id, requested_at
   - Consumidores: SendPasswordRecoveryEmailJob, AuditLogging
+  - Privacidade: nunca carregar token em texto plano
 
 - `PasswordResetCompleted` - Senha do usuário foi redefinida com sucesso
   - Quando: Após validação do token e atualização da senha
-  - Dados: user_id, email, reset_at
+  - Dados: user_id, reset_at
   - Consumidores: SendPasswordChangeNotificationJob, AuditLogging
+
+- `PersonalDataExportRequested` - Titular solicitou exportação dos próprios dados pessoais
+  - Quando: Após solicitação autenticada
+  - Dados: user_id, request_id, requested_at
+  - Consumidores: PersonalDataExportJob, AuditLogging
+
+- `PersonalDataExportCompleted` - Exportação de dados pessoais foi concluída
+  - Quando: Após geração segura do pacote de dados
+  - Dados: user_id, request_id, completed_at, expires_at
+  - Consumidores: NotifyPersonalDataExportReadyJob, AuditLogging
+  - Privacidade: o evento não contém o pacote exportado nem URL pública permanente
+
+- `AccountAnonymizationRequested` - Titular solicitou anonimização de conta
+  - Quando: Após solicitação autenticada
+  - Dados: user_id, request_id, requested_at
+  - Consumidores: AccountAnonymizationReviewJob, AuditLogging
+
+- `AccountAnonymized` - Conta foi anonimizada seletivamente
+  - Quando: Após remoção/substituição de dados pessoais diretos permitidos
+  - Dados: user_id, request_id, anonymized_at, retention_reason
+  - Consumidores: RevokeSessionsJob, AuthorizationCacheInvalidator, AuditLogging
+  - Privacidade: preserva identificadores técnicos necessários para retenção legal, sem dados pessoais diretos
 
 **Consumidores Típicos:**
 
@@ -73,6 +108,10 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 - `NotificationJob` - Notifica usuário sobre mudanças de roles
 - `SendPasswordRecoveryEmailJob` - Envia e-mail de recuperação após `PasswordRecoveryRequested`
 - `SendPasswordChangeNotificationJob` - Notifica usuário após `PasswordResetCompleted`
+- `PersonalDataExportJob` - Compila dados pessoais do titular após `PersonalDataExportRequested`
+- `NotifyPersonalDataExportReadyJob` - Notifica titular quando exportação estiver pronta
+- `AccountAnonymizationReviewJob` - Verifica retenções obrigatórias antes de anonimizar
+- `RevokeSessionsJob` - Invalida sessões e tokens após anonimização
 - `AuditLogging` - Registra todos os eventos para auditoria e compliance
 
 ---
@@ -228,6 +267,16 @@ Todos os eventos devem incluir:
 - `aggregate_type` - Tipo do aggregate
 - `occurred_at` - Timestamp do evento
 - `version` - Versão do evento para evolução
+
+### Privacidade em Eventos
+
+Eventos de domínio devem seguir minimização de dados:
+
+- usar `user_id`, `seller_profile_id`, `order_id` e outros identificadores internos no lugar de e-mail, documento, telefone ou endereço;
+- nunca carregar senhas, `password_digest`, tokens em texto plano ou documentos fiscais;
+- incluir dados pessoais apenas quando o consumidor não puder resolvê-los com segurança por outro meio;
+- tratar IP e User-Agent como metadados protegidos, não como payload público de evento;
+- eventos de auditoria devem preservar o fato ocorrido sem transformar o event store em repositório paralelo de dados pessoais.
 
 ## Implementação
 

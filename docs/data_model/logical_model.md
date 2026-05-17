@@ -16,23 +16,38 @@ O modelo lógico descreve a implementação no PostgreSQL do modelo conceitual. 
 | name | varchar(255) | NULL | | Nome do usuário |
 | email | varchar(254) | NOT NULL | | Email único, formato RFC 5321 |
 | password_digest | varchar(255) | NOT NULL | | Hash bcrypt da senha |
-| status | varchar(50) | NOT NULL | 'pending_confirmation' | Enum: pending_confirmation, active, suspended, deleted |
+| status | varchar(50) | NOT NULL | 'pending_confirmation' | Enum: pending_confirmation, active, blocked, deactivated |
 | email_confirmed_at | timestamp | NULL | | NULL até confirmação |
 | last_login_at | timestamp | NULL | | Rastreia último acesso |
+| terms_accepted_at | timestamp | NULL | | Aceite dos Termos de Uso |
+| privacy_policy_accepted_at | timestamp | NULL | | Aceite da Política de Privacidade |
+| consent_version | varchar(50) | NULL | | Versão dos documentos aceitos |
+| consent_ip_address | inet | NULL | | IP usado no aceite, quando necessário |
+| consent_user_agent | text | NULL | | User-Agent usado no aceite, quando necessário |
+| blocked_at | timestamp | NULL | | Data de bloqueio |
+| deactivated_at | timestamp | NULL | | Data de desativação |
+| anonymized_at | timestamp | NULL | | Data de anonimização seletiva |
+| deleted_at | timestamp | NULL | | Soft delete técnico, quando aplicável |
 | created_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data de criação |
 | updated_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data da última atualização |
 
 **Constraints:**
 - PRIMARY KEY: `id`
 - UNIQUE: `email`
-- CHECK: `status IN ('pending_confirmation', 'active', 'suspended', 'deleted')`
+- CHECK: `status IN ('pending_confirmation', 'active', 'blocked', 'deactivated')`
 - CHECK: `LENGTH(email) <= 254 AND email LIKE '%@%.%'`
+- CHECK: `(status = 'blocked' AND blocked_at IS NOT NULL) OR status != 'blocked'`
+- CHECK: `(status = 'deactivated' AND deactivated_at IS NOT NULL) OR status != 'deactivated'`
+- CHECK: `(terms_accepted_at IS NOT NULL AND privacy_policy_accepted_at IS NOT NULL AND consent_version IS NOT NULL) OR anonymized_at IS NOT NULL`
 
 **Índices:**
 - PRIMARY: `users_pkey` (id)
 - UNIQUE: `users_email_idx` (email)
 - REGULAR: `users_status_idx` (status)
 - REGULAR: `users_created_at_idx` (created_at)
+- REGULAR: `users_anonymized_at_idx` (anonymized_at)
+- REGULAR: `users_deleted_at_idx` (deleted_at)
+- REGULAR: `users_consent_version_idx` (consent_version)
 
 **Triggers:**
 - Atualiza `updated_at` automaticamente em UPDATE
@@ -64,7 +79,6 @@ O modelo lógico descreve a implementação no PostgreSQL do modelo conceitual. 
 ```
 buyer      | Pode comprar na plataforma
 seller     | Pode vender na plataforma
-admin      | Acesso administrativo completo
 platform_admin  | Pode revisar perfis, moderar vendedores e administrar a plataforma
 ```
 
@@ -72,27 +86,39 @@ platform_admin  | Pode revisar perfis, moderar vendedores e administrar a plataf
 
 ### user_roles
 
-**Propósito:** Relacionamento muitos-para-muitos entre usuários e roles.
+**Propósito:** Relacionamento auditável muitos-para-muitos entre usuários e roles.
 
 | Coluna | Tipo | Null | Padrão | Comentários |
 |--------|------|------|--------|------------|
 | id | uuid | NOT NULL | gen_random_uuid() | Chave primária |
 | user_id | uuid | NOT NULL | | FK → users(id) |
 | role_id | uuid | NOT NULL | | FK → roles(id) |
-| created_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data da atribuição |
+| granted_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data de concessão |
+| revoked_at | timestamp | NULL | | NULL enquanto ativo |
+| granted_by_user_id | uuid | NULL | | FK → users(id), admin que concedeu |
+| revoked_by_user_id | uuid | NULL | | FK → users(id), admin que revogou |
+| reason | text | NULL | | Motivo da concessão ou revogação |
+| created_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data de criação |
+| updated_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data da última atualização |
 
 **Constraints:**
 - PRIMARY KEY: `id`
-- FOREIGN KEY: `user_id` REFERENCES `users(id)` ON DELETE CASCADE
+- FOREIGN KEY: `user_id` REFERENCES `users(id)` ON DELETE RESTRICT
 - FOREIGN KEY: `role_id` REFERENCES `roles(id)` ON DELETE RESTRICT
-- UNIQUE: `(user_id, role_id)` - Nenhuma duplicação de (user, role)
+- FOREIGN KEY: `granted_by_user_id` REFERENCES `users(id)` ON DELETE SET NULL
+- FOREIGN KEY: `revoked_by_user_id` REFERENCES `users(id)` ON DELETE SET NULL
 - CHECK: `user_id IS NOT NULL AND role_id IS NOT NULL`
+- CHECK: `revoked_at IS NULL OR revoked_at >= granted_at`
 
 **Índices:**
 - PRIMARY: `user_roles_pkey` (id)
-- UNIQUE: `user_roles_user_id_role_id_idx` (user_id, role_id)
+- REGULAR: `user_roles_user_id_role_id_idx` (user_id, role_id)
+- PARTIAL UNIQUE: `user_roles_active_role_idx` (user_id, role_id) WHERE `revoked_at IS NULL`
 - REGULAR: `user_roles_user_id_idx` (user_id)
 - REGULAR: `user_roles_role_id_idx` (role_id)
+- REGULAR: `user_roles_revoked_at_idx` (revoked_at)
+- REGULAR: `user_roles_granted_by_user_id_idx` (granted_by_user_id)
+- REGULAR: `user_roles_revoked_by_user_id_idx` (revoked_by_user_id)
 
 ---
 
@@ -112,13 +138,15 @@ platform_admin  | Pode revisar perfis, moderar vendedores e administrar a plataf
 | reviewed_by_user_id | uuid | NULL | | FK → users(id), User com role `platform_admin` |
 | rejection_reason | text | NULL | | Motivo se rejeitado |
 | approved_at | timestamp | NULL | | Data da aprovação |
+| rejected_at | timestamp | NULL | | Data da rejeição |
 | suspended_at | timestamp | NULL | | Data da suspensão |
+| suspension_reason | text | NULL | | Motivo da suspensão |
 | created_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data de criação |
 | updated_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data da última atualização |
 
 **Constraints:**
 - PRIMARY KEY: `id`
-- FOREIGN KEY: `user_id` REFERENCES `users(id)` ON DELETE CASCADE
+- FOREIGN KEY: `user_id` REFERENCES `users(id)` ON DELETE RESTRICT
 - FOREIGN KEY: `reviewed_by_user_id` REFERENCES `users(id)` ON DELETE SET NULL
 - UNIQUE: `user_id`
 - CHECK: `status IN ('pending_review', 'approved', 'rejected', 'suspended')`
@@ -262,15 +290,16 @@ status varchar(50) NOT NULL CHECK (status IN (...))
 ### DELETE CASCADE
 
 Aplicado quando:
-- `user_roles` referencia `users` - Deletar user deleta roles
-- `email_confirmation_tokens` referencia `users` - Deletar user deleta tokens
-- `password_reset_tokens` referencia `users` - Deletar user deleta tokens
-- `seller_profiles` referencia `users` - Deletar user deleta profile
+- `email_confirmation_tokens` referencia `users` - Remoção técnica controlada de user remove tokens temporários
+- `password_reset_tokens` referencia `users` - Remoção técnica controlada de user remove tokens temporários
 
 ### DELETE RESTRICT
 
 Aplicado quando:
 - `user_roles` referencia `roles` - Não pode deletar role com usuários
+- `user_roles` referencia `users` - Histórico de roles não deve ser apagado por exclusão física acidental
+- `seller_profiles` referencia `users` - Perfil de seller precisa ser tratado por anonimização/retention policy
+- `orders`, `payments` e registros históricos referenciam `users` - Retenção legal e transacional prevalece
 
 ### DELETE SET NULL
 
@@ -337,3 +366,13 @@ Cada mudança deve:
 2. Atualizar documentação
 3. Ser revisada arquitetonicamente
 4. Ser testada em ambiente de staging
+
+## LGPD e Retenção
+
+O modelo lógico segue a ADR-021:
+
+- `users.anonymized_at` é o marcador principal de anonimização seletiva;
+- `deleted_at` é apenas soft delete técnico e não substitui anonimização;
+- e-mail, nome, documento, telefone e endereço devem ser removidos, substituídos ou criptografados conforme política de retenção;
+- registros transacionais e fiscais devem preservar integridade mesmo quando a conta for anonimizada;
+- tokens temporários continuam sujeitos a limpeza agressiva por expiração/uso.

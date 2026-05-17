@@ -367,7 +367,7 @@ deleted       -- Deletado (soft-delete)
 -- Correta
 CREATE TABLE seller_profiles (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
   display_name varchar(255) NOT NULL,
   description text,
   status varchar(50) NOT NULL DEFAULT 'pending_review',
@@ -388,6 +388,8 @@ CREATE UNIQUE INDEX seller_profiles_user_id_idx ON seller_profiles(user_id);
 CREATE INDEX seller_profiles_status_idx ON seller_profiles(status);
 CREATE INDEX seller_profiles_requested_at_idx ON seller_profiles(requested_at);
 ```
+
+Para tabelas ligadas a `users`, evite `ON DELETE CASCADE` quando houver histórico, auditoria ou retenção legal. A estratégia padrão para LGPD é anonimização seletiva, não exclusão física em cascata.
 
 ## Rails Migrations e ActiveRecord
 

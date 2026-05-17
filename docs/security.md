@@ -170,6 +170,15 @@ Para detalhes completos sobre cadências, critérios de aceitação e estratégi
 
 ## 9. Conformidade (LGPD)
 
-* **Minimização:** Coletamos apenas os dados necessários para o processamento da venda.
-* **Criptografia:** Dados sensíveis (como endereços e telefones) criptografados em repouso.
-* **Direito ao Esquecimento:** Rotinas para anonimização de dados de `Buyers` após o período legal de retenção fiscal.
+Para detalhes operacionais, inventário inicial de dados pessoais, direitos do titular, retenção e checklist de PR, consulte [Privacidade e LGPD](privacy_lgpd.md). A decisão arquitetural central está registrada na [ADR-021 — LGPD Compliance and Personal Data Governance](adr/ADR-021-lgpd-compliance-and-personal-data-governance.md).
+
+* **Minimização:** coletamos apenas os dados necessários para conta, venda, compra, pagamento, entrega, suporte, segurança e obrigações legais.
+* **Consentimento versionado:** cadastro e mudanças relevantes devem registrar aceite dos Termos de Uso e da Política de Privacidade, com timestamp e versão dos documentos.
+* **Redaction:** entidades de domínio com dados pessoais devem declarar `sensitive_attributes`, evitando vazamento em `as_json` e `inspect`.
+* **Logs:** parâmetros pessoais, documentos, contato, endereço, tokens e credenciais devem estar em `filter_parameter_logging`.
+* **Criptografia:** documentos, endereços, telefones e dados equivalentes devem ser criptografados em repouso antes de persistência em produção.
+* **Exportação de dados:** titulares autenticados devem conseguir solicitar pacote com os dados pessoais mantidos pelo Okomo, observando segurança e autenticação forte.
+* **Anonimização seletiva:** `User` não deve ser removido fisicamente como estratégia padrão; dados pessoais diretos devem ser anonimizados quando a retenção legal permitir.
+* **Direitos do Titular:** rotinas autenticadas devem permitir acesso, correção, portabilidade, revogação de consentimento quando aplicável e exclusão/anonimização conforme retenções legais.
+* **Retenção:** dados de `Orders`, `Payments`, auditoria, antifraude e registros fiscais podem exigir preservação; nesses casos, anonimizar campos não necessários em vez de remover o registro transacional.
+* **Eventos:** eventos de privacidade e auditoria devem carregar identificadores internos e evitar e-mail, documento, telefone, endereço ou tokens quando não forem estritamente necessários.

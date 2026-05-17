@@ -74,6 +74,24 @@ Observações:
 
 ---
 
+## Sensitive Attribute
+
+Atributo de domínio que contém dado pessoal, credencial, segredo ou informação que não deve aparecer em logs, eventos técnicos ou serializações públicas.
+
+Responsabilidades:
+
+* sinalizar dados que precisam de redaction
+* proteger `inspect`, `as_json` e payloads de debug
+* orientar revisão de PRs que adicionam novos campos pessoais
+
+Observações:
+
+* entidades declaram esses campos com `sensitive_attributes`
+* exemplos: `email`, `password_digest`, `document_number`, `legal_name`, `contact_phone`, `commercial_address`
+* marcação como sensível não substitui criptografia em repouso
+
+---
+
 ## User
 
 Conta de acesso ao sistema que representa a identidade básica de um usuário na plataforma.
@@ -84,12 +102,91 @@ Responsabilidades:
 * gerenciamento de status da conta
 * configurações básicas de perfil
 * vinculação com papéis de negócio (Seller/Buyer)
+* registro de consentimento obrigatório
+* suporte à exportação e anonimização de dados pessoais
 
 Observações:
 
 * um User pode ser Seller, Buyer ou ambos
 * gerenciado pelo Bounded Context Identity
 * separado conceitualmente dos papéis de negócio
+* não deve ser excluído fisicamente como estratégia padrão quando houver Orders, Payments ou auditoria associados
+* pode ser anonimizado seletivamente para atender direitos do titular sem quebrar retenções legais
+
+---
+
+## Consent
+
+Aceite versionado dos Termos de Uso e da Política de Privacidade.
+
+Responsabilidades:
+
+* registrar que o titular aceitou documentos obrigatórios
+* preservar a versão aceita
+* registrar data e hora do aceite
+* fornecer trilha auditável para compliance
+
+Observações:
+
+* consentimento pode incluir IP e User-Agent quando necessário e proporcional
+* mudanças materiais nos documentos podem exigir novo aceite
+* consentimento é gerenciado pelo Bounded Context Identity, com impacto em DataPrivacy
+
+---
+
+## DataPrivacy
+
+Capacidade transversal responsável por governança de dados pessoais, direitos do titular e conformidade com LGPD.
+
+Responsabilidades:
+
+* inventariar dados pessoais
+* definir minimização, retenção e descarte
+* coordenar exportação de dados pessoais
+* coordenar anonimização seletiva da conta
+* orientar payloads de eventos e logs
+
+Observações:
+
+* DataPrivacy não substitui Identity; ele atravessa Identity, Orders, Payments, Shipping e auditoria
+* decisões arquiteturais principais estão na ADR-021
+
+---
+
+## Personal Data Export
+
+Processo pelo qual o titular solicita uma cópia dos dados pessoais mantidos pelo Okomo.
+
+Responsabilidades:
+
+* validar identidade do solicitante
+* compilar dados pessoais por bounded context
+* disponibilizar pacote por canal seguro e prazo limitado
+* registrar solicitação e conclusão por eventos
+
+Observações:
+
+* exportação não deve criar URL pública permanente
+* o pacote exportado não deve ser gravado em eventos de domínio
+
+---
+
+## Account Anonymization
+
+Processo de remoção ou substituição seletiva de dados pessoais de uma conta.
+
+Responsabilidades:
+
+* atender direito de eliminação/anonimização quando cabível
+* preservar integridade de pedidos, pagamentos, auditoria e obrigações legais
+* invalidar credenciais, tokens e sessões
+* impedir login futuro da conta anonimizada
+
+Observações:
+
+* anonimização não é exclusão física
+* `anonymized_at` marca quando o processo foi concluído
+* retenções legais podem impedir remoção imediata de alguns registros
 
 ---
 
@@ -311,6 +408,20 @@ Características:
 * pode ser reativada em alguns casos
 * histórico de dados é preservado
 * pode estar associado a retenção de dados em conformidade com LGPD
+
+---
+
+## anonymized
+
+Condição de um `User` cujos dados pessoais diretos foram removidos ou substituídos.
+
+Características:
+
+* conta não pode fazer login
+* credenciais, sessões e tokens são invalidados
+* dados transacionais necessários permanecem por retenção legal
+* e-mail, nome e demais dados pessoais diretos deixam de identificar o titular quando permitido
+* `anonymized_at` registra a conclusão do processo
 
 ---
 

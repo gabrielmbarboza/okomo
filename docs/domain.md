@@ -34,6 +34,7 @@ A arquitetura do domínio segue os princípios de Domain-Driven Design (DDD) e e
 | Shipping | Cálculo de frete e entregas |
 | Store | Gestão da loja (`Seller`) |
 | Identity | Usuários, autenticação e autorização |
+| DataPrivacy | Governança de dados pessoais, consentimentos, exportação e anonimização |
 
 ---
 
@@ -70,6 +71,19 @@ Promotion
    ├── has_one Coupon (optional)
    ├── has_many PromotionRule
    └── generates Discount
+```
+
+Privacidade atravessa o modelo inteiro, mas nasce no `Identity`:
+
+```text
+User (Identity Context)
+   ├── accepts Consent (terms + privacy policy version)
+   ├── requests PersonalDataExport
+   └── may be selectively anonymized
+
+Orders / Payments / Audit
+   └── retain legal and transactional records without direct personal data when possible
+```
 
 ---
 
@@ -159,6 +173,15 @@ Gerenciamento de usuários, autenticação, autorização e papéis de negócio.
 * `password_digest` (string) - Hash da senha utilizando bcrypt
 * `status` (enum: pending_confirmation, active, blocked, deactivated) - Estado da conta
 * `email_confirmed_at` (datetime, nullable) - Data de confirmação do e-mail
+* `terms_accepted_at` (datetime, nullable) - Data de aceite dos Termos de Uso
+* `privacy_policy_accepted_at` (datetime, nullable) - Data de aceite da Política de Privacidade
+* `consent_version` (string, nullable) - Versão dos documentos aceitos
+* `consent_ip_address` (string, nullable) - IP usado no aceite, quando aplicável
+* `consent_user_agent` (string, nullable) - User-Agent usado no aceite, quando aplicável
+* `blocked_at` (datetime, nullable) - Data de bloqueio
+* `deactivated_at` (datetime, nullable) - Data de desativação
+* `anonymized_at` (datetime, nullable) - Data de anonimização seletiva
+* `deleted_at` (datetime, nullable) - Soft delete técnico, quando aplicável
 * `created_at` (datetime) - Data de criação
 * `updated_at` (datetime) - Última atualização
 
@@ -172,6 +195,56 @@ Gerenciamento de usuários, autenticação, autorização e papéis de negócio.
 * Todo User com `email_confirmed_at` preenchido recebe automaticamente o role `buyer`
 * O role `buyer` não pode ser revogado após atribuição
 * Um User bloqueado não pode fazer login ou realizar ações
+* Um User anonimizado não pode fazer login
+* Consentimento deve preservar data, versão dos documentos e, quando proporcional, metadados técnicos de prova
+* Exclusão física de User não é a estratégia padrão; anonimização seletiva preserva integridade de Orders, Payments e auditoria
+
+---
+
+### Consent (Value Object / Audit Record)
+
+`Consent` representa o aceite versionado dos Termos de Uso e da Política de Privacidade.
+
+**Atributos:**
+
+* `terms_accepted_at` (datetime) - Data do aceite dos Termos de Uso
+* `privacy_policy_accepted_at` (datetime) - Data do aceite da Política de Privacidade
+* `consent_version` (string) - Versão do conjunto de documentos aceitos
+* `ip_address` (string, nullable) - IP registrado quando necessário
+* `user_agent` (string, nullable) - User-Agent registrado quando necessário
+
+**Invariantes:**
+
+* Um User ativo deve ter aceite válido dos documentos obrigatórios do produto.
+* Mudança material nos documentos pode exigir novo aceite.
+* Eventos e logs devem evitar armazenar cópia integral dos documentos ou dados pessoais desnecessários.
+
+---
+
+### PersonalDataExport (Process)
+
+`PersonalDataExport` representa a solicitação autenticada de exportação de dados pessoais do titular.
+
+**Características:**
+
+* deve ser solicitada por User autenticado ou canal validado;
+* deve gerar arquivo ou payload com dados pessoais do titular;
+* deve registrar solicitação e conclusão por eventos;
+* deve expirar ou ser removida após prazo operacional curto.
+
+---
+
+### AccountAnonymization (Process)
+
+`AccountAnonymization` representa a anonimização seletiva de uma conta.
+
+**Características:**
+
+* preserva chaves técnicas necessárias para integridade transacional;
+* remove ou substitui nome, e-mail, documentos, telefone e endereço quando permitido;
+* invalida credenciais, tokens e sessões;
+* marca `anonymized_at`;
+* publica evento auditável.
 
 ---
 
@@ -296,15 +369,17 @@ Criação de nova conta de usuário na plataforma.
 
 1. Valida e-mail (formato e unicidade)
 2. Valida força da senha
-3. Cria User com `status = pending_confirmation` e `password_digest`
-4. Gera token seguro de confirmação de e-mail
-5. Envia e-mail de confirmação
-6. Publica evento `UserRegistered`
+3. Registra aceite dos Termos de Uso e da Política de Privacidade com versão
+4. Cria User com `status = pending_confirmation`, `password_digest` e marcadores de consentimento
+5. Gera token seguro de confirmação de e-mail
+6. Envia e-mail de confirmação
+7. Publica eventos `UserRegistered` e `ConsentAccepted`
 
 **Pós-condições:**
 
 * User criado mas não pode fazer compras
 * E-mail de confirmação enviado
+* Consentimento obrigatório registrado e auditável
 
 ---
 
@@ -370,6 +445,42 @@ Redefinição de senha via token.
 2. Atualiza `password_digest`
 3. Invalida token (não reutilizável)
 4. Publica evento `PasswordResetCompleted`
+
+---
+
+### Request Personal Data Export
+
+Solicitação autenticada de exportação de dados pessoais.
+
+**Fluxo:**
+
+1. Valida identidade do titular
+2. Registra solicitação de exportação
+3. Publica evento `PersonalDataExportRequested`
+4. Compila dados pessoais por bounded context
+5. Disponibiliza exportação por canal seguro e prazo limitado
+6. Publica evento `PersonalDataExportCompleted`
+
+---
+
+### Request Account Anonymization
+
+Solicitação de anonimização seletiva da conta.
+
+**Fluxo:**
+
+1. Valida identidade do titular
+2. Verifica retenções obrigatórias em Orders, Payments, auditoria, antifraude e registros fiscais
+3. Remove ou substitui dados pessoais diretos quando permitido
+4. Invalida credenciais, sessões e tokens
+5. Marca `anonymized_at`
+6. Publica eventos `AccountAnonymizationRequested` e `AccountAnonymized`
+
+**Pós-condições:**
+
+* Conta não pode mais fazer login
+* Dados transacionais legalmente necessários permanecem íntegros
+* Dados pessoais diretos são removidos ou substituídos quando permitido
 
 ---
 
@@ -517,18 +628,42 @@ Novo usuário criado no sistema.
 
 Payload:
 * user_id (UUID)
-* email (string)
 * occurred_at (datetime)
 
 Consumidores típicos:
 * SendConfirmationEmailJob
+* Audit Logging
+
+### ConsentAccepted
+Titular aceitou Termos de Uso e Política de Privacidade.
+
+Payload:
+* user_id (UUID)
+* consent_version (string)
+* terms_accepted_at (datetime)
+* privacy_policy_accepted_at (datetime)
+* occurred_at (datetime)
+
+Consumidores típicos:
+* Audit Logging
+
+### ConsentRevoked
+Titular revogou consentimento quando a base legal permitir.
+
+Payload:
+* user_id (UUID)
+* consent_version (string)
+* revoked_at (datetime)
+* occurred_at (datetime)
+
+Consumidores típicos:
+* Audit Logging
 
 ### UserEmailConfirmed
 E-mail do usuário confirmado com sucesso.
 
 Payload:
 * user_id (UUID)
-* email (string)
 * occurred_at (datetime)
 
 Consumidores típicos:
@@ -539,7 +674,6 @@ Usuário autenticado com sucesso.
 
 Payload:
 * user_id (UUID)
-* email (string)
 * occurred_at (datetime)
 
 Consumidores típicos:
@@ -550,8 +684,6 @@ Usuário solicitou recuperação de senha.
 
 Payload:
 * user_id (UUID)
-* email (string)
-* recovery_token (string)
 * occurred_at (datetime)
 
 Consumidores típicos:
@@ -562,10 +694,35 @@ Senha redefinida com sucesso.
 
 Payload:
 * user_id (UUID)
-* email (string)
 * occurred_at (datetime)
 
 Consumidores típicos:
+* Audit Logging
+
+### PersonalDataExportRequested
+Titular solicitou exportação de dados pessoais.
+
+Payload:
+* user_id (UUID)
+* request_id (UUID)
+* requested_at (datetime)
+* occurred_at (datetime)
+
+Consumidores típicos:
+* PersonalDataExportJob
+* Audit Logging
+
+### AccountAnonymized
+Conta foi anonimizada seletivamente.
+
+Payload:
+* user_id (UUID)
+* anonymized_at (datetime)
+* retention_reason (string, nullable)
+* occurred_at (datetime)
+
+Consumidores típicos:
+* RevokeSessionsJob
 * Audit Logging
 
 ### SellerApplicationSubmitted
@@ -627,3 +784,6 @@ Consumidores típicos:
 6. Tokens de recuperação de senha expiram em 1 hora.
 7. Tokens de confirmação de e-mail expiram em 24 horas.
 8. SellerProfile passa por moderação manual antes da aprovação.
+9. Cadastro exige consentimento versionado para documentos obrigatórios.
+10. User anonimizado não pode fazer login.
+11. Dados pessoais diretos devem ser removidos ou substituídos em anonimização, preservando registros transacionais obrigatórios.

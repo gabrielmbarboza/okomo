@@ -12,6 +12,15 @@ Table users {
   status varchar [not null, default: "pending_confirmation", note: "pending_confirmation, active, blocked, deactivated"]
   email_confirmed_at timestamp [note: "Null até confirmação"]
   last_login_at timestamp [note: "Rastreia último acesso"]
+  terms_accepted_at timestamp [note: "Aceite dos Termos de Uso"]
+  privacy_policy_accepted_at timestamp [note: "Aceite da Política de Privacidade"]
+  consent_version varchar [note: "Versão dos documentos aceitos"]
+  consent_ip_address inet [note: "IP do aceite quando necessário"]
+  consent_user_agent text [note: "User-Agent do aceite quando necessário"]
+  blocked_at timestamp [note: "Data de bloqueio"]
+  deactivated_at timestamp [note: "Data de desativação"]
+  anonymized_at timestamp [note: "Data de anonimização seletiva"]
+  deleted_at timestamp [note: "Soft delete técnico, quando aplicável"]
   created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
   updated_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
 
@@ -19,9 +28,12 @@ Table users {
     email [unique, name: "users_email_idx"]
     status [name: "users_status_idx"]
     created_at [name: "users_created_at_idx"]
+    anonymized_at [name: "users_anonymized_at_idx"]
+    deleted_at [name: "users_deleted_at_idx"]
+    consent_version [name: "users_consent_version_idx"]
   }
 
-  note: "Armazena dados de usuários e estado de autenticação. Status: pending_confirmation → active ou bloqueado/desativado"
+  note: "Armazena dados de usuários, autenticação e consentimento. LGPD: anonimização seletiva via anonymized_at; exclusão física não é padrão."
 }
 
 Table roles {
@@ -52,6 +64,7 @@ Table user_roles {
 
   indexes {
     (user_id, role_id) [name: "user_roles_user_id_role_id_idx"]
+    (user_id, role_id, revoked_at) [name: "user_roles_active_role_idx"]
     user_id [name: "user_roles_user_id_idx"]
     role_id [name: "user_roles_role_id_idx"]
     revoked_at [name: "user_roles_revoked_at_idx"]
@@ -59,7 +72,7 @@ Table user_roles {
     revoked_by_user_id [name: "user_roles_revoked_by_user_id_idx"]
   }
 
-  note: "Relacionamento auditável muitos-para-muitos entre usuários e papéis. Mantém histórico completo de concessões e revogações."
+  note: "Relacionamento auditável muitos-para-muitos entre usuários e papéis. Mantém histórico completo de concessões e revogações. Implementar user_roles_active_role_idx como partial unique WHERE revoked_at IS NULL no PostgreSQL."
 }
 
 Table seller_profiles {
@@ -134,8 +147,8 @@ Table password_reset_tokens {
 // Relacionamentos
 
 Ref: users.id < user_roles.user_id [
-  delete: cascade,
-  note: "Deletar usuário remove todas as atribuições de roles"
+  delete: restrict,
+  note: "Histórico de roles deve sobreviver; contas devem ser anonimizadas em vez de deletadas fisicamente"
 ]
 
 Ref: roles.id < user_roles.role_id [
@@ -154,8 +167,8 @@ Ref: users.id < user_roles.revoked_by_user_id [
 ]
 
 Ref: users.id - seller_profiles.user_id [
-  delete: cascade,
-  note: "Um-para-um: cada usuário tem no máximo um perfil de vendedor"
+  delete: restrict,
+  note: "Um-para-um: cada usuário tem no máximo um perfil de vendedor; aplicar retenção/anonimização em vez de cascade"
 ]
 
 Ref: users.id < seller_profiles.reviewed_by_user_id [
@@ -165,10 +178,10 @@ Ref: users.id < seller_profiles.reviewed_by_user_id [
 
 Ref: users.id < email_confirmation_tokens.user_id [
   delete: cascade,
-  note: "Deletar usuário remove tokens de confirmação de email"
+  note: "Remoção técnica controlada remove tokens temporários; anonimização é o caminho padrão"
 ]
 
 Ref: users.id < password_reset_tokens.user_id [
   delete: cascade,
-  note: "Deletar usuário remove tokens de reset de senha"
+  note: "Remoção técnica controlada remove tokens temporários; anonimização é o caminho padrão"
 ]

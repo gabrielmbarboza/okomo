@@ -28,12 +28,12 @@ module Identity
     # - blocked: Bloqueado por violação, não pode fazer login
     # - deactivated: Desativado voluntariamente, não pode fazer login
     class User < Shared::Entities::BaseEntity
-      PENDING_CONFIRMATION = 'pending_confirmation'
-      ACTIVE = 'active'
-      BLOCKED = 'blocked'
-      DEACTIVATED = 'deactivated'
+      PENDING_CONFIRMATION = "pending_confirmation"
+      ACTIVE = "active"
+      BLOCKED = "blocked"
+      DEACTIVATED = "deactivated"
 
-      VALID_STATUSES = [PENDING_CONFIRMATION, ACTIVE, BLOCKED, DEACTIVATED].freeze
+      VALID_STATUSES = [ PENDING_CONFIRMATION, ACTIVE, BLOCKED, DEACTIVATED ].freeze
 
       attribute :id, default: -> { SecureRandom.uuid }
       attributes :name,
@@ -46,6 +46,10 @@ module Identity
       attribute :user_roles, default: -> { [] }
       attribute :created_at, default: -> { Time.current }
       attribute :updated_at, default: ->(user) { user.created_at }
+
+      sensitive_attributes :name,
+                           :email,
+                           :password_digest
 
       validates :id, presence: { message: "id cannot be nil" }
       validates :email, presence: true
@@ -140,17 +144,17 @@ module Identity
 
       # Verifica se user é buyer
       def buyer?
-        has_role?('buyer')
+        has_role?("buyer")
       end
 
       # Verifica se user é seller
       def seller?
-        has_role?('seller')
+        has_role?("seller")
       end
 
       # Verifica se user é admin
       def admin?
-        has_role?('platform_admin')
+        has_role?("platform_admin")
       end
 
       # Verifica se user tem um SellerProfile
@@ -173,7 +177,7 @@ module Identity
       def confirmation_expires_in_days
         return 0 if email_confirmed?
         days_remaining = 1 - ((Time.current - @created_at).to_f / 1.day)
-        [days_remaining, 0].max
+        [ days_remaining, 0 ].max
       end
 
       private

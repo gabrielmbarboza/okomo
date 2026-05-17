@@ -93,8 +93,12 @@ Para visualizar o modelo da Identity:
 ```dbml
 Table users {
   id uuid [pk]
-  email varchar [unique, not null]
   name varchar
+  email varchar [unique, not null]
+  privacy_policy_accepted_at timestamp
+  terms_accepted_at timestamp
+  consent_version varchar
+  anonymized_at timestamp
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -110,6 +114,8 @@ Table user_roles {
 
 Ref: users.id < user_roles.user_id
 ```
+
+Para LGPD, `deleted_at` é apenas uma ferramenta técnica. O modelo deve preferir `anonymized_at` e anonimização seletiva para remover ou substituir dados pessoais sem quebrar histórico transacional.
 
 ## Relacionamento entre Diagramas Global e Específicos
 
@@ -142,6 +148,7 @@ Para detalhes completos, consulte `naming_conventions.md`.
 - Chaves estrangeiras: `{tabela_singular}_id`: `user_id`, `role_id`
 - Timestamps: `created_at`, `updated_at`
 - Soft deletes: `deleted_at`
+- Anonimização LGPD: `anonymized_at`
 - Status/Enums: `varchar` com valores em UPPERCASE
 
 ## Contextos de Domínio Cobertos

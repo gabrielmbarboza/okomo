@@ -23,6 +23,7 @@ Garantir que o Okomo seja uma plataforma:
 Os requisitos descritos neste documento aplicam-se a todos os domínios do sistema, incluindo:
 
 * Catalog;
+* Identity;
 * Inventory;
 * Order;
 * Checkout;

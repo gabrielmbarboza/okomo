@@ -6,7 +6,7 @@ RSpec.describe Shared::Entities::BaseEntity do
   let(:entity_class) do
     Class.new(described_class) do
       attr_reader :id, :name, :email
-      
+
       def initialize(id: nil, name: nil, email: nil)
         super(id: id, name: name, email: email)
       end
@@ -99,7 +99,7 @@ RSpec.describe Shared::Entities::BaseEntity do
 
       first.items << 'item'
 
-      expect(first.items).to eq(['item'])
+      expect(first.items).to eq([ 'item' ])
       expect(second.items).to eq([])
     end
 
@@ -208,6 +208,85 @@ RSpec.describe Shared::Entities::BaseEntity do
     end
   end
 
+  describe '.sensitive_attributes' do
+    it 'registra atributos sensíveis declarados' do
+      declarative_class = Class.new(described_class) do
+        attributes :email, :password_digest
+        sensitive_attributes :email, :password_digest
+      end
+
+      expect(declarative_class.sensitive_attribute_names).to eq(%i[email password_digest])
+    end
+
+    it 'herda atributos sensíveis da classe pai' do
+      parent_class = Class.new(described_class) do
+        attributes :email
+        sensitive_attributes :email
+      end
+      child_class = Class.new(parent_class) do
+        attributes :document_number
+        sensitive_attributes :document_number
+      end
+
+      expect(child_class.sensitive_attribute_names).to eq(%i[email document_number])
+    end
+  end
+
+  describe '#to_h' do
+    let(:privacy_class) do
+      Class.new(described_class) do
+        attributes :id, :email, :status
+        sensitive_attributes :email
+      end
+    end
+
+    it 'retorna atributos declarados sem redigir por padrão' do
+      entity = privacy_class.new(id: 1, email: 'john@example.com', status: 'active')
+
+      expect(entity.to_h).to eq(id: 1, email: 'john@example.com', status: 'active')
+    end
+
+    it 'redige atributos sensíveis quando solicitado' do
+      entity = privacy_class.new(id: 1, email: 'john@example.com', status: 'active')
+
+      expect(entity.to_h(redact: true)).to eq(id: 1, email: '[FILTERED]', status: 'active')
+    end
+
+    it 'não redige atributos sensíveis nulos' do
+      entity = privacy_class.new(id: 1, email: nil, status: 'active')
+
+      expect(entity.to_h(redact: true)).to eq(id: 1, email: nil, status: 'active')
+    end
+  end
+
+  describe '#as_json' do
+    it 'redige atributos sensíveis por padrão' do
+      declarative_class = Class.new(described_class) do
+        attributes :id, :email
+        sensitive_attributes :email
+      end
+
+      expect(declarative_class.new(id: 1, email: 'john@example.com').as_json).to eq(
+        id: 1,
+        email: '[FILTERED]'
+      )
+    end
+  end
+
+  describe '#inspect' do
+    it 'redige atributos sensíveis para evitar vazamento em logs' do
+      declarative_class = Class.new(described_class) do
+        attributes :id, :email
+        sensitive_attributes :email
+      end
+
+      inspected = declarative_class.new(id: 1, email: 'john@example.com').inspect
+
+      expect(inspected).to include('email: "[FILTERED]"')
+      expect(inspected).not_to include('john@example.com')
+    end
+  end
+
   describe '#validate!' do
     it 'retorna a própria entidade quando válida' do
       declarative_class = Class.new(described_class) do
@@ -237,7 +316,7 @@ RSpec.describe Shared::Entities::BaseEntity do
           end
         end
         other_entity = other_class.new(id: 1)
-        
+
         expect(entity1).not_to eq(other_entity)
       end
     end
@@ -289,7 +368,7 @@ RSpec.describe Shared::Entities::BaseEntity do
     end
 
     it 'includes class and all instance variables in hash calculation' do
-      expected_hash = [entity_class, 1, 'John', 'john@example.com'].hash
+      expected_hash = [ entity_class, 1, 'John', 'john@example.com' ].hash
       expect(entity1.hash).to eq(expected_hash)
     end
 
@@ -302,7 +381,7 @@ RSpec.describe Shared::Entities::BaseEntity do
 
   describe 'usage in collections' do
     it 'works correctly with Set' do
-      set = Set.new([entity1, entity2, entity3])
+      set = Set.new([ entity1, entity2, entity3 ])
       expect(set.size).to eq(2) # entity1 and entity2 are equal
       expect(set).to include(entity1)
       expect(set).to include(entity3)
@@ -312,7 +391,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       hash = {}
       hash[entity1] = 'value1'
       hash[entity2] = 'value2' # Should overwrite entity1
-      
+
       expect(hash.size).to eq(1)
       expect(hash[entity1]).to eq('value2')
       expect(hash[entity2]).to eq('value2')
@@ -323,7 +402,7 @@ RSpec.describe Shared::Entities::BaseEntity do
     let(:child_class) do
       Class.new(entity_class) do
         attr_reader :age
-        
+
         def initialize(id:, name:, email:, age:)
           super(id: id, name: name, email: email)
           @age = age
