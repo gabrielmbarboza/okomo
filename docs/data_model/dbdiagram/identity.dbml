@@ -9,7 +9,7 @@ Table users {
   name varchar [note: "Nome do usuário"]
   email varchar [unique, not null, note: "Email único, validado"]
   password_digest varchar [not null, note: "Hash bcrypt da senha"]
-  status varchar [not null, default: "pending_confirmation", note: "pending_confirmation, active, suspended, deleted"]
+  status varchar [not null, default: "pending_confirmation", note: "pending_confirmation, active, blocked, deactivated"]
   email_confirmed_at timestamp [note: "Null até confirmação"]
   last_login_at timestamp [note: "Rastreia último acesso"]
   created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
@@ -21,12 +21,12 @@ Table users {
     created_at [name: "users_created_at_idx"]
   }
 
-  note: "Armazena dados de usuários e estado de autenticação"
+  note: "Armazena dados de usuários e estado de autenticação. Status: pending_confirmation → active ou bloqueado/desativado"
 }
 
 Table roles {
   id uuid [pk]
-  name varchar [unique, not null, note: "buyer, seller, admin, moderator"]
+  name varchar [unique, not null, note: "buyer, seller, platform_admin"]
   description text [note: "Descrição das responsabilidades"]
   created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
   updated_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
@@ -35,22 +35,31 @@ Table roles {
     name [unique, name: "roles_name_idx"]
   }
 
-  note: "Define papéis e permissões no sistema. Predefinidos: buyer, seller, admin, moderator"
+  note: "Define papéis e permissões no sistema. Predefinidos: buyer, seller, platform_admin"
 }
 
 Table user_roles {
   id uuid [pk]
   user_id uuid [not null, note: "Referência para users"]
   role_id uuid [not null, note: "Referência para roles"]
+  granted_at timestamp [not null, default: "CURRENT_TIMESTAMP", note: "Data de concessão do role"]
+  revoked_at timestamp [note: "Null enquanto ativo, preenchido ao ser revogado"]
+  granted_by_user_id uuid [note: "Qual usuário admin concedeu o role"]
+  revoked_by_user_id uuid [note: "Qual usuário admin revogou o role"]
+  reason text [note: "Motivo da concessão ou revogação"]
   created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
+  updated_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
 
   indexes {
-    (user_id, role_id) [unique, name: "user_roles_user_id_role_id_idx"]
+    (user_id, role_id) [name: "user_roles_user_id_role_id_idx"]
     user_id [name: "user_roles_user_id_idx"]
     role_id [name: "user_roles_role_id_idx"]
+    revoked_at [name: "user_roles_revoked_at_idx"]
+    granted_by_user_id [name: "user_roles_granted_by_user_id_idx"]
+    revoked_by_user_id [name: "user_roles_revoked_by_user_id_idx"]
   }
 
-  note: "Relacionamento muitos-para-muitos entre usuários e papéis"
+  note: "Relacionamento auditável muitos-para-muitos entre usuários e papéis. Mantém histórico completo de concessões e revogações."
 }
 
 Table seller_profiles {
@@ -59,12 +68,19 @@ Table seller_profiles {
   display_name varchar [not null, note: "Nome público do vendedor"]
   description text [note: "Descrição da loja"]
   status varchar [not null, default: "pending_review", note: "pending_review, approved, rejected, suspended"]
-  requested_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
-  reviewed_at timestamp [note: "Data da revisão"]
-  reviewed_by_id uuid [note: "Usuário admin/moderador que revisou"]
+  document_type varchar [not null, note: "cpf, cnpj, mei"]
+  document_number varchar [not null, note: "Número do documento (criptografado em repouso)"]
+  legal_name varchar [not null, note: "Razão social ou nome legal"]
+  contact_email varchar [not null, note: "E-mail de contato comercial"]
+  contact_phone varchar [note: "Telefone de contato"]
+  commercial_address jsonb [note: "Endereço comercial: {rua, número, complemento, cidade, estado, cep, país}"]
+  requested_at timestamp [not null, default: "CURRENT_TIMESTAMP", note: "Data da solicitação"]
+  reviewed_at timestamp [note: "Data da análise"]
+  reviewed_by_user_id uuid [note: "User com role platform_admin que revisou"]
   rejection_reason text [note: "Motivo da rejeição, se aplicável"]
   approved_at timestamp [note: "Data da aprovação"]
   suspended_at timestamp [note: "Data da suspensão"]
+  suspension_reason text [note: "Motivo da suspensão, se aplicável"]
   created_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
   updated_at timestamp [not null, default: "CURRENT_TIMESTAMP"]
 
@@ -72,10 +88,11 @@ Table seller_profiles {
     user_id [unique, name: "seller_profiles_user_id_idx"]
     status [name: "seller_profiles_status_idx"]
     requested_at [name: "seller_profiles_requested_at_idx"]
-    reviewed_by_id [name: "seller_profiles_reviewed_by_id_idx"]
+    reviewed_by_user_id [name: "seller_profiles_reviewed_by_user_id_idx"]
+    document_number [name: "seller_profiles_document_number_idx"]
   }
 
-  note: "Perfis de vendedor com processo de aprovação"
+  note: "Perfis de vendedor com processo de aprovação e dados comerciais. Status: pending_review → approved/rejected/suspended"
 }
 
 Table email_confirmation_tokens {
@@ -118,7 +135,7 @@ Table password_reset_tokens {
 
 Ref: users.id < user_roles.user_id [
   delete: cascade,
-  note: "Deletar usuário remove todas as roles atribuídas"
+  note: "Deletar usuário remove todas as atribuições de roles"
 ]
 
 Ref: roles.id < user_roles.role_id [
@@ -126,14 +143,24 @@ Ref: roles.id < user_roles.role_id [
   note: "Não pode deletar role que está atribuída a usuários"
 ]
 
+Ref: users.id < user_roles.granted_by_user_id [
+  delete: setnull,
+  note: "Admin que concedeu o role"
+]
+
+Ref: users.id < user_roles.revoked_by_user_id [
+  delete: setnull,
+  note: "Admin que revogou o role"
+]
+
 Ref: users.id - seller_profiles.user_id [
   delete: cascade,
   note: "Um-para-um: cada usuário tem no máximo um perfil de vendedor"
 ]
 
-Ref: users.id < seller_profiles.reviewed_by_id [
+Ref: users.id < seller_profiles.reviewed_by_user_id [
   delete: setnull,
-  note: "Admin/Moderador que revisou o perfil"
+  note: "User com role platform_admin que revisou o perfil"
 ]
 
 Ref: users.id < email_confirmation_tokens.user_id [

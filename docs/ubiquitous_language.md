@@ -86,17 +86,96 @@ Observações:
 
 Permissão atribuída ao usuário que define suas capacidades na plataforma.
 
+`Role` representa um catálogo global de permissões que podem ser concedidas aos usuários.
+
 Possíveis roles:
 
-* buyer
-* seller
-* admin
+* `buyer` - Permissão para realizar compras na plataforma
+* `seller` - Permissão para criar produtos e vender na plataforma
+* `platform_admin` - Permissão para gerenciar a plataforma, moderar vendedores e administrar sistema
 
 Observações:
 
 * um User pode possuir múltiplos roles simultaneamente
-* todo User com e-mail confirmado recebe automaticamente o role buyer
-* seller é um role adicional que exige solicitação e aprovação
+* todo User com e-mail confirmado recebe automaticamente o role `buyer`
+* `buyer` é o role fundamental e não pode ser revogado após atribuição
+* `seller` é um role adicional que exige solicitação e aprovação via `SellerProfile`
+* `platform_admin` é atribuído apenas por administradores do sistema
+* gerenciado pelo Bounded Context Identity
+
+---
+
+## buyer
+
+Role fundacional atribuído automaticamente a todo `User` após confirmação de e-mail.
+
+Responsabilidades:
+
+* permitir compras na plataforma
+* permitir criação de pedidos e checkout
+* representar a capacidade mínima de participação de um usuário confirmado
+
+Observações:
+
+* `buyer` não pode ser revogado
+* um `User` em `blocked` ou `deactivated` mantém o histórico do role, mas não pode operar na plataforma
+* a atribuição é registrada por `UserRole`
+
+---
+
+## seller
+
+Role adicional que concede capacidade de vender na plataforma.
+
+Responsabilidades:
+
+* criar e gerenciar produtos
+* gerenciar variantes, preços e estoque
+* operar lojas e vendas após aprovação
+
+Observações:
+
+* depende de `SellerProfile` aprovado
+* pode ser revogado quando o vendedor é suspenso
+* cada concessão ou revogação é registrada por `UserRole`
+
+---
+
+## platform_admin
+
+Role administrativo usado para moderação e gestão da plataforma.
+
+Responsabilidades:
+
+* aprovar ou rejeitar `SellerProfile`
+* suspender vendedores
+* conceder ou revogar roles adicionais
+* executar operações administrativas sensíveis
+
+Observações:
+
+* deve ser atribuído apenas por fluxo administrativo explícito
+* pode ser revogado
+* todas as mudanças devem permanecer auditáveis em `UserRole`
+
+---
+
+## UserRole
+
+Representa a atribuição de um `Role` a um `User` em um ponto específico no tempo.
+
+Responsabilidades:
+
+* registrar quando um role foi concedido a um usuário
+* registrar quando um role foi revogado de um usuário
+* manter histórico completo e auditável de concessões e revogações
+* rastrear qual administrador realizou a operação
+
+Observações:
+
+* cada `UserRole` preserva a data e hora de concessão e revogação
+* não é possível revogar o role `buyer` após sua atribuição
+* `UserRole` fornece trilha de auditoria completa
 * gerenciado pelo Bounded Context Identity
 
 ---
@@ -108,15 +187,126 @@ Perfil contendo dados cadastrais e status de moderação do vendedor.
 Responsabilidades:
 
 * armazenar informações fiscais (CNPJ/MEI)
-* armazenar informações comerciais
-* controlar status de aprovação
-* armazenar dados de contato e endereço comercial
+* armazenar informações comerciais (nome da loja, descrição, contatos)
+* armazenar dados de endereço comercial
+* controlar status de aprovação de vendedor
+* registrar datas de solicitação, aprovação e suspensão
 
 Observações:
 
-* vinculado a um Seller
+* vinculado a um `User` via relacionamento um-para-um (opcional)
 * passa por processo de moderação antes da aprovação
+* um `SellerProfile` nunca é excluído, apenas suspenso ou bloqueado
 * gerenciado pelo Bounded Context Identity
+* criado quando um usuário solicita permissão de vendedor
+
+---
+
+# 🔐 Estados do Usuário (User Status)
+
+## pending_confirmation
+
+Estado transitório do `User` logo após o registro.
+
+Características:
+
+* usuário já foi criado mas e-mail não foi confirmado
+* usuário não pode realizar compras (não possui role `buyer`)
+* usuário recebe e-mail de confirmação com link seguro
+* transição automática para `active` após confirmação de e-mail
+
+---
+
+## active
+
+Estado normal de um `User` com e-mail confirmado e sem restrições.
+
+Características:
+
+* e-mail foi confirmado
+* automaticamente recebeu role `buyer`
+* pode realizar compras e outras operações permitidas por seus roles
+* estado padrão esperado
+
+---
+
+## blocked
+
+Estado de um `User` que foi bloqueado por violação de políticas.
+
+Características:
+
+* não pode fazer login
+* não pode realizar ações na plataforma
+* imposto por administradores do sistema
+* pode ser revertido manualmente
+
+---
+
+## deactivated
+
+Estado de um `User` que desativou sua conta voluntariamente ou por inatividade prolongada.
+
+Características:
+
+* conta desativada pelo próprio usuário ou por administrador
+* pode ser reativada em alguns casos
+* histórico de dados é preservado
+* pode estar associado a retenção de dados em conformidade com LGPD
+
+---
+
+# 🛍️ Estados do Perfil de Vendedor (SellerProfile Status)
+
+## pending_review
+
+Estado inicial de um `SellerProfile` após submissão de aplicação.
+
+Características:
+
+* aguardando análise por administrador ou moderador
+* usuário recebeu notificação de recebimento
+* não pode vender enquanto estiver neste estado
+* durante revisão, documentos podem ser solicitados
+
+---
+
+## approved
+
+Estado de um `SellerProfile` que foi aprovado para vender.
+
+Características:
+
+* pode criar produtos e vender na plataforma
+* role `seller` é automaticamente concedido ao `User` associado
+* pode ser auditado periodicamente
+* pode ser suspenso se violar políticas
+
+---
+
+## rejected
+
+Estado de um `SellerProfile` que foi rejeitado na aplicação.
+
+Características:
+
+* usuário não pode vender na plataforma
+* motivo da rejeição é comunicado ao usuário
+* usuário pode reaplicar em futuro
+* não há role `seller` atribuído ao `User`
+
+---
+
+## suspended
+
+Estado de um `SellerProfile` que foi suspenso após aprovação.
+
+Características:
+
+* ocorre quando vendedor viola políticas ou há problemas
+* usuário perde temporariamente a capacidade de vender
+* role `seller` é revogado automaticamente
+* pode ser reativado manualmente por administrador após resolução de problemas
 
 ---
 

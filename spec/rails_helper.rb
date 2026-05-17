@@ -22,6 +22,12 @@ require Rails.root.join('app', 'domains', 'shared', 'entities', 'base_entity')
 require Rails.root.join('app', 'domains', 'shared', 'value_objects', 'base_value_object')
 require Rails.root.join('app', 'domains', 'shared', 'services', 'base_service')
 
+# Carrega módulos do domínio Identity
+require Rails.root.join('app', 'domains', 'identity', 'entities', 'role')
+require Rails.root.join('app', 'domains', 'identity', 'entities', 'user_role')
+require Rails.root.join('app', 'domains', 'identity', 'entities', 'seller_profile')
+require Rails.root.join('app', 'domains', 'identity', 'entities', 'user')
+
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
 # run as spec files by default. This means that files in spec/support that end

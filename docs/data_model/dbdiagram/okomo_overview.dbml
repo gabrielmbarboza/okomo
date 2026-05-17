@@ -1,12 +1,12 @@
-// Okomo — Global Data Model Overview (DBML)
-// Visualize at: https://dbdiagram.io/
+// Okomo — Visão Global do Modelo de Dados (DBML)
+// Visualize em: https://dbdiagram.io/
 //
-// This file describes the global and consolidated view of the data model.
-// Includes high-level representation of all Bounded Contexts:
+// Este arquivo descreve a visão global e consolidada do modelo de dados.
+// Inclui representação de alto nível de todos os Bounded Contexts:
 // Identity, Catalog, Inventory, Orders, Checkout, Payments, Shipping, Promotions
 //
-// Note: This diagram provides a consolidated architectural view.
-// Detailed logical models for each bounded context are in separate files.
+// Nota: este diagrama fornece uma visão arquitetônica consolidada.
+// Modelos lógicos detalhados de cada bounded context ficam em arquivos separados.
 
 // ============================================================
 // IDENTITY CONTEXT
@@ -26,6 +26,7 @@ Table users {
 Table roles {
   id uuid [pk]
   name varchar [unique, not null]
+  description text
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -34,10 +35,16 @@ Table user_roles {
   id uuid [pk]
   user_id uuid [not null]
   role_id uuid [not null]
+  granted_at timestamp [not null]
+  revoked_at timestamp
+  granted_by_user_id uuid
+  revoked_by_user_id uuid
+  reason text
   created_at timestamp [not null]
+  updated_at timestamp [not null]
 
   indexes {
-    (user_id, role_id) [unique]
+    (user_id, role_id)
   }
 }
 
@@ -47,9 +54,13 @@ Table seller_profiles {
   display_name varchar [not null]
   status varchar [not null, default: 'pending_review']
   requested_at timestamp [not null]
-  reviewed_by_id uuid
+  reviewed_at timestamp
+  reviewed_by_user_id uuid
   approved_at timestamp
+  rejected_at timestamp
+  rejection_reason text
   suspended_at timestamp
+  suspension_reason text
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -277,7 +288,7 @@ Ref: users.id - seller_profiles.user_id [
   delete: cascade
 ]
 
-Ref: users.id < seller_profiles.reviewed_by_id [
+Ref: users.id < seller_profiles.reviewed_by_user_id [
   delete: set null
 ]
 

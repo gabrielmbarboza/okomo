@@ -50,7 +50,7 @@ Define permissões e responsabilidades dentro do sistema.
 
 **Atributos:**
 - `id`: Identificador único
-- `name`: Nome da role (ex: `buyer`, `seller`, `admin`, `moderator`)
+- `name`: Nome da role (ex: `buyer`, `seller`, `platform_admin`)
 - `description`: Descrição das responsabilidades
 - `created_at`: Data de criação
 - `updated_at`: Data da última atualização
@@ -102,7 +102,7 @@ Representa o perfil de um usuário como vendedor na plataforma.
 - `status`: Estado do perfil (`pending_review`, `approved`, `rejected`, `suspended`)
 - `requested_at`: Data de solicitação para ser vendedor
 - `reviewed_at`: Data da revisão
-- `reviewed_by_id`: Referência ao `User` que revisou (admin/moderador)
+- `reviewed_by_user_id`: Referência ao `User` com role `platform_admin` que revisou
 - `rejection_reason`: Motivo da rejeição (se aplicável)
 - `approved_at`: Data da aprovação
 - `suspended_at`: Data da suspensão (se aplicável)
@@ -118,7 +118,7 @@ Representa o perfil de um usuário como vendedor na plataforma.
 
 **Relacionamentos:**
 - Pertence a um `User`
-- Pode ser revisado por um `User` (admin/moderador)
+- Pode ser revisado por um `User` com role `platform_admin`
 
 ### EmailConfirmationToken
 
@@ -224,7 +224,7 @@ User (1) ────── (N) PasswordResetToken
 ### SellerProfile ← User (Auto-referência)
 
 ```
-User (admin) ──── (N) SellerProfile (reviewed_by_id)
+User (`platform_admin`) ──── (N) SellerProfile (reviewed_by_user_id)
 ```
 
 - Um `User` com papel administrativo pode revisar múltiplos `SellerProfiles`

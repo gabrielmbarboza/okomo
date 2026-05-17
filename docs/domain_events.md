@@ -32,54 +32,94 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 ### Identidade (Identity)
 
 #### User Events
-- `UserCreated` - Novo usuário criado
-- `UserUpdated` - Usuário atualizado
-- `UserActivated` - Usuário ativado
-- `UserDeactivated` - Usuário desativado
-- `UserPasswordChanged` - Senha do usuário alterada
-- `UserEmailVerified` - E-mail do usuário verificado
-- `UserEmailChanged` - E-mail do usuário alterado
-- `UserRegistered` - Novo usuário registrado no sistema
-- `UserEmailConfirmed` - E-mail do usuário confirmado com sucesso
-- `UserAuthenticated` - Usuário autenticado com sucesso
+
+- `UserRegistered` - Novo usuário criou uma conta
+  - Quando: Após criação bem-sucedida de User
+  - Dados: user_id, email, created_at
+  - Consumidores: SendConfirmationEmailJob, AuditLogging
+
+- `UserEmailConfirmed` - E-mail do usuário foi confirmado
+  - Quando: Após validação bem-sucedida do token de confirmação
+  - Dados: user_id, email, confirmed_at
+  - Consumidores: GrantBuyerRoleJob, SendWelcomeEmailJob, AuditLogging
+
+- `RoleGranted` - Um role foi concedido a um usuário
+  - Quando: Após atribuição bem-sucedida de um role
+  - Dados: user_id, role_name, granted_by_user_id, granted_at, reason
+  - Consumidores: AuthorizationCacheInvalidator, NotificationJob, AuditLogging
+
+- `RoleRevoked` - Um role foi revogado de um usuário
+  - Quando: Após revogação bem-sucedida de um role
+  - Dados: user_id, role_name, revoked_by_user_id, revoked_at, reason
+  - Consumidores: AuthorizationCacheInvalidator, NotificationJob, AuditLogging
+  - Observação: O role `buyer` nunca pode ser revogado
+
 - `PasswordRecoveryRequested` - Usuário solicitou recuperação de senha
-- `PasswordResetCompleted` - Senha redefinida com sucesso
+  - Quando: Após validação do e-mail em pedido de recuperação
+  - Dados: user_id, email, requested_at
+  - Consumidores: SendPasswordRecoveryEmailJob, AuditLogging
+
+- `PasswordResetCompleted` - Senha do usuário foi redefinida com sucesso
+  - Quando: Após validação do token e atualização da senha
+  - Dados: user_id, email, reset_at
+  - Consumidores: SendPasswordChangeNotificationJob, AuditLogging
 
 **Consumidores Típicos:**
-- `SendConfirmationEmailJob` - Envia e-mail de confirmação após UserRegistered
-- `SendPasswordRecoveryEmailJob` - Envia e-mail de recuperação após PasswordRecoveryRequested
-- `Audit Logging` - Registra eventos de segurança e autenticação
 
-#### Seller Events
-- `SellerCreated` - Novo seller criado
-- `SellerUpdated` - Seller atualizado
-- `SellerActivated` - Seller ativado
-- `SellerDeactivated` - Seller desativado
-- `SellerTaxInfoUpdated` - Informações fiscais do seller atualizadas
-- `SellerCommercialInfoUpdated` - Informações comerciais do seller atualizadas
-- `SellerVerificationRequested` - Verificação do seller solicitada
-- `SellerVerificationCompleted` - Verificação do seller concluída
-- `SellerRegistrationRequested` - Solicitação para se tornar vendedor
-- `SellerApproved` - Vendedor aprovado para vender na plataforma
-- `SellerRejected` - Vendedor rejeitado na solicitação
-- `SellerSuspended` - Vendedor suspenso temporariamente
+- `SendConfirmationEmailJob` - Envia e-mail de confirmação após `UserRegistered`
+- `GrantBuyerRoleJob` - Concede automaticamente role `buyer` após `UserEmailConfirmed`
+- `SendWelcomeEmailJob` - Envia boas-vindas após `UserEmailConfirmed`
+- `AuthorizationCacheInvalidator` - Invalida caches de autorização após `RoleGranted`/`RoleRevoked`
+- `NotificationJob` - Notifica usuário sobre mudanças de roles
+- `SendPasswordRecoveryEmailJob` - Envia e-mail de recuperação após `PasswordRecoveryRequested`
+- `SendPasswordChangeNotificationJob` - Notifica usuário após `PasswordResetCompleted`
+- `AuditLogging` - Registra todos os eventos para auditoria e compliance
+
+---
+
+#### SellerProfile Events
+
+- `SellerApplicationSubmitted` - Novo seller solicitou aprovação
+  - Quando: Após criação bem-sucedida de SellerProfile com status pending_review
+  - Dados: user_id, seller_profile_id, display_name, document_type, requested_at
+  - Consumidores: NotifyAdminNewApplicationJob, SendAcknowledgmentEmailJob, AuditLogging
+
+- `SellerApproved` - Seller foi aprovado por administrador
+  - Quando: Após mudança de status para approved em SellerProfile
+  - Dados: user_id, seller_profile_id, reviewed_by_user_id, approved_at
+  - Consumidores: GrantSellerRoleJob, SendApprovalEmailJob, UpdateSellerIndexJob, AuditLogging
+
+- `SellerRejected` - Seller foi rejeitado por administrador
+  - Quando: Após mudança de status para rejected em SellerProfile
+  - Dados: user_id, seller_profile_id, reviewed_by_user_id, rejection_reason, rejected_at
+  - Consumidores: SendRejectionEmailJob, AuditLogging
+
+- `SellerSuspended` - Seller foi suspenso por administrador
+  - Quando: Após mudança de status para suspended em SellerProfile
+  - Dados: user_id, seller_profile_id, suspension_reason, suspended_at
+  - Consumidores: RevokeSellerRoleJob, SendSuspensionEmailJob, DeactivateSellerProductsJob, AuditLogging
+
+- `SellerReactivated` - Seller suspenso foi reativado por administrador
+  - Quando: Após mudança de status de suspended para approved
+  - Dados: user_id, seller_profile_id, reactivated_by_user_id, reactivated_at
+  - Consumidores: RestoreSellerRoleJob, SendReactivationEmailJob, AuditLogging
 
 **Consumidores Típicos:**
-- `NotifySellerApprovalJob` - Notifica seller após aprovação
-- `NotifySellerRejectionJob` - Notifica seller após rejeição
-- `NotifySellerSuspensionJob` - Notifica seller após suspensão
-- `NotifyAdminJob` - Notifica administradores sobre novas solicitações
-- `Audit Logging` - Registra mudanças de status de seller
 
-#### Buyer Events
-- `BuyerCreated` - Novo buyer criado
-- `BuyerUpdated` - Buyer atualizado
-- `BuyerActivated` - Buyer ativado
-- `BuyerDeactivated` - Buyer desativado
-- `BuyerAddressAdded` - Endereço do buyer adicionado
-- `BuyerAddressUpdated` - Endereço do buyer atualizado
-- `BuyerAddressRemoved` - Endereço do buyer removido
-- `BuyerPreferencesUpdated` - Preferências do buyer atualizadas
+- `NotifyAdminNewApplicationJob` - Notifica administradores sobre novas aplicações
+- `SendAcknowledgmentEmailJob` - Confirma recebimento de aplicação ao seller
+- `GrantSellerRoleJob` - Concede role `seller` após `SellerApproved`
+- `SendApprovalEmailJob` - Notifica seller sobre aprovação
+- `SendRejectionEmailJob` - Notifica seller sobre rejeição com motivo
+- `SendSuspensionEmailJob` - Notifica seller sobre suspensão
+- `SendReactivationEmailJob` - Notifica seller sobre reativação
+- `RevokeSellerRoleJob` - Revoga role `seller` após `SellerSuspended`
+- `RestoreSellerRoleJob` - Restaura role `seller` após `SellerReactivated`
+- `DeactivateSellerProductsJob` - Desativa produtos do seller após suspensão
+- `UpdateSellerIndexJob` - Atualiza índices de busca após aprovação
+- `AuditLogging` - Registra todos os eventos para auditoria
+
+---
 
 ### Catálogo (Catalog)
 
@@ -155,7 +195,7 @@ module Catalog
   module Events
     class ProductCreated
       attr_reader :product_id, :name, :description, :price, :sku, :occurred_at
-      
+
       def initialize(product_id:, name:, description:, price:, sku:, occurred_at: Time.current)
         @product_id = product_id
         @name = name
@@ -164,7 +204,7 @@ module Catalog
         @sku = sku
         @occurred_at = occurred_at
       end
-      
+
       def to_h
         {
           product_id: product_id,
@@ -200,7 +240,7 @@ class EventStore
     # Persistir evento
     # Notificar subscribers
   end
-  
+
   def self.get_events(aggregate_id, from_version: 0)
     # Recuperar eventos de um aggregate
   end
@@ -216,7 +256,7 @@ module InventoryHandler
     # Atualizar estoque inicial
     InventoryService.create_initial_stock(event.product_id, event.quantity)
   end
-  
+
   def self.handle_order_created(event)
     # Reservar itens do pedido
     event.items.each do |item|
@@ -233,7 +273,7 @@ end
 class Product < BaseEntity
   def self.create(params)
     product = new(**params)
-    
+
     # Publicar evento
     event = Catalog::Events::ProductCreated.new(
       product_id: product.id,
@@ -242,7 +282,7 @@ class Product < BaseEntity
       price: product.price,
       sku: product.sku
     )
-    
+
     EventStore.publish(event)
     product
   end

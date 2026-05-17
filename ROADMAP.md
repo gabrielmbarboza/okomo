@@ -59,6 +59,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] ADR-014: Autenticação Nativa Rails com has_secure_password e JWT
 - [x] ADR-015: Custom Rails Generators para Domain Scaffolding
 - [x] ADR-016: Política Contínua de Atualização de Ruby, Rails e Dependências
+- [x] ADR-018: Roles e UserRole como Entidades Auditáveis
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`
@@ -81,6 +82,11 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Criar `docs/ubiquitous_language.md`
 - [x] Criar `docs/domain_events.md`
 - [x] Mapear Domain Events prioritários
+- [x] Documentar termos do Identity domain (User, Role, UserRole, SellerProfile, buyer, seller, platform_admin)
+- [x] Documentar estados de User (pending_confirmation, active, blocked, deactivated)
+- [x] Documentar estados de SellerProfile (pending_review, approved, rejected, suspended)
+- [x] Documentar eventos de Identity domain (UserRegistered, UserEmailConfirmed, RoleGranted, RoleRevoked, etc)
+- [x] ADR-018: Roles e UserRole como Entidades Auditáveis
 
 ## Máquinas de Estado
 - [x] Criar `docs/state_machines/`
@@ -111,6 +117,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 - [x] Refinar Linguagem Ubíqua e Bounded Contexts
 - [x] Documentar casos de uso em `docs/use_cases/`
+- [x] Documentar casos de uso do Identity em `docs/use_cases/identity/README.md`
 - [x] Configurar Docker Compose completo (App, PostgreSQL, Redis, Sidekiq)
 - [x] Configurar RSpec, FactoryBot, Faker, RuboCop, Brakeman, Bundler Audit e GitHub Actions
 - [x] Implementar `BaseEntity` com suporte a UUID e Domain Events
@@ -123,16 +130,33 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 # Fase 2 — Identity e Access Management
 
-- [ ] Criar `User`, `Role` e `SellerProfile`
+## Documentação (Completa ✅)
+- [x] Criar `docs/domain.md` seção Identity com agregados e casos de uso
+- [x] Criar `docs/use_cases/identity/README.md` com todos os 10 casos de uso
+- [x] Criar `docs/state_machines/user_state_machine.md` com diagrama e transições
+- [x] Criar `docs/state_machines/seller_profile_state_machine.md` com diagrama e transições
+- [x] Atualizar `docs/data_model/dbdiagram/identity.dbml` com estrutura auditável
+- [x] Atualizar `docs/data_model/dbdiagram/okomo_overview.dbml`
+
+## Implementação de Entidades de Domínio (Em Progresso 🚀)
+- [ ] Implementar entidades do domínio Identity (User, Role, UserRole, SellerProfile)
+- [ ] Criar testes unitários para o domínio Identity
+- [ ] Criar entidade `Identity::Entities::Role`
+- [ ] Criar entidade `Identity::Entities::UserRole` (auditável)
+- [ ] Criar entidade `Identity::Entities::User` (Aggregate Root)
+- [ ] Criar entidade `Identity::Entities::SellerProfile`
+- [ ] Criar testes unitários abrangentes para todas as entidades
+
+## Implementação de Casos de Uso (Próxima Fase)
 - [ ] Implementar `RegisterUser`
-- [ ] Implementar confirmação de e-mail
+- [ ] Implementar confirmação de e-mail com concessão automática de role `buyer`
 - [ ] Implementar `AuthenticateUser`
 - [ ] Implementar geração e validação de JWT
 - [ ] Implementar `RequestPasswordRecovery` e `ResetPassword`
-- [ ] Implementar `RequestSellerRegistration`
-- [ ] Implementar `ApproveSeller`, `RejectSeller` e `SuspendSeller`
+- [ ] Implementar `RequestSellerApplication`
+- [ ] Implementar `ApproverSeller`, `RejectSeller` e `SuspendSeller`
 - [ ] Implementar RBAC (buyer, seller, admin)
-- [ ] Criar testes unitários e de integração
+- [ ] Implementar `ReactivateSeller`
 
 ---
 

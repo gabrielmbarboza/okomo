@@ -46,7 +46,7 @@ O modelo lógico descreve a implementação no PostgreSQL do modelo conceitual. 
 | Coluna | Tipo | Null | Padrão | Comentários |
 |--------|------|------|--------|------------|
 | id | uuid | NOT NULL | gen_random_uuid() | Chave primária |
-| name | varchar(50) | NOT NULL | | Nome único: buyer, seller, admin, moderator |
+| name | varchar(50) | NOT NULL | | Nome único: buyer, seller, platform_admin |
 | description | text | NULL | | Descrição das responsabilidades |
 | created_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data de criação |
 | updated_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data da última atualização |
@@ -65,7 +65,7 @@ O modelo lógico descreve a implementação no PostgreSQL do modelo conceitual. 
 buyer      | Pode comprar na plataforma
 seller     | Pode vender na plataforma
 admin      | Acesso administrativo completo
-moderator  | Pode revisar perfis e conteúdo
+platform_admin  | Pode revisar perfis, moderar vendedores e administrar a plataforma
 ```
 
 ---
@@ -109,7 +109,7 @@ moderator  | Pode revisar perfis e conteúdo
 | status | varchar(50) | NOT NULL | 'pending_review' | Enum: pending_review, approved, rejected, suspended |
 | requested_at | timestamp | NOT NULL | CURRENT_TIMESTAMP | Data da solicitação |
 | reviewed_at | timestamp | NULL | | Data da revisão |
-| reviewed_by_id | uuid | NULL | | FK → users(id) admin/moderador |
+| reviewed_by_user_id | uuid | NULL | | FK → users(id), User com role `platform_admin` |
 | rejection_reason | text | NULL | | Motivo se rejeitado |
 | approved_at | timestamp | NULL | | Data da aprovação |
 | suspended_at | timestamp | NULL | | Data da suspensão |
@@ -119,7 +119,7 @@ moderator  | Pode revisar perfis e conteúdo
 **Constraints:**
 - PRIMARY KEY: `id`
 - FOREIGN KEY: `user_id` REFERENCES `users(id)` ON DELETE CASCADE
-- FOREIGN KEY: `reviewed_by_id` REFERENCES `users(id)` ON DELETE SET NULL
+- FOREIGN KEY: `reviewed_by_user_id` REFERENCES `users(id)` ON DELETE SET NULL
 - UNIQUE: `user_id`
 - CHECK: `status IN ('pending_review', 'approved', 'rejected', 'suspended')`
 - CHECK: `LENGTH(display_name) > 0`
@@ -131,7 +131,7 @@ moderator  | Pode revisar perfis e conteúdo
 - UNIQUE: `seller_profiles_user_id_idx` (user_id)
 - REGULAR: `seller_profiles_status_idx` (status)
 - REGULAR: `seller_profiles_requested_at_idx` (requested_at)
-- REGULAR: `seller_profiles_reviewed_by_id_idx` (reviewed_by_id)
+- REGULAR: `seller_profiles_reviewed_by_user_id_idx` (reviewed_by_user_id)
 
 ---
 
@@ -208,7 +208,7 @@ users (1) ──────┬──── (N) user_roles ──── (1) role
                │
                ├──── (0..1) seller_profiles
                │
-               ├──── (1) ←─── (N) seller_profiles (reviewed_by_id)
+               ├──── (1) ←─── (N) seller_profiles (reviewed_by_user_id)
                │
                ├──── (N) email_confirmation_tokens
                │
@@ -275,7 +275,7 @@ Aplicado quando:
 ### DELETE SET NULL
 
 Aplicado quando:
-- `seller_profiles.reviewed_by_id` referencia `users` - Admin deletado não anula histórico
+- `seller_profiles.reviewed_by_user_id` referencia `users` - User revisor removido não anula histórico
 
 ## Estratégia de Índices
 

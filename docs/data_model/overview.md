@@ -57,20 +57,23 @@ O Okomo é organizado em **8 Bounded Contexts** principais, cada um responsável
 - **User**: Conta de acesso à plataforma. Representada como um usuário autenticável com e-mail e senha.
   - Atributos: id (UUID), email, password_digest, status, email_confirmed_at, created_at, updated_at
 
-- **Role**: Define permissões na plataforma (buyer, seller, admin).
-  - Atributos: id (UUID), name, created_at, updated_at
+- **Role**: Catálogo global de papéis da plataforma (`buyer`, `seller`, `platform_admin`).
+  - Atributos: id (UUID), name, description, created_at, updated_at
 
-- **UserRole**: Relacionamento muitos-para-muitos entre User e Role.
-  - Permite que um usuário tenha múltiplos papéis simultaneamente.
+- **UserRole**: Entidade auditável que representa a atribuição de um Role a um User.
+  - Atributos: id (UUID), user_id, role_id, granted_at, revoked_at, granted_by_user_id, revoked_by_user_id, reason, created_at, updated_at
+  - Preserva histórico completo de concessões e revogações.
 
 - **SellerProfile**: Perfil de vendedor com informações comerciais e status de aprovação.
-  - Atributos: id (UUID), user_id (um-para-um com User), display_name, status, requested_at, reviewed_by_id, approved_at, suspended_at
+  - Atributos: id (UUID), user_id (um-para-um com User), display_name, status, requested_at, reviewed_by_user_id, approved_at, rejected_at, suspended_at
   - Estados: pending_review, approved, rejected, suspended
 
 **Relacionamentos Importantes:**
 - Um User pode ter múltiplos Roles (através de UserRole)
 - Um User pode ter um SellerProfile (relacionamento um-para-um opcional)
-- Um SellerProfile é revisado por um User com role admin/moderador
+- Um SellerProfile é revisado por um User com role `platform_admin`
+- Todo User confirmado recebe role `buyer`
+- O role `buyer` não pode ser revogado
 
 **Diagrama DBML específico:** `docs/data_model/dbdiagram/identity.dbml`
 

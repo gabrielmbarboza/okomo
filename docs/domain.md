@@ -79,122 +79,369 @@ Promotion
 
 Gerenciamento de usuários, autenticação, autorização e papéis de negócio.
 
-## Entidades
+## Agregados
 
-### User
-Conta principal autenticável da plataforma.
+### User (Aggregate Root)
 
-Atributos:
-* id (UUID)
-* email (string, único)
-* password_digest (string)
-* email_confirmed (boolean)
-* created_at (datetime)
-* updated_at (datetime)
+`User` é a entidade raiz que representa uma conta de acesso à plataforma.
 
-### Role
-Permissão atribuída ao usuário.
+**Atributos:**
 
-Atributos:
-* id (UUID)
-* name (string: buyer, seller, admin)
-* user_id (UUID, FK)
+* `id` (UUID) - Identificador único
+* `email` (string, único) - Endereço de e-mail do usuário
+* `password_digest` (string) - Hash da senha utilizando bcrypt
+* `status` (enum: pending_confirmation, active, blocked, deactivated) - Estado da conta
+* `email_confirmed_at` (datetime, nullable) - Data de confirmação do e-mail
+* `created_at` (datetime) - Data de criação
+* `updated_at` (datetime) - Última atualização
 
-### SellerProfile
-Perfil contendo dados cadastrais e status de moderação do vendedor.
+**Relacionamentos:**
 
-Atributos:
-* id (UUID)
-* seller_id (UUID, FK)
-* tax_info (jsonb)
-* commercial_info (jsonb)
-* status (enum: pending, approved, rejected, suspended)
-* moderation_notes (text)
-* created_at (datetime)
-* updated_at (datetime)
+* `has_many :user_roles` - Atribuições de roles (Auditável)
+* `has_one :seller_profile` (opcional) - Perfil de vendedor se aplicável
+
+**Invariantes:**
+
+* Todo User com `email_confirmed_at` preenchido recebe automaticamente o role `buyer`
+* O role `buyer` não pode ser revogado após atribuição
+* Um User bloqueado não pode fazer login ou realizar ações
+
+---
+
+### Role (Entity / Catálogo Global)
+
+`Role` representa o catálogo global e explícito de papéis da plataforma.
+Embora tenha comportamento simples nesta fase, é modelado como entidade do
+Identity domain para manter identidade própria, nomenclatura estável e
+consistência com `UserRole`.
+
+**Atributos:**
+
+* `id` (UUID) - Identificador único
+* `name` (enum: buyer, seller, platform_admin) - Nome do role
+* `description` (string) - Descrição do role
+* `created_at` (datetime) - Data de criação
+* `updated_at` (datetime) - Última atualização
+
+**Características:**
+
+* Não muda frequentemente
+* Gerenciado apenas por administradores do sistema
+* Cada role tem um conjunto específico de permissões
+* Roles válidos no MVP: `buyer`, `seller`, `platform_admin`
+
+---
+
+### UserRole (Entity)
+
+`UserRole` representa a atribuição auditável de um `Role` a um `User` em um ponto específico no tempo.
+Ele não é apenas uma tabela de junção: preserva o histórico completo de
+concessão e revogação de papéis.
+
+**Atributos:**
+
+* `id` (UUID) - Identificador único
+* `user_id` (UUID, FK) - Referência ao User
+* `role_id` (UUID, FK) - Referência ao Role
+* `granted_at` (datetime) - Data de concessão do role
+* `revoked_at` (datetime, nullable) - Data de revogação (null = ativo)
+* `granted_by_user_id` (UUID, FK, nullable) - Qual usuário concedeu o role
+* `revoked_by_user_id` (UUID, FK, nullable) - Qual usuário revogou o role
+* `reason` (string, nullable) - Motivo da concessão/revogação
+* `created_at` (datetime)
+* `updated_at` (datetime)
+
+**Características:**
+
+* Fornece trilha de auditoria completa
+* Preserva histórico de todas as concessões e revogações
+* `revoked_at` é NULL enquanto o role está ativo para o usuário
+* O role `buyer` nunca pode ser revogado (revoked_at permanece NULL)
+* Roles adicionais, como `seller` e `platform_admin`, podem ser concedidos e revogados ao longo do tempo
+
+**Relacionamentos:**
+
+* `belongs_to :user`
+* `belongs_to :role`
+* `belongs_to :granted_by_user` (User, optional)
+* `belongs_to :revoked_by_user` (User, optional)
+
+---
+
+### SellerProfile (Entity)
+
+`SellerProfile` representa o perfil de um vendedor, incluindo dados comerciais e status de moderação.
+
+**Atributos:**
+
+* `id` (UUID) - Identificador único
+* `user_id` (UUID, FK, único) - Referência ao User (um-para-um)
+* `display_name` (string) - Nome da loja exibido publicamente
+* `description` (text, nullable) - Descrição da loja
+* `status` (enum: pending_review, approved, rejected, suspended) - Estado da aplicação
+* `document_type` (enum: cpf, cnpj, mei) - Tipo de documento fiscal
+* `document_number` (string) - Número do documento (criptografado em repouso)
+* `legal_name` (string) - Razão social ou nome legal
+* `contact_email` (string) - E-mail de contato comercial
+* `contact_phone` (string) - Telefone de contato
+* `commercial_address` (jsonb) - Endereço comercial (rua, número, cidade, estado, CEP)
+* `requested_at` (datetime) - Data da solicitação
+* `reviewed_at` (datetime, nullable) - Data da análise
+* `reviewed_by_user_id` (UUID, FK, nullable) - Qual administrador revisou
+* `approved_at` (datetime, nullable) - Data de aprovação
+* `rejected_at` (datetime, nullable) - Data de rejeição
+* `rejection_reason` (text, nullable) - Motivo da rejeição
+* `suspended_at` (datetime, nullable) - Data de suspensão
+* `suspension_reason` (text, nullable) - Motivo da suspensão
+* `created_at` (datetime)
+* `updated_at` (datetime)
+
+**Relacionamentos:**
+
+* `belongs_to :user`
+* `belongs_to :reviewed_by_user` (User, optional)
+
+**Estados:**
+
+1. **pending_review** - Inicial, aguardando análise
+2. **approved** - Aprovado, pode vender
+3. **rejected** - Rejeitado, não pode vender
+4. **suspended** - Suspenso temporariamente
+
+**Transições Válidas:**
+
+```
+pending_review → approved (sucesso)
+pending_review → rejected (rejeição)
+approved → suspended (violação)
+suspended → approved (resolução)
+```
+
+---
 
 ## Casos de Uso
 
-### RegisterUser
-Criação de nova conta de usuário.
+### Register User
 
-Fluxo:
-1. Valida e-mail e senha
-2. Cria User com password hash
-3. Gera token de confirmação de e-mail
-4. Envia e-mail de confirmação
-5. Publica evento UserRegistered
+Criação de nova conta de usuário na plataforma.
 
-### ConfirmEmail
+**Fluxo:**
+
+1. Valida e-mail (formato e unicidade)
+2. Valida força da senha
+3. Cria User com `status = pending_confirmation` e `password_digest`
+4. Gera token seguro de confirmação de e-mail
+5. Envia e-mail de confirmação
+6. Publica evento `UserRegistered`
+
+**Pós-condições:**
+
+* User criado mas não pode fazer compras
+* E-mail de confirmação enviado
+
+---
+
+### Confirm Email
+
 Confirmação do endereço de e-mail do usuário.
 
-Fluxo:
-1. Valida token de confirmação
-2. Marca e-mail como confirmado
-3. Atribui role buyer automaticamente
-4. Publica evento UserEmailConfirmed
+**Fluxo:**
 
-### AuthenticateUser
-Autenticação do usuário na plataforma.
+1. Valida token de confirmação (expiração, existência)
+2. Marca `email_confirmed_at` com timestamp
+3. Altera `status` para `active`
+4. Cria automaticamente `UserRole` com `buyer` role
+5. Publica evento `UserEmailConfirmed`
 
-Fluxo:
+**Pós-condições:**
+
+* User pode fazer login
+* User recebeu role `buyer`
+* UserRole criado e auditável
+
+**Regra Fundamental:**
+
+* `buyer` é o papel base de todo User confirmado e não pode ser revogado
+
+---
+
+### Authenticate User
+
+Autenticação do usuário na plataforma via credenciais.
+
+**Fluxo:**
+
 1. Valida credenciais (email + password)
-2. Gera JWT token
-3. Retorna token e dados do usuário
-4. Publica evento UserAuthenticated
+2. Valida que User não está bloqueado
+3. Valida que User confirmou e-mail
+4. Gera JWT token com informações do usuário
+5. Retorna token e informações básicas
+6. Publica evento `UserAuthenticated`
 
-### RequestPasswordRecovery
+---
+
+### Request Password Recovery
+
 Solicitação de recuperação de senha.
 
-Fluxo:
-1. Valida existência do e-mail
-2. Gera token de recuperação
-3. Envia e-mail com link seguro
-4. Publica evento PasswordRecoveryRequested
+**Fluxo:**
 
-### ResetPassword
+1. Valida existência do e-mail
+2. Gera token seguro de recuperação (expiração: 1 hora)
+3. Envia e-mail com link seguro
+4. Publica evento `PasswordRecoveryRequested`
+
+---
+
+### Reset Password
+
 Redefinição de senha via token.
 
-Fluxo:
-1. Valida token de recuperação
-2. Atualiza password
-3. Invalida token
-4. Publica evento PasswordResetCompleted
+**Fluxo:**
 
-### RequestSellerRegistration
+1. Valida token de recuperação
+2. Atualiza `password_digest`
+3. Invalida token (não reutilizável)
+4. Publica evento `PasswordResetCompleted`
+
+---
+
+### Request Seller Application
+
 Solicitação para se tornar vendedor.
 
-Fluxo:
-1. Valida dados fiscais e comerciais
-2. Cria SellerProfile com status pending
-3. Publica evento SellerRegistrationRequested
+**Fluxo:**
 
-### ApproveSeller
+1. Valida que User não é bloqueado ou deativado
+2. Valida dados fiscais (documento, formato)
+3. Valida dados comerciais (nome da loja, contatos)
+4. Cria `SellerProfile` com `status = pending_review`
+5. Define `requested_at` com timestamp
+6. Publica evento `SellerApplicationSubmitted`
+
+**Pós-condições:**
+
+* SellerProfile criado aguardando revisão
+* User ainda não possui role `seller`
+
+---
+
+### Role Lifecycle
+
+Papéis são concedidos e revogados por meio de `UserRole`.
+
+**Fluxo:**
+
+1. Um role global existente em `Role` é selecionado.
+2. Um novo `UserRole` é criado com `granted_at`, `granted_by_user_id` e `reason`.
+3. Enquanto `revoked_at` for `NULL`, o role está ativo.
+4. Para revogar, o mesmo `UserRole` recebe `revoked_at`, `revoked_by_user_id` e motivo.
+5. Uma nova concessão futura cria outro `UserRole`, preservando o histórico anterior.
+
+**Invariantes:**
+
+* `buyer` é atribuído automaticamente após confirmação de e-mail.
+* `buyer` não pode ser revogado.
+* `seller` depende do fluxo de aprovação de `SellerProfile`.
+* `platform_admin` só pode ser concedido por operação administrativa explícita.
+
+---
+
+### Seller Approval Flow
+
+O fluxo de vendedor é separado do ciclo de papéis para manter responsabilidades claras.
+
+**Fluxo:**
+
+1. User confirmado submete um `SellerProfile` com `status = pending_review`.
+2. Administrador com role `platform_admin` revisa a aplicação.
+3. Em caso de aprovação, `SellerProfile` muda para `approved` e o role `seller` é concedido.
+4. Em caso de rejeição, `SellerProfile` muda para `rejected` e nenhum role `seller` é concedido.
+5. Em caso de suspensão posterior, `SellerProfile` muda para `suspended` e o role `seller` é revogado de forma auditável.
+
+---
+
+### Approve Seller
+
 Aprovação de vendedor por administrador.
 
-Fluxo:
-1. Valida permissões de administrador
-2. Atualiza status para approved
-3. Atribui role seller ao usuário
-4. Publica evento SellerApproved
+**Fluxo:**
 
-### RejectSeller
+1. Valida que revisor possui role `platform_admin`
+2. Valida que SellerProfile está em `pending_review`
+3. Altera `status` para `approved`
+4. Define `approved_at` e `reviewed_by_user_id`
+5. Cria `UserRole` com `seller` role
+6. Publica evento `SellerApproved`
+
+**Pós-condições:**
+
+* User recebeu role `seller`
+* SellerProfile está aprovado
+* Pode criar produtos
+
+---
+
+### Reject Seller
+
 Rejeição de vendedor por administrador.
 
-Fluxo:
-1. Valida permissões de administrador
-2. Atualiza status para rejected
-3. Registra motivo da rejeição
-4. Publica evento SellerRejected
+**Fluxo:**
 
-### SuspendSeller
+1. Valida que revisor possui role `platform_admin`
+2. Valida que SellerProfile está em `pending_review`
+3. Altera `status` para `rejected`
+4. Define `rejected_at`, `reviewed_by_user_id` e `rejection_reason`
+5. Publica evento `SellerRejected`
+
+**Pós-condições:**
+
+* SellerProfile rejeitado
+* User não recebe role `seller`
+
+---
+
+### Suspend Seller
+
 Suspensão de vendedor por administrador.
 
-Fluxo:
-1. Valida permissões de administrador
-2. Atualiza status para suspended
-3. Registra motivo da suspensão
-4. Publica evento SellerSuspended
+**Fluxo:**
+
+1. Valida que revisor possui role `platform_admin`
+2. Valida que SellerProfile está em `approved`
+3. Altera `status` para `suspended`
+4. Define `suspended_at` e `suspension_reason`
+5. Revoga `seller` role (cria UserRole com `revoked_at`)
+6. Publica evento `SellerSuspended`
+
+**Pós-condições:**
+
+* SellerProfile suspenso
+* User perde role `seller` (auditável)
+* Não pode mais vender
+
+---
+
+### Reactivate Seller
+
+Reativação de um seller suspenso por administrador.
+
+**Fluxo:**
+
+1. Valida que revisor possui role `platform_admin`
+2. Valida que SellerProfile está em `suspended`
+3. Altera `status` de volta para `approved`
+4. Limpa `suspended_at` e `suspension_reason`
+5. Restaura `seller` role (novo UserRole com granted_at)
+6. Publica evento `SellerReactivated`
+
+**Pós-condições:**
+
+* SellerProfile novamente aprovado
+* User recupera role `seller`
+* Pode vender novamente
+
+---
 
 ## Domain Events
 
@@ -254,7 +501,7 @@ Payload:
 Consumidores típicos:
 * Audit Logging
 
-### SellerRegistrationRequested
+### SellerApplicationSubmitted
 Solicitação para se tornar vendedor.
 
 Payload:
