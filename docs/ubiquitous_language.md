@@ -149,7 +149,7 @@ Responsabilidades:
 Observações:
 
 * DataPrivacy não substitui Identity; ele atravessa Identity, Orders, Payments, Shipping e auditoria
-* decisões arquiteturais principais estão na ADR-021
+* decisões arquiteturais principais estão na ADR-020
 
 ---
 

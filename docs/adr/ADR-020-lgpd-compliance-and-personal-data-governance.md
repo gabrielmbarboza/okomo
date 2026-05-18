@@ -1,4 +1,4 @@
-# ADR-021 — LGPD Compliance and Personal Data Governance
+# ADR-020 — LGPD Compliance and Personal Data Governance
 
 > **Status:** Accepted  
 > **Data:** 2026-05-17  

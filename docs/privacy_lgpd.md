@@ -6,7 +6,7 @@
 
 Este documento define a base técnica e operacional para tratar dados pessoais no Okomo em conformidade com a LGPD. Ele deve ser revisado com jurídico/DPO antes do lançamento público e sempre que novos fluxos de dados forem adicionados.
 
-A decisão arquitetural principal está registrada na [ADR-021 — LGPD Compliance and Personal Data Governance](adr/ADR-021-lgpd-compliance-and-personal-data-governance.md).
+A decisão arquitetural principal está registrada na [ADR-020 — LGPD Compliance and Personal Data Governance](adr/ADR-020-lgpd-compliance-and-personal-data-governance.md).
 
 ## 1. Princípios Aplicados
 

@@ -170,7 +170,7 @@ Para detalhes completos sobre cadências, critérios de aceitação e estratégi
 
 ## 9. Conformidade (LGPD)
 
-Para detalhes operacionais, inventário inicial de dados pessoais, direitos do titular, retenção e checklist de PR, consulte [Privacidade e LGPD](privacy_lgpd.md). A decisão arquitetural central está registrada na [ADR-021 — LGPD Compliance and Personal Data Governance](adr/ADR-021-lgpd-compliance-and-personal-data-governance.md).
+Para detalhes operacionais, inventário inicial de dados pessoais, direitos do titular, retenção e checklist de PR, consulte [Privacidade e LGPD](privacy_lgpd.md). A decisão arquitetural central está registrada na [ADR-020 — LGPD Compliance and Personal Data Governance](adr/ADR-020-lgpd-compliance-and-personal-data-governance.md).
 
 * **Minimização:** coletamos apenas os dados necessários para conta, venda, compra, pagamento, entrega, suporte, segurança e obrigações legais.
 * **Consentimento versionado:** cadastro e mudanças relevantes devem registrar aceite dos Termos de Uso e da Política de Privacidade, com timestamp e versão dos documentos.

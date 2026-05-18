@@ -369,7 +369,7 @@ Cada mudança deve:
 
 ## LGPD e Retenção
 
-O modelo lógico segue a ADR-021:
+O modelo lógico segue a ADR-020:
 
 - `users.anonymized_at` é o marcador principal de anonimização seletiva;
 - `deleted_at` é apenas soft delete técnico e não substitui anonimização;

@@ -60,7 +60,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] ADR-015: Custom Rails Generators para Domain Scaffolding
 - [x] ADR-016: Política Contínua de Atualização de Ruby, Rails e Dependências
 - [x] ADR-018: Roles e UserRole como Entidades Auditáveis
-- [x] ADR-020: Infraestrutura Declarativa para Entidades de Domínio
+- [x] ADR-019: Infraestrutura Declarativa para Entidades de Domínio
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`

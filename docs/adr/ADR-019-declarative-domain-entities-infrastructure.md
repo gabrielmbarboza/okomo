@@ -1,4 +1,4 @@
-# ADR-020: Infraestrutura Declarativa para Entidades de Domínio
+# ADR-019: Infraestrutura Declarativa para Entidades de Domínio
 
 - **Status:** Accepted
 - **Data:** 2026-05-17
