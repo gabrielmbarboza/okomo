@@ -61,6 +61,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] ADR-016: Política Contínua de Atualização de Ruby, Rails e Dependências
 - [x] ADR-018: Roles e UserRole como Entidades Auditáveis
 - [x] ADR-019: Infraestrutura Declarativa para Entidades de Domínio
+- [x] ADR-020: Conformidade com a LGPD e governança de dados pessoais
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`
