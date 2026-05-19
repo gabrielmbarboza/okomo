@@ -9,7 +9,7 @@ gem "puma", ">= 5.0"
 
 # Redis & Background Jobs
 gem "redis", "~> 5.0"
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 8.1"
 
 # API
 gem "rack-cors", "~> 2.0"
