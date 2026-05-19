@@ -144,17 +144,17 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Atualizar `docs/data_model/dbdiagram/identity.dbml` com estrutura auditável
 - [x] Atualizar `docs/data_model/dbdiagram/okomo_overview.dbml`
 
-## Implementação de Entidades de Domínio (Em Progresso 🚀)
-- [ ] Implementar entidades do domínio Identity (User, Role, UserRole, SellerProfile)
-- [ ] Criar testes unitários para o domínio Identity
-- [ ] Criar entidade `Identity::Entities::Role`
-- [ ] Criar entidade `Identity::Entities::UserRole` (auditável)
-- [ ] Criar entidade `Identity::Entities::User` (Aggregate Root)
-- [ ] Criar entidade `Identity::Entities::SellerProfile`
-- [ ] Criar testes unitários abrangentes para todas as entidades
+## Implementação de Entidades de Domínio (Completa ✅)
+- [x] Implementar entidades do domínio Identity (User, Role, UserRole, SellerProfile)
+- [x] Criar testes unitários para o domínio Identity
+- [x] Criar entidade `Identity::Entities::Role`
+- [x] Criar entidade `Identity::Entities::UserRole` (auditável)
+- [x] Criar entidade `Identity::Entities::User` (Aggregate Root)
+- [x] Criar entidade `Identity::Entities::SellerProfile`
+- [x] Criar testes unitários abrangentes para todas as entidades
 
 ## Implementação de Casos de Uso (Próxima Fase)
-- [ ] Implementar `RegisterUser`
+- [x] Implementar `RegisterUser`
 - [ ] Implementar confirmação de e-mail com concessão automática de role `buyer`
 - [ ] Implementar `AuthenticateUser`
 - [ ] Implementar geração e validação de JWT

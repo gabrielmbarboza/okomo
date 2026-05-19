@@ -14,6 +14,7 @@ gem "sidekiq", "~> 7.0"
 # API
 gem "rack-cors", "~> 2.0"
 gem "jwt", "~> 2.7"
+gem "bcrypt", "~> 3.1"
 
 # Environment Variables
 gem "dotenv-rails", "~> 3.0"
