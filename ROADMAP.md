@@ -83,6 +83,8 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 ## Modelagem de Domínio
 - [x] Criar `docs/ubiquitous_language.md`
 - [x] Criar `docs/domain_events.md`
+- [x] Criar `docs/business_rules/`
+- [x] Documentar regras de negócio por Bounded Context
 - [x] Mapear Domain Events prioritários
 - [x] Documentar termos do Identity domain (User, Role, UserRole, SellerProfile, buyer, seller, platform_admin)
 - [x] Documentar estados de User (pending_confirmation, active, blocked, deactivated)
