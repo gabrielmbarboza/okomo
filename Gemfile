@@ -12,7 +12,7 @@ gem "redis", "~> 5.0"
 gem "sidekiq", "~> 7.0"
 
 # API
-gem "rack-cors", "~> 2.0"
+gem "rack-cors", "~> 3.0"
 gem "jwt", "~> 2.7"
 gem "bcrypt", "~> 3.1"
 
