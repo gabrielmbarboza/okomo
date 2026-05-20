@@ -47,11 +47,11 @@ RSpec.describe Shared::Entities::BaseEntity do
       end
     end
 
-    it 'registra atributos declarados' do
+    it 'registers declared attributes' do
       expect(declarative_class.attribute_names).to eq(%i[id name])
     end
 
-    it 'cria accessors automaticamente' do
+    it 'creates accessors automatically' do
       entity = declarative_class.new(id: 1, name: 'John')
 
       expect(entity.id).to eq(1)
@@ -63,7 +63,7 @@ RSpec.describe Shared::Entities::BaseEntity do
   end
 
   describe '.attribute' do
-    it 'registra a definição de um atributo com default literal' do
+    it 'registers attribute definition with literal default' do
       declarative_class = Class.new(described_class) do
         attribute :status, default: 'pending'
       end
@@ -73,7 +73,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       )
     end
 
-    it 'aplica default literal quando atributo não é informado' do
+    it 'applies literal default when attribute is not provided' do
       declarative_class = Class.new(described_class) do
         attribute :status, default: 'pending'
       end
@@ -81,7 +81,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       expect(declarative_class.new.status).to eq('pending')
     end
 
-    it 'não substitui valor explicitamente informado por default' do
+    it 'does not replace explicitly provided value with default' do
       declarative_class = Class.new(described_class) do
         attribute :status, default: 'pending'
       end
@@ -89,7 +89,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       expect(declarative_class.new(status: 'active').status).to eq('active')
     end
 
-    it 'avalia default callable por instância' do
+    it 'evaluates callable default per instance' do
       declarative_class = Class.new(described_class) do
         attribute :items, default: -> { [] }
       end
@@ -103,7 +103,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       expect(second.items).to eq([])
     end
 
-    it 'permite default callable dependente da instância' do
+    it 'allows instance-dependent callable default' do
       declarative_class = Class.new(described_class) do
         attribute :created_at, default: -> { Time.zone.parse('2026-05-17 10:00:00') }
         attribute :updated_at, default: ->(entity) { entity.created_at }
@@ -116,7 +116,7 @@ RSpec.describe Shared::Entities::BaseEntity do
   end
 
   describe '.validates' do
-    it 'registra validações declarativas' do
+    it 'registers declarative validations' do
       declarative_class = Class.new(described_class) do
         attributes :name
         validates :name, presence: true
@@ -132,7 +132,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       )
     end
 
-    it 'valida presença contra nil' do
+    it 'validates presence against nil' do
       declarative_class = Class.new(described_class) do
         attributes :name
         validates :name, presence: true
@@ -143,7 +143,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       }.to raise_error(ArgumentError, 'name cannot be nil or empty')
     end
 
-    it 'valida presença contra string em branco' do
+    it 'validates presence against blank string' do
       declarative_class = Class.new(described_class) do
         attributes :name
         validates :name, presence: true
@@ -154,7 +154,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       }.to raise_error(ArgumentError, 'name cannot be nil or empty')
     end
 
-    it 'valida presença contra array vazio' do
+    it 'validates presence against empty array' do
       declarative_class = Class.new(described_class) do
         attributes :items
         validates :items, presence: true
@@ -165,7 +165,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       }.to raise_error(ArgumentError, 'items cannot be nil or empty')
     end
 
-    it 'permite mensagem customizada de presença' do
+    it 'allows custom presence message' do
       declarative_class = Class.new(described_class) do
         attributes :user_id
         validates :user_id, presence: { message: 'user_id cannot be nil' }
@@ -176,7 +176,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       }.to raise_error(ArgumentError, 'user_id cannot be nil')
     end
 
-    it 'valida inclusão em coleção configurada' do
+    it 'validates inclusion in configured collection' do
       declarative_class = Class.new(described_class) do
         VALID_STATUSES = %w[pending active].freeze
 
@@ -189,7 +189,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       }.to raise_error(ArgumentError, 'status must be one of: pending, active')
     end
 
-    it 'permite valores incluídos na coleção' do
+    it 'allows values included in collection' do
       declarative_class = Class.new(described_class) do
         attributes :status
         validates :status, inclusion: { in: %w[pending active] }
@@ -198,7 +198,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       expect(declarative_class.new(status: 'active').status).to eq('active')
     end
 
-    it 'ignora inclusão para valor nil quando presença não foi exigida' do
+    it 'ignores inclusion for nil value when presence was not required' do
       declarative_class = Class.new(described_class) do
         attributes :document_type
         validates :document_type, inclusion: { in: %w[cpf cnpj mei] }
@@ -209,7 +209,7 @@ RSpec.describe Shared::Entities::BaseEntity do
   end
 
   describe '.sensitive_attributes' do
-    it 'registra atributos sensíveis declarados' do
+    it 'registers declared sensitive attributes' do
       declarative_class = Class.new(described_class) do
         attributes :email, :password_digest
         sensitive_attributes :email, :password_digest
@@ -218,7 +218,7 @@ RSpec.describe Shared::Entities::BaseEntity do
       expect(declarative_class.sensitive_attribute_names).to eq(%i[email password_digest])
     end
 
-    it 'herda atributos sensíveis da classe pai' do
+    it 'inherits sensitive attributes from parent class' do
       parent_class = Class.new(described_class) do
         attributes :email
         sensitive_attributes :email
@@ -240,19 +240,19 @@ RSpec.describe Shared::Entities::BaseEntity do
       end
     end
 
-    it 'retorna atributos declarados sem redigir por padrão' do
+    it 'returns declared attributes without redacting by default' do
       entity = privacy_class.new(id: 1, email: 'john@example.com', status: 'active')
 
       expect(entity.to_h).to eq(id: 1, email: 'john@example.com', status: 'active')
     end
 
-    it 'redige atributos sensíveis quando solicitado' do
+    it 'redacts sensitive attributes when requested' do
       entity = privacy_class.new(id: 1, email: 'john@example.com', status: 'active')
 
       expect(entity.to_h(redact: true)).to eq(id: 1, email: '[FILTERED]', status: 'active')
     end
 
-    it 'não redige atributos sensíveis nulos' do
+    it 'does not redact nil sensitive attributes' do
       entity = privacy_class.new(id: 1, email: nil, status: 'active')
 
       expect(entity.to_h(redact: true)).to eq(id: 1, email: nil, status: 'active')
@@ -260,7 +260,7 @@ RSpec.describe Shared::Entities::BaseEntity do
   end
 
   describe '#as_json' do
-    it 'redige atributos sensíveis por padrão' do
+    it 'redacts sensitive attributes by default' do
       declarative_class = Class.new(described_class) do
         attributes :id, :email
         sensitive_attributes :email
@@ -274,7 +274,7 @@ RSpec.describe Shared::Entities::BaseEntity do
   end
 
   describe '#inspect' do
-    it 'redige atributos sensíveis para evitar vazamento em logs' do
+    it 'redacts sensitive attributes to prevent log leakage' do
       declarative_class = Class.new(described_class) do
         attributes :id, :email
         sensitive_attributes :email
@@ -288,7 +288,7 @@ RSpec.describe Shared::Entities::BaseEntity do
   end
 
   describe '#validate!' do
-    it 'retorna a própria entidade quando válida' do
+    it 'returns the entity itself when valid' do
       declarative_class = Class.new(described_class) do
         attributes :name
         validates :name, presence: true

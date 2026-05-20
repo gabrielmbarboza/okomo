@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe Identity::Entities::Role do
   describe "#initialize" do
-    context "quando todos os parâmetros são válidos" do
-      it "cria um role buyer" do
+    context "when all parameters are valid" do
+      it "creates a buyer role" do
         role = described_class.new(
           id: SecureRandom.uuid,
           name: described_class::BUYER,
@@ -15,7 +15,7 @@ RSpec.describe Identity::Entities::Role do
         expect(role.description).to eq("Can purchase items")
       end
 
-      it "cria um role seller" do
+      it "creates a seller role" do
         role = described_class.new(
           id: SecureRandom.uuid,
           name: described_class::SELLER
@@ -24,7 +24,7 @@ RSpec.describe Identity::Entities::Role do
         expect(role.name).to eq(described_class::SELLER)
       end
 
-      it "cria um role platform_admin" do
+      it "creates a platform_admin role" do
         role = described_class.new(
           id: SecureRandom.uuid,
           name: described_class::PLATFORM_ADMIN
@@ -33,7 +33,7 @@ RSpec.describe Identity::Entities::Role do
         expect(role.name).to eq(described_class::PLATFORM_ADMIN)
       end
 
-      it "predefine created_at e updated_at com timestamp atual" do
+      it "predefines created_at and updated_at with current timestamp" do
         now = Time.current
         role = described_class.new(
           id: SecureRandom.uuid,
@@ -46,7 +46,7 @@ RSpec.describe Identity::Entities::Role do
         expect(role.updated_at).to be >= now
       end
 
-      it "aceita created_at e updated_at customizados" do
+      it "accepts custom created_at and updated_at" do
         time = 1.hour.ago
         role = described_class.new(
           id: SecureRandom.uuid,
@@ -60,26 +60,26 @@ RSpec.describe Identity::Entities::Role do
       end
     end
 
-    context "quando name é inválido" do
-      it "lança erro se name for nil" do
+    context "when name is invalid" do
+      it "raises an error if name is nil" do
         expect {
           described_class.new(id: SecureRandom.uuid, name: nil)
         }.to raise_error(ArgumentError, "name cannot be nil or empty")
       end
 
-      it "lança erro se name for vazio" do
+      it "raises an error if name is empty" do
         expect {
           described_class.new(id: SecureRandom.uuid, name: "")
         }.to raise_error(ArgumentError, "name cannot be nil or empty")
       end
 
-      it "lança erro se name não estiver em VALID_NAMES" do
+      it "raises an error if name is not in VALID_NAMES" do
         expect {
           described_class.new(id: SecureRandom.uuid, name: "invalid_role")
         }.to raise_error(ArgumentError, /must be one of/)
       end
 
-      it "inclui todas as opções válidas na mensagem de erro" do
+      it "includes all valid options in the error message" do
         error = nil
         begin
           described_class.new(id: SecureRandom.uuid, name: "invalid")
@@ -95,7 +95,7 @@ RSpec.describe Identity::Entities::Role do
   end
 
   describe "#buyer?" do
-    it "retorna true se role é buyer" do
+    it "returns true if role is buyer" do
       role = described_class.new(
         id: SecureRandom.uuid,
         name: described_class::BUYER
@@ -104,7 +104,7 @@ RSpec.describe Identity::Entities::Role do
       expect(role.buyer?).to be true
     end
 
-    it "retorna false se role não é buyer" do
+    it "returns false if role is not buyer" do
       role = described_class.new(
         id: SecureRandom.uuid,
         name: described_class::SELLER
@@ -115,7 +115,7 @@ RSpec.describe Identity::Entities::Role do
   end
 
   describe "#seller?" do
-    it "retorna true se role é seller" do
+    it "returns true if role is seller" do
       role = described_class.new(
         id: SecureRandom.uuid,
         name: described_class::SELLER
@@ -124,7 +124,7 @@ RSpec.describe Identity::Entities::Role do
       expect(role.seller?).to be true
     end
 
-    it "retorna false se role não é seller" do
+    it "returns false if role is not seller" do
       role = described_class.new(
         id: SecureRandom.uuid,
         name: described_class::BUYER
@@ -135,7 +135,7 @@ RSpec.describe Identity::Entities::Role do
   end
 
   describe "#admin?" do
-    it "retorna true se role é platform_admin" do
+    it "returns true if role is platform_admin" do
       role = described_class.new(
         id: SecureRandom.uuid,
         name: described_class::PLATFORM_ADMIN
@@ -144,7 +144,7 @@ RSpec.describe Identity::Entities::Role do
       expect(role.admin?).to be true
     end
 
-    it "retorna false se role não é platform_admin" do
+    it "returns false if role is not platform_admin" do
       role = described_class.new(
         id: SecureRandom.uuid,
         name: described_class::SELLER
@@ -154,8 +154,8 @@ RSpec.describe Identity::Entities::Role do
     end
   end
 
-  describe "igualdade e hash" do
-    it "dois roles com mesmos atributos são iguais" do
+  describe "equality and hash" do
+    it "two roles with the same attributes are equal" do
       id = SecureRandom.uuid
       role1 = described_class.new(
         id: id,
@@ -173,7 +173,7 @@ RSpec.describe Identity::Entities::Role do
       expect(role1.hash).to eq(role2.hash)
     end
 
-    it "dois roles com atributos diferentes não são iguais" do
+    it "two roles with different attributes are not equal" do
       role1 = described_class.new(
         id: SecureRandom.uuid,
         name: described_class::BUYER
@@ -187,20 +187,20 @@ RSpec.describe Identity::Entities::Role do
     end
   end
 
-  describe "constantes de role" do
-    it "define BUYER como 'buyer'" do
+  describe "role constants" do
+    it "defines BUYER as 'buyer'" do
       expect(described_class::BUYER).to eq("buyer")
     end
 
-    it "define SELLER como 'seller'" do
+    it "defines SELLER as 'seller'" do
       expect(described_class::SELLER).to eq("seller")
     end
 
-    it "define PLATFORM_ADMIN como 'platform_admin'" do
+    it "defines PLATFORM_ADMIN as 'platform_admin'" do
       expect(described_class::PLATFORM_ADMIN).to eq("platform_admin")
     end
 
-    it "VALID_NAMES contém todos os roles válidos" do
+    it "VALID_NAMES contains all valid roles" do
       expect(described_class::VALID_NAMES).to contain_exactly(
         described_class::BUYER,
         described_class::SELLER,
