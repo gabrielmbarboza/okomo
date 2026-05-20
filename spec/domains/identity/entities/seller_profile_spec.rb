@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe Identity::Entities::SellerProfile do
   describe "#initialize" do
-    context "quando todos os parâmetros são válidos" do
-      it "cria um novo seller profile" do
+    context "when all parameters are valid" do
+      it "creates a new seller profile" do
         seller_profile = described_class.new(
           id: SecureRandom.uuid,
           user_id: SecureRandom.uuid,
@@ -17,7 +17,7 @@ RSpec.describe Identity::Entities::SellerProfile do
         expect(seller_profile.requested_at).to be_a(ActiveSupport::TimeWithZone)
       end
 
-      it "cria seller profile com todos os campos preenchidos" do
+      it "creates seller profile with all fields filled" do
         user_id = SecureRandom.uuid
         reviewed_by_user_id = SecureRandom.uuid
         requested_at = Time.zone.parse("2026-05-17 10:00:00")
@@ -60,7 +60,7 @@ RSpec.describe Identity::Entities::SellerProfile do
         expect(seller_profile.approved_at).to eq(approved_at)
       end
 
-      it "predefine requested_at, created_at e updated_at com timestamp atual" do
+      it "predefines requested_at, created_at and updated_at with current timestamp" do
         now = Time.current
         seller_profile = described_class.new(
           id: SecureRandom.uuid,
@@ -74,8 +74,8 @@ RSpec.describe Identity::Entities::SellerProfile do
       end
     end
 
-    context "quando parâmetros obrigatórios são inválidos" do
-      it "lança erro se user_id for nil" do
+    context "when mandatory parameters are invalid" do
+      it "raises an error if user_id is nil" do
         expect {
           described_class.new(
             id: SecureRandom.uuid,
@@ -85,7 +85,7 @@ RSpec.describe Identity::Entities::SellerProfile do
         }.to raise_error(ArgumentError, "user_id cannot be nil")
       end
 
-      it "lança erro se display_name for nil" do
+      it "raises an error if display_name is nil" do
         expect {
           described_class.new(
             id: SecureRandom.uuid,
@@ -95,7 +95,7 @@ RSpec.describe Identity::Entities::SellerProfile do
         }.to raise_error(ArgumentError, "display_name cannot be nil or empty")
       end
 
-      it "lança erro se display_name for vazio" do
+      it "raises an error if display_name is empty" do
         expect {
           described_class.new(
             id: SecureRandom.uuid,
@@ -105,7 +105,7 @@ RSpec.describe Identity::Entities::SellerProfile do
         }.to raise_error(ArgumentError, "display_name cannot be nil or empty")
       end
 
-      it "lança erro se status for inválido" do
+      it "raises an error if status is invalid" do
         expect {
           described_class.new(
             id: SecureRandom.uuid,
@@ -116,7 +116,7 @@ RSpec.describe Identity::Entities::SellerProfile do
         }.to raise_error(ArgumentError, /must be one of/)
       end
 
-      it "lança erro se document_type for inválido" do
+      it "raises an error if document_type is invalid" do
         expect {
           described_class.new(
             id: SecureRandom.uuid,
@@ -130,7 +130,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#pending_review?" do
-    it "retorna true se status é pending_review" do
+    it "returns true if status is pending_review" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -141,7 +141,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.pending_review?).to be true
     end
 
-    it "retorna false se status não é pending_review" do
+    it "returns false if status is not pending_review" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -154,7 +154,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#approved?" do
-    it "retorna true se status é approved" do
+    it "returns true if status is approved" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -165,7 +165,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.approved?).to be true
     end
 
-    it "retorna false se status não é approved" do
+    it "returns false if status is not approved" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -178,7 +178,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#rejected?" do
-    it "retorna true se status é rejected" do
+    it "returns true if status is rejected" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -189,7 +189,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.rejected?).to be true
     end
 
-    it "retorna false se status não é rejected" do
+    it "returns false if status is not rejected" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -202,7 +202,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#suspended?" do
-    it "retorna true se status é suspended" do
+    it "returns true if status is suspended" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -213,7 +213,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.suspended?).to be true
     end
 
-    it "retorna false se status não é suspended" do
+    it "returns false if status is not suspended" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -226,7 +226,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#can_sell?" do
-    it "retorna true se status é approved" do
+    it "returns true if status is approved" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -237,7 +237,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.can_sell?).to be true
     end
 
-    it "retorna false se status é pending_review" do
+    it "returns false if status is pending_review" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -248,7 +248,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.can_sell?).to be false
     end
 
-    it "retorna false se status é rejected" do
+    it "returns false if status is rejected" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -259,7 +259,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.can_sell?).to be false
     end
 
-    it "retorna false se status é suspended" do
+    it "returns false if status is suspended" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -272,7 +272,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#approve!" do
-    it "aprova um seller profile em revisão" do
+    it "approves a seller profile under review" do
       reviewed_at = Time.zone.parse("2026-05-18 10:00:00")
       reviewer_id = SecureRandom.uuid
       seller_profile = described_class.new(
@@ -294,7 +294,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.can_sell?).to be true
     end
 
-    it "não aprova quando não está em pending_review" do
+    it "does not approve when it is not pending_review" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -309,7 +309,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#reject!" do
-    it "rejeita um seller profile em revisão com motivo" do
+    it "rejects a seller profile under review with a reason" do
       reviewed_at = Time.zone.parse("2026-05-18 11:00:00")
       reviewer_id = SecureRandom.uuid
       seller_profile = described_class.new(
@@ -331,7 +331,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.rejection_reason).to eq("document invalid")
     end
 
-    it "exige motivo de rejeição" do
+    it "requires a rejection reason" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -345,7 +345,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#suspend!" do
-    it "suspende um seller profile aprovado" do
+    it "suspends an approved seller profile" do
       suspended_at = Time.zone.parse("2026-05-19 10:00:00")
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
@@ -362,7 +362,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.can_sell?).to be false
     end
 
-    it "exige motivo de suspensão" do
+    it "requires a suspension reason" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -377,7 +377,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#reactivate!" do
-    it "reativa um seller profile suspenso" do
+    it "reactivates a suspended seller profile" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -395,7 +395,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.can_sell?).to be true
     end
 
-    it "não reativa quando não está suspenso" do
+    it "does not reactivate when it is not suspended" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -409,7 +409,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#requested_days_ago" do
-    it "retorna número de dias desde a solicitação" do
+    it "returns the number of days since request" do
       requested_at = 5.days.ago
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
@@ -423,7 +423,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(days_ago).to eq(5)
     end
 
-    it "retorna 0 se solicitação é recente" do
+    it "returns 0 if the request is recent" do
       requested_at = 2.minutes.ago
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
@@ -438,7 +438,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#approved_days_ago" do
-    it "retorna nil se não foi aprovado" do
+    it "returns nil if it was not approved" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -450,7 +450,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.approved_days_ago).to be_nil
     end
 
-    it "retorna número de dias desde aprovação" do
+    it "returns the number of days since approval" do
       approved_at = 3.days.ago
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
@@ -466,7 +466,7 @@ RSpec.describe Identity::Entities::SellerProfile do
   end
 
   describe "#review_duration_days" do
-    it "retorna nil se não foi revisado" do
+    it "returns nil if it was not reviewed" do
       seller_profile = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -477,7 +477,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(seller_profile.review_duration_days).to be_nil
     end
 
-    it "retorna número de dias levados para revisar" do
+    it "returns the number of days taken to review" do
       requested_at = Time.zone.parse("2026-05-17 10:00:00")
       reviewed_at = Time.zone.parse("2026-05-19 14:00:00")
 
@@ -493,7 +493,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(duration).to eq(2)
     end
 
-    it "retorna 0 se revisão foi no mesmo dia" do
+    it "returns 0 if review was on the same day" do
       requested_at = Time.zone.parse("2026-05-17 10:00:00")
       reviewed_at = Time.zone.parse("2026-05-17 14:00:00")
 
@@ -510,15 +510,15 @@ RSpec.describe Identity::Entities::SellerProfile do
     end
   end
 
-  describe "constantes de status" do
-    it "define todos os status válidos" do
+  describe "status constants" do
+    it "defines all valid statuses" do
       expect(described_class::PENDING_REVIEW).to eq("pending_review")
       expect(described_class::APPROVED).to eq("approved")
       expect(described_class::REJECTED).to eq("rejected")
       expect(described_class::SUSPENDED).to eq("suspended")
     end
 
-    it "VALID_STATUSES contém todos os status" do
+    it "VALID_STATUSES contains all statuses" do
       expect(described_class::VALID_STATUSES).to contain_exactly(
         described_class::PENDING_REVIEW,
         described_class::APPROVED,
@@ -528,14 +528,14 @@ RSpec.describe Identity::Entities::SellerProfile do
     end
   end
 
-  describe "constantes de tipo de documento" do
-    it "define tipos de documento válidos" do
+  describe "document type constants" do
+    it "defines all valid document types" do
       expect(described_class::DOC_TYPE_CPF).to eq("cpf")
       expect(described_class::DOC_TYPE_CNPJ).to eq("cnpj")
       expect(described_class::DOC_TYPE_MEI).to eq("mei")
     end
 
-    it "VALID_DOCUMENT_TYPES contém todos os tipos" do
+    it "VALID_DOCUMENT_TYPES contains all types" do
       expect(described_class::VALID_DOCUMENT_TYPES).to contain_exactly(
         described_class::DOC_TYPE_CPF,
         described_class::DOC_TYPE_CNPJ,
@@ -544,8 +544,8 @@ RSpec.describe Identity::Entities::SellerProfile do
     end
   end
 
-  describe "igualdade e hash" do
-    it "dois seller profiles com mesmos atributos são iguais" do
+  describe "equality and hash" do
+    it "treats two seller profiles with the same attributes as equal" do
       id = SecureRandom.uuid
       user_id = SecureRandom.uuid
 
@@ -567,7 +567,7 @@ RSpec.describe Identity::Entities::SellerProfile do
       expect(profile1.hash).to eq(profile2.hash)
     end
 
-    it "dois seller profiles com atributos diferentes não são iguais" do
+    it "does not treat two seller profiles with different attributes as equal" do
       profile1 = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,

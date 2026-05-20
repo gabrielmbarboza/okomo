@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe Identity::Entities::UserRole do
   describe "#initialize" do
-    context "quando todos os parâmetros são válidos" do
-      it "cria um user_role ativo" do
+    context "when all parameters are valid" do
+      it "creates an active user_role" do
         user_id = SecureRandom.uuid
         role_id = SecureRandom.uuid
         granted_at = Time.zone.parse("2026-05-17 10:00:00")
@@ -25,7 +25,7 @@ RSpec.describe Identity::Entities::UserRole do
         expect(user_role.reason).to eq("automatic on email confirmation")
       end
 
-      it "cria um user_role revogado" do
+      it "creates a revoked user_role" do
         user_id = SecureRandom.uuid
         role_id = SecureRandom.uuid
         granted_at = Time.zone.parse("2026-05-17 10:00:00")
@@ -47,7 +47,7 @@ RSpec.describe Identity::Entities::UserRole do
         expect(user_role.revoked_by_user_id).to be_a(String)
       end
 
-      it "predefine granted_at, created_at e updated_at com timestamp atual" do
+      it "predefines granted_at, created_at and updated_at with current timestamp" do
         now = Time.current
         user_role = described_class.new(
           id: SecureRandom.uuid,
@@ -60,7 +60,7 @@ RSpec.describe Identity::Entities::UserRole do
         expect(user_role.updated_at).to be >= now
       end
 
-      it "aceita parâmetros opcionais como nil" do
+      it "accepts optional parameters as nil" do
         user_role = described_class.new(
           id: SecureRandom.uuid,
           user_id: SecureRandom.uuid,
@@ -76,8 +76,8 @@ RSpec.describe Identity::Entities::UserRole do
       end
     end
 
-    context "quando parâmetros obrigatórios são inválidos" do
-      it "lança erro se user_id for nil" do
+    context "when mandatory parameters are invalid" do
+      it "raises an error if user_id is nil" do
         expect {
           described_class.new(
             id: SecureRandom.uuid,
@@ -87,7 +87,7 @@ RSpec.describe Identity::Entities::UserRole do
         }.to raise_error(ArgumentError, "user_id cannot be nil")
       end
 
-      it "lança erro se role_id for nil" do
+      it "raises an error if role_id is nil" do
         expect {
           described_class.new(
             id: SecureRandom.uuid,
@@ -97,7 +97,7 @@ RSpec.describe Identity::Entities::UserRole do
         }.to raise_error(ArgumentError, "role_id cannot be nil")
       end
 
-      it "lança erro se revoked_at for anterior a granted_at" do
+      it "raises an error if revoked_at is before granted_at" do
         granted_at = Time.zone.parse("2026-05-17 10:00:00")
         revoked_at = Time.zone.parse("2026-05-17 09:00:00")
 
@@ -115,7 +115,7 @@ RSpec.describe Identity::Entities::UserRole do
   end
 
   describe "#active?" do
-    it "retorna true se revoked_at é nil" do
+    it "returns true if revoked_at is nil" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -126,7 +126,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.active?).to be true
     end
 
-    it "retorna false se revoked_at está preenchido" do
+    it "returns false if revoked_at is filled" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -139,7 +139,7 @@ RSpec.describe Identity::Entities::UserRole do
   end
 
   describe "#revoked?" do
-    it "retorna false se revoked_at é nil" do
+    it "returns false if revoked_at is nil" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -150,7 +150,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.revoked?).to be false
     end
 
-    it "retorna true se revoked_at está preenchido" do
+    it "returns true if revoked_at is filled" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -163,7 +163,7 @@ RSpec.describe Identity::Entities::UserRole do
   end
 
   describe "#buyer?" do
-    it "retorna true para role buyer" do
+    it "returns true for buyer role" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -173,7 +173,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.buyer?).to be true
     end
 
-    it "retorna false para outros roles" do
+    it "returns false for other roles" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -185,7 +185,7 @@ RSpec.describe Identity::Entities::UserRole do
   end
 
   describe "#revoke!" do
-    it "revoga um role ativo e preserva dados de auditoria" do
+    it "revokes an active role and preserves audit data" do
       revoked_at = Time.zone.parse("2026-05-18 10:00:00")
       admin_id = SecureRandom.uuid
       user_role = described_class.new(
@@ -209,7 +209,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.updated_at).to eq(revoked_at)
     end
 
-    it "não permite revogar buyer" do
+    it "does not allow revoking buyer" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -221,7 +221,7 @@ RSpec.describe Identity::Entities::UserRole do
       }.to raise_error(ArgumentError, "buyer role cannot be revoked")
     end
 
-    it "não permite revogar duas vezes" do
+    it "does not allow revoking twice" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -236,7 +236,7 @@ RSpec.describe Identity::Entities::UserRole do
   end
 
   describe "#granted_ago" do
-    it "calcula tempo decorrido desde concessão" do
+    it "calculates time elapsed since grant" do
       granted_at = 2.hours.ago
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -250,7 +250,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(duration).to be_within(5).of(2.hours)
     end
 
-    it "retorna aproximadamente 0 para concessão recente" do
+    it "returns approximately 0 for recent grant" do
       granted_at = Time.current
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -265,7 +265,7 @@ RSpec.describe Identity::Entities::UserRole do
   end
 
   describe "#revoked_ago" do
-    it "retorna nil se role não foi revogado" do
+    it "returns nil if role was not revoked" do
       user_role = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,
@@ -276,7 +276,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.revoked_ago).to be_nil
     end
 
-    it "calcula tempo decorrido desde revogação" do
+    it "calculates time elapsed since revocation" do
       revoked_at = 1.hour.ago
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -292,7 +292,7 @@ RSpec.describe Identity::Entities::UserRole do
   end
 
   describe "#duration" do
-    it "retorna duração desde concessão até revogação" do
+    it "returns duration from grant to revocation" do
       granted_at = Time.zone.parse("2026-05-17 10:00:00")
       revoked_at = Time.zone.parse("2026-05-17 14:00:00")
       expected_duration = 4.hours
@@ -308,7 +308,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.duration).to eq(expected_duration)
     end
 
-    it "retorna duração desde concessão até agora se não foi revogado" do
+    it "returns duration from grant to now if not revoked" do
       granted_at = 2.hours.ago
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -323,7 +323,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(duration).to be_within(5).of(2.hours)
     end
 
-    it "retorna duração pequena se concessão é recente" do
+    it "returns small duration if grant is recent" do
       granted_at = 5.seconds.ago
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -338,8 +338,8 @@ RSpec.describe Identity::Entities::UserRole do
     end
   end
 
-  describe "auditoria" do
-    it "rastreia quem concedeu o role" do
+  describe "audit" do
+    it "tracks who granted the role" do
       admin_id = SecureRandom.uuid
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -351,7 +351,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.granted_by_user_id).to eq(admin_id)
     end
 
-    it "rastreia quem revogou o role" do
+    it "tracks who revoked the role" do
       admin_id = SecureRandom.uuid
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -363,7 +363,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.revoked_by_user_id).to eq(admin_id)
     end
 
-    it "registra razão da concessão ou revogação" do
+    it "records reason for grant or revocation" do
       reason = "approved seller application #12345"
       user_role = described_class.new(
         id: SecureRandom.uuid,
@@ -375,7 +375,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role.reason).to eq(reason)
     end
 
-    it "mantém histórico completo e imutável" do
+    it "maintains complete and immutable history" do
       granted_at = Time.zone.parse("2026-05-17 10:00:00")
       revoked_at = Time.zone.parse("2026-05-20 14:00:00")
       granted_by = SecureRandom.uuid
@@ -398,8 +398,8 @@ RSpec.describe Identity::Entities::UserRole do
     end
   end
 
-  describe "igualdade e hash" do
-    it "dois user_roles com mesmos atributos são iguais" do
+  describe "equality and hash" do
+    it "treats two user_roles with the same attributes as equal" do
       id = SecureRandom.uuid
       user_id = SecureRandom.uuid
       role_id = SecureRandom.uuid
@@ -423,7 +423,7 @@ RSpec.describe Identity::Entities::UserRole do
       expect(user_role1.hash).to eq(user_role2.hash)
     end
 
-    it "dois user_roles com atributos diferentes não são iguais" do
+    it "does not treat two user_roles with different attributes as equal" do
       user_role1 = described_class.new(
         id: SecureRandom.uuid,
         user_id: SecureRandom.uuid,

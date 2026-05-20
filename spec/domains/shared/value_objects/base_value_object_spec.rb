@@ -13,15 +13,15 @@ RSpec.describe Shared::ValueObjects::BaseValueObject do
     end
   end
 
-  let(:vo1) { value_object_class.new(amount: 100, currency: 'USD') }
-  let(:vo2) { value_object_class.new(amount: 100, currency: 'USD') }
-  let(:vo3) { value_object_class.new(amount: 200, currency: 'USD') }
-  let(:vo4) { value_object_class.new(amount: 100, currency: 'EUR') }
+  let(:vo1) { value_object_class.new(amount: 100, currency: 'BRL') }
+  let(:vo2) { value_object_class.new(amount: 100, currency: 'BRL') }
+  let(:vo3) { value_object_class.new(amount: 200, currency: 'BRL') }
+  let(:vo4) { value_object_class.new(amount: 100, currency: 'USD') }
 
   describe '#initialize' do
     it 'sets instance variables from attributes' do
       expect(vo1.amount).to eq(100)
-      expect(vo1.currency).to eq('USD')
+      expect(vo1.currency).to eq('BRL')
     end
 
     it 'freezes the object after initialization' do
@@ -106,7 +106,7 @@ RSpec.describe Shared::ValueObjects::BaseValueObject do
       it 'returns false' do
         expect(vo1).not_to eq('string')
         expect(vo1).not_to eq(100)
-        expect(vo1).not_to eq({ amount: 100, currency: 'USD' })
+        expect(vo1).not_to eq({ amount: 100, currency: 'BRL' })
       end
     end
   end
@@ -133,7 +133,7 @@ RSpec.describe Shared::ValueObjects::BaseValueObject do
     end
 
     it 'includes class and all instance variables in hash calculation' do
-      expected_hash = [value_object_class, 100, 'USD'].hash
+      expected_hash = [value_object_class, 100, 'BRL'].hash
       expect(vo1.hash).to eq(expected_hash)
     end
 
@@ -175,15 +175,15 @@ RSpec.describe Shared::ValueObjects::BaseValueObject do
       end
     end
 
-    let(:parent_vo) { value_object_class.new(amount: 100, currency: 'USD') }
-    let(:child_vo) { child_class.new(amount: 100, currency: 'USD', precision: 2) }
+    let(:parent_vo) { value_object_class.new(amount: 100, currency: 'BRL') }
+    let(:child_vo) { child_class.new(amount: 100, currency: 'BRL', precision: 2) }
 
     it 'treats parent and child classes as different' do
       expect(parent_vo).not_to eq(child_vo)
     end
 
     it 'child value objects compare correctly with each other' do
-      child_vo2 = child_class.new(amount: 100, currency: 'USD', precision: 2)
+      child_vo2 = child_class.new(amount: 100, currency: 'BRL', precision: 2)
       expect(child_vo).to eq(child_vo2)
     end
 
