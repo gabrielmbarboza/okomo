@@ -27,8 +27,8 @@ For in-depth details about architecture, security, and operations, consult the d
 
 - **Ruby on Rails 8.1** (API-only)
 - **PostgreSQL 16** (UUID primary keys)
-- **Redis 7** (caching + background jobs)
-- **Sidekiq** (prepared for async processing)
+- **Solid Queue** (backend inicial de background jobs via Active Job)
+- **Redis 7** (opcional para cache distribuído e cenários futuros de escala)
 - **Docker** + **Docker Compose**
 - **Thruster** (Rails 8 acceleration proxy)
 
@@ -49,30 +49,32 @@ git clone <repo-url> && cd okomo
 # 2. Copy environment variables
 cp .env.example .env
 
-# 3. Build and start all services
+# 3. Build and start all required services
 docker-compose up --build
 
-# 4. Create and migrate the database (in another terminal)
-docker-compose exec app bundle exec rails db:create db:migrate
+# 4. Create and prepare the application and Solid Queue databases (in another terminal)
+docker-compose exec okomo_api bundle exec rails db:prepare
 
 # 5. Access the API
 curl http://localhost:3000/up
 ```
 
-### Running with Sidekiq
+### Running Solid Queue Workers
 
 ```bash
-docker-compose --profile with-sidekiq up
+docker-compose --profile with-jobs up
 ```
+
+Os jobs devem ser criados via Active Job. O backend inicial é Solid Queue, mantendo Redis como dependência opcional para cache futuro ou cenários de escala.
 
 ### Useful Commands
 
 ```bash
 # Rails console
-docker-compose exec app bundle exec rails console
+docker-compose exec okomo_api bundle exec rails console
 
 # Run migrations
-docker-compose exec app bundle exec rails db:migrate
+docker-compose exec okomo_api bundle exec rails db:migrate
 
 # Stop all services
 docker-compose down
@@ -121,7 +123,7 @@ app/
 3. **Domain services** — All business logic lives in `app/domains/<domain>/services/`.
 4. **Entities are POROs** — Not ActiveRecord, just plain Ruby objects.
 5. **Value objects are immutable** — Frozen after initialization, compared by value.
-6. **Domain Events** — Side effects between domains should be handled via events to ensure decoupling.
+6. **Domain Events** — Side effects between domains should be handled via events and Active Job handlers to ensure decoupling.
 7. **Shared Kernel** — Base classes provide common functionality across domains.
 8. **Repository Pattern** — Data access abstracted through repositories.
 
@@ -244,7 +246,7 @@ Generates `app/domains/orders/events/order_created.rb` with payload and timestam
 | Timezone | America/Sao_Paulo |
 | Default locale | pt-BR |
 | Primary key | UUID |
-| Job adapter | Sidekiq |
+| Job adapter | Active Job com Solid Queue |
 | API mode | true |
 | Encryption | ActiveRecord::Encryption (AES-256-GCM) |
 
@@ -253,7 +255,7 @@ Generates `app/domains/orders/events/order_created.rb` with payload and timestam
 ## 🛡️ Security & Resilience
 
 - **Pessimistic Locking**: Applied in the `Inventory` domain to ensure Zero Overselling.
-- **Idempotency**: Guaranteed in all Sidekiq jobs and webhook processing.
+- **Idempotency**: Guaranteed in all Active Job jobs and webhook processing, independentemente do backend de fila.
 - **Audit**: Financial snapshot in `OrderItem` to ensure historical price immutability.
 
 ---

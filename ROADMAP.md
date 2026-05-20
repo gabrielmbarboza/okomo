@@ -62,6 +62,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] ADR-018: Roles e UserRole como Entidades Auditáveis
 - [x] ADR-019: Infraestrutura Declarativa para Entidades de Domínio
 - [x] ADR-020: Conformidade com a LGPD e governança de dados pessoais
+- [x] ADR-022: Solid Queue como Backend Inicial de Background Jobs
 
 ## Estratégia de Testes
 - [x] Criar `docs/testing_strategy.md`
@@ -122,7 +123,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Refinar Linguagem Ubíqua e Bounded Contexts
 - [x] Documentar casos de uso em `docs/use_cases/`
 - [x] Documentar casos de uso do Identity em `docs/use_cases/identity/README.md`
-- [x] Configurar Docker Compose completo (App, PostgreSQL, Redis, Sidekiq)
+- [x] Configurar Docker Compose completo (App, PostgreSQL e Solid Queue)
 - [x] Configurar RSpec, FactoryBot, Faker, RuboCop, Brakeman, Bundler Audit e GitHub Actions
 - [x] Implementar `BaseEntity` com suporte a UUID e Domain Events
 - [x] Evoluir BaseEntity para suportar attributes e validações declarativas
@@ -267,6 +268,8 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [ ] Implementar Event Handlers assíncronos
 - [ ] Configurar Read Replicas no PostgreSQL
 - [ ] Implementar cache avançado com Redis
+- [ ] Avaliar migração para Sidekiq conforme crescimento da plataforma
+- [ ] Introduzir Redis para cache distribuído e otimizações
 - [ ] Planejar extração de Bounded Contexts para serviços independentes
 
 ---

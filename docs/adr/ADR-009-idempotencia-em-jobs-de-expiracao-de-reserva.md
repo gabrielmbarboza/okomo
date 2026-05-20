@@ -4,7 +4,7 @@
 Aceito
 
 ## Contexto
-Quando um Checkout expira ou falha, a reserva de estoque precisa ser liberada via background job no Sidekiq. O Sidekiq oferece garantia de execução at-least-once: em caso de crash do worker ou reinicialização do processo, o mesmo job pode ser executado mais de uma vez para o mesmo Checkout.
+Quando um Checkout expira ou falha, a reserva de estoque precisa ser liberada via background job usando Active Job. O backend inicial do Okomo é Solid Queue, conforme ADR-022, e a implementação deve assumir execução at-least-once: em caso de crash do worker ou reinicialização do processo, o mesmo job pode ser executado mais de uma vez para o mesmo Checkout.
 
 Uma implementação não-idempotente executando o job duas vezes resultaria em dupla liberação de estoque, corrompendo os contadores de Inventory silenciosamente e criando disponibilidade fantasma.
 

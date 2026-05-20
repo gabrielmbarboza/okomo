@@ -44,7 +44,7 @@ Garantir tempos de resposta adequados para uma boa experiência do usuário.
 * 95% das requisições HTTP em até 300 ms;
 * 99% das requisições HTTP em até 1 segundo;
 * operações críticas de checkout em até 2 segundos, excluindo latência de gateways externos;
-* processamento assíncrono de jobs sem bloquear requisições web.
+* processamento assíncrono de jobs via Active Job e Solid Queue sem bloquear requisições web.
 
 ## Operações Críticas
 
@@ -70,7 +70,8 @@ Permitir crescimento gradual sem necessidade de reescrita arquitetural.
 * uso de CDN para assets e imagens;
 * armazenamento de arquivos em Amazon S3 ou equivalente;
 * possibilidade de uso de Read Replicas no PostgreSQL;
-* uso de cache para consultas de leitura intensiva.
+* uso de cache para consultas de leitura intensiva;
+* adoção inicial de Solid Queue para reduzir dependências externas obrigatórias.
 
 ---
 
@@ -176,7 +177,7 @@ Garantir recuperação adequada diante de falhas.
 
 * retries exponenciais para integrações externas;
 * circuit breakers (futuro);
-* jobs assíncronos;
+* jobs assíncronos via Active Job;
 * rollback de transações;
 * compensação de reservas de Inventory.
 
@@ -253,8 +254,8 @@ Permitir execução consistente em diferentes ambientes.
 
 * Ruby on Rails 8;
 * PostgreSQL;
-* Redis;
-* Sidekiq;
+* Solid Queue;
+* Redis opcional para cache distribuído e cenários futuros de escala;
 * Docker.
 
 ---
@@ -310,6 +311,7 @@ Este documento fundamenta decisões como:
 * UUID como chaves primárias;
 * Pessimistic Locking para Inventory;
 * Snapshot financeiro em OrderItem.
+* Solid Queue como backend inicial de background jobs.
 
 ---
 

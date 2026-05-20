@@ -33,7 +33,7 @@ O Okomo utiliza uma abordagem nativa do Rails para garantir que apenas usuários
 ### 1.4. Refresh Tokens (Evolução Futura)
 * Refresh tokens com duração mais longa (ex: 7 dias)
 * Implementação opcional para melhor experiência do usuário
-* Armazenamento seguro em Redis para revogação
+* Armazenamento seguro para revogação; Redis pode ser avaliado futuramente como infraestrutura opcional de cache distribuído
 
 ### 1.5. Confirmação Obrigatória de E-mail
 * Todo novo usuário deve confirmar e-mail antes de acessar a plataforma
@@ -86,7 +86,7 @@ Para prevenir ataques de negação de serviço (DoS) e brute force, implementamo
 
 * **Global Rate Limit:** Máximo de 100 requisições por minuto por IP para rotas públicas de navegação.
 * **Auth Throttling:** Limites rigorosos para `/login` e `/password_reset` (ex: 5 tentativas por 10 minutos por e-mail).
-* **API Throttling:** Baseado no `client_id` da integração, com suporte a *bursting* controlado via Redis.
+* **API Throttling:** Baseado no `client_id` da integração, com suporte a *bursting* controlado via Redis quando essa infraestrutura opcional for introduzida.
 
 ---
 

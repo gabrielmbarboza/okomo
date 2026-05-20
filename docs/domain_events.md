@@ -280,6 +280,10 @@ Eventos de domínio devem seguir minimização de dados:
 
 ## Implementação
 
+Handlers de Domain Events que precisarem executar efeitos colaterais assíncronos devem ser enfileirados via Active Job. Solid Queue é o backend inicial desses jobs no Okomo, conforme ADR-022, mas os eventos, aggregates e serviços de domínio não devem depender diretamente de Solid Queue, Sidekiq ou Redis.
+
+O contrato do domínio permanece baseado em fatos de negócio e handlers explícitos. A infraestrutura decide se um handler roda de forma síncrona, via Active Job ou por outro mecanismo futuro.
+
 ### 1. Event Store
 
 ```ruby
@@ -355,7 +359,7 @@ end
 ### Fase 3: Integração (Sprint 5-6)
 - [ ] Implementar eventos do domínio Inventory
 - [ ] Implementar eventos do domínio Shipping
-- [ ] Configurar message broker (Redis/RabbitMQ)
+- [ ] Configurar handlers assíncronos via Active Job e Solid Queue
 - [ ] Implementar eventual consistency
 
 ## Ferramentas
@@ -366,8 +370,8 @@ end
 - **Miro**: Templates para domain events
 
 ### Implementação Técnica
-- **Ruby Event Store**: Redis ou PostgreSQL
-- **Message Broker**: Sidekiq ou RabbitMQ
+- **Ruby Event Store**: PostgreSQL inicialmente; Redis pode ser avaliado no futuro para cenários específicos
+- **Message Broker**: Active Job com Solid Queue inicialmente; Sidekiq ou RabbitMQ podem ser avaliados conforme escala
 - **Event Sourcing**: Opcional, para cenários específicos
 
 ## Boas Práticas

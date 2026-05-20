@@ -8,10 +8,12 @@
 1. Rodar query de auditoria para comparar `reserved` vs `available`.
 2. Executar `Inventory::ReconciliationService.call(variant_id)` para corrigir o drift.
 
-## 8.3. Job Sidekiq Travado
-1. Identificar JID na aba "Busy" do painel Sidekiq.
-2. Verificar timeouts de APIs externas.
-3. Restart seguro dos workers se necessário.
+## 8.3. Job Solid Queue Travado ou com Falha
+1. Identificar a fila afetada (`default`, `mailers`, `events` ou `maintenance`) e verificar logs do processo `bin/jobs`.
+2. Consultar as tabelas do Solid Queue para localizar jobs bloqueados, falhos ou com muitas tentativas.
+3. Verificar timeouts de APIs externas, locks no PostgreSQL e saturação do pool de conexões.
+4. Reiniciar workers Solid Queue de forma graciosa se houver processo preso.
+5. Reprocessar jobs somente quando a operação for idempotente ou quando houver confirmação do responsável pelo domínio.
 
 ## 8.4. Rollback de Deploy
 1. Reverter versão no CI/CD.
