@@ -12,7 +12,7 @@ gem "solid_queue"
 
 # API
 gem "rack-cors", "~> 2.0"
-gem "jwt", "~> 2.7"
+gem "jwt", "~> 3.2"
 gem "bcrypt", "~> 3.1"
 
 # Environment Variables
