@@ -1,6 +1,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
+abort("The Rails environment is running in production mode!") if ENV['RAILS_ENV'] == 'production'
+ENV['RAILS_ENV'] = 'test'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
@@ -9,31 +10,8 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # return unless Rails.env.test?
 require 'rspec/rails'
 require 'rails/generators'
-# Add additional requires below this line. Rails is not loaded until this point!
-
-# Load domain modules for testing
-require Rails.root.join('app', 'domains', 'orders', 'orders.rb')
-require Rails.root.join('app', 'domains', 'orders', 'entities', 'order_item')
-require Rails.root.join('app', 'domains', 'orders', 'entities', 'order')
-require Rails.root.join('app', 'domains', 'orders', 'services', 'create_order')
-
-# Load shared kernel modules
-require Rails.root.join('app', 'domains', 'shared', 'entities', 'base_entity')
-require Rails.root.join('app', 'domains', 'shared', 'value_objects', 'base_value_object')
-require Rails.root.join('app', 'domains', 'shared', 'services', 'base_service')
-
-# Carrega módulos do domínio Identity
-require Rails.root.join('app', 'domains', 'identity', 'entities', 'role')
-require Rails.root.join('app', 'domains', 'identity', 'entities', 'user_role')
-require Rails.root.join('app', 'domains', 'identity', 'entities', 'seller_profile')
-require Rails.root.join('app', 'domains', 'identity', 'entities', 'user')
-require Rails.root.join('app', 'domains', 'identity', 'events', 'user_registered')
-require Rails.root.join('app', 'domains', 'identity', 'events', 'user_email_confirmed')
-require Rails.root.join('app', 'domains', 'identity', 'events', 'user_authenticated')
-require Rails.root.join('app', 'domains', 'identity', 'value_objects', 'confirmation_token')
-require Rails.root.join('app', 'domains', 'identity', 'services', 'register_user')
-require Rails.root.join('app', 'domains', 'identity', 'services', 'confirm_user')
-require Rails.root.join('app', 'domains', 'identity', 'services', 'authenticate_user')
+# Os módulos em app/domains são carregados pelo Zeitwerk a partir da
+# configuração de autoload da aplicação.
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are

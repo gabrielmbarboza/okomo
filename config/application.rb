@@ -29,10 +29,10 @@ module Okomo
     config.autoload_lib(ignore: %w[assets tasks])
 
     # -----------------------------------------------------------------
-    # Domain-Driven Design: Autoload domain modules
+    # Domain-Driven Design: carrega módulos de domínio via Zeitwerk.
     # -----------------------------------------------------------------
-    config.autoload_paths += Dir[Rails.root.join("app", "domains", "*")]
-    config.eager_load_paths += Dir[Rails.root.join("app", "domains", "*")]
+    config.autoload_paths << Rails.root.join("app", "domains")
+    config.eager_load_paths << Rails.root.join("app", "domains")
 
     # -----------------------------------------------------------------
     # API-only mode
