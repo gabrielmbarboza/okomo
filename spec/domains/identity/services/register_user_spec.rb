@@ -100,7 +100,7 @@ RSpec.describe Identity::Services::RegisterUser do
     )
   end
 
-  it "cria user pendente, gera token de confirmação, envia confirmação e publica evento" do
+  it "creates a pending user, generates a confirmation token, delivers confirmation and publishes an event" do
     result = call_service
     user = result.user
 
@@ -123,7 +123,7 @@ RSpec.describe Identity::Services::RegisterUser do
     expect(result.events).to eq(event_publisher.events)
   end
 
-  it "publica UserRegistered sem carregar email no payload" do
+  it "publishes UserRegistered without including email in the payload" do
     result = call_service
     event = result.events.first
 
@@ -134,7 +134,7 @@ RSpec.describe Identity::Services::RegisterUser do
     expect(event.occurred_at).to eq(now)
   end
 
-  it "rejeita email inválido" do
+  it "rejects an invalid email" do
     expect {
       call_service(email: "not-an-email")
     }.to raise_error(described_class::InvalidEmail, "email is invalid")
@@ -142,7 +142,7 @@ RSpec.describe Identity::Services::RegisterUser do
     expect(repository.users).to be_empty
   end
 
-  it "rejeita email já registrado após normalização" do
+  it "rejects an already registered email after normalization" do
     existing_repository = InMemoryUserRepository.new(existing_emails: [ "jane.doe@example.com" ])
 
     expect {
@@ -161,25 +161,25 @@ RSpec.describe Identity::Services::RegisterUser do
     expect(existing_repository.users).to be_empty
   end
 
-  it "rejeita senha com menos de 8 caracteres" do
+  it "rejects a password shorter than 8 characters" do
     expect {
       call_service(password: "a1b2")
     }.to raise_error(described_class::WeakPassword)
   end
 
-  it "rejeita senha sem letras" do
+  it "rejects a password without letters" do
     expect {
       call_service(password: "12345678")
     }.to raise_error(described_class::WeakPassword)
   end
 
-  it "rejeita senha sem números" do
+  it "rejects a password without numbers" do
     expect {
       call_service(password: "abcdefgh")
     }.to raise_error(described_class::WeakPassword)
   end
 
-  it "gera token seguro com digest SHA256 e expiração de 24 horas por padrão" do
+  it "generates a secure token with SHA256 digest and a default 24-hour expiration" do
     generated_token = described_class::SecureConfirmationTokenGenerator.new.generate(
       user: instance_double(Identity::Entities::User),
       expires_at: now + 24.hours
@@ -190,7 +190,7 @@ RSpec.describe Identity::Services::RegisterUser do
     expect(generated_token.expires_at).to eq(now + 24.hours)
   end
 
-  it "usa bcrypt no hasher padrão de senha" do
+  it "uses bcrypt in the default password hasher" do
     digest = described_class::BCryptPasswordHasher.new.digest("abc12345")
 
     expect(BCrypt::Password.new(digest)).to eq("abc12345")
