@@ -11,7 +11,7 @@ gem "puma", ">= 5.0"
 gem "solid_queue"
 
 # API
-gem "rack-cors", "~> 2.0"
+gem "rack-cors", "~> 3.0"
 gem "jwt", "~> 2.7"
 gem "bcrypt", "~> 3.1"
 
