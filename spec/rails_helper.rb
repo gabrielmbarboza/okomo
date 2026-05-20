@@ -29,9 +29,11 @@ require Rails.root.join('app', 'domains', 'identity', 'entities', 'seller_profil
 require Rails.root.join('app', 'domains', 'identity', 'entities', 'user')
 require Rails.root.join('app', 'domains', 'identity', 'events', 'user_registered')
 require Rails.root.join('app', 'domains', 'identity', 'events', 'user_email_confirmed')
+require Rails.root.join('app', 'domains', 'identity', 'events', 'user_authenticated')
 require Rails.root.join('app', 'domains', 'identity', 'value_objects', 'confirmation_token')
 require Rails.root.join('app', 'domains', 'identity', 'services', 'register_user')
 require Rails.root.join('app', 'domains', 'identity', 'services', 'confirm_user')
+require Rails.root.join('app', 'domains', 'identity', 'services', 'authenticate_user')
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are

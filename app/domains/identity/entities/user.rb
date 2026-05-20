@@ -96,6 +96,13 @@ module Identity
         self
       end
 
+      def record_login!(logged_in_at: Time.current)
+        @last_login_at = logged_in_at
+        @updated_at = logged_in_at
+
+        self
+      end
+
       # Retorna todos os roles ativos do usuário
       def active_roles
         @user_roles.select(&:active?).map { |ur| ur.role_id }

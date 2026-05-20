@@ -48,7 +48,7 @@ RSpec.describe Identity::Entities::User do
           status: described_class::ACTIVE,
           email_confirmed_at: email_confirmed_at,
           last_login_at: last_login_at,
-          user_roles: [user_role],
+          user_roles: [ user_role ],
           created_at: created_at,
           updated_at: created_at
         )
@@ -240,6 +240,25 @@ RSpec.describe Identity::Entities::User do
     end
   end
 
+  describe "#record_login!" do
+    it "updates last_login_at and updated_at" do
+      logged_in_at = Time.zone.parse("2026-05-20 14:30:00")
+      user = described_class.new(
+        id: SecureRandom.uuid,
+        email: "john@example.com",
+        password_digest: "$2a$12$hash",
+        status: described_class::ACTIVE,
+        email_confirmed_at: logged_in_at - 1.day
+      )
+
+      result = user.record_login!(logged_in_at: logged_in_at)
+
+      expect(result).to eq(user)
+      expect(user.last_login_at).to eq(logged_in_at)
+      expect(user.updated_at).to eq(logged_in_at)
+    end
+  end
+
   describe "#confirm_email!" do
     it "confirms email, activates the user and grants buyer automatically" do
       confirmed_at = Time.zone.parse("2026-05-17 10:00:00")
@@ -401,7 +420,7 @@ RSpec.describe Identity::Entities::User do
         id: user_id,
         email: "john@example.com",
         password_digest: "$2a$12$hash",
-        user_roles: [buyer_user_role, seller_user_role]
+        user_roles: [ buyer_user_role, seller_user_role ]
       )
 
       active_roles = user.active_roles
@@ -431,11 +450,11 @@ RSpec.describe Identity::Entities::User do
         id: user_id,
         email: "john@example.com",
         password_digest: "$2a$12$hash",
-        user_roles: [buyer_user_role, seller_user_role]
+        user_roles: [ buyer_user_role, seller_user_role ]
       )
 
       active_roles = user.active_roles
-      expect(active_roles).to eq([buyer_role_id])
+      expect(active_roles).to eq([ buyer_role_id ])
     end
   end
 
@@ -453,7 +472,7 @@ RSpec.describe Identity::Entities::User do
         id: user_id,
         email: "john@example.com",
         password_digest: "$2a$12$hash",
-        user_roles: [buyer_user_role]
+        user_roles: [ buyer_user_role ]
       )
 
       expect(user.has_role?("buyer")).to be true
@@ -483,7 +502,7 @@ RSpec.describe Identity::Entities::User do
         id: user_id,
         email: "john@example.com",
         password_digest: "$2a$12$hash",
-        user_roles: [seller_user_role]
+        user_roles: [ seller_user_role ]
       )
 
       expect(user.has_role?("seller")).to be false
@@ -504,7 +523,7 @@ RSpec.describe Identity::Entities::User do
         id: user_id,
         email: "john@example.com",
         password_digest: "$2a$12$hash",
-        user_roles: [buyer_user_role]
+        user_roles: [ buyer_user_role ]
       )
 
       expect(user.buyer?).to be true
@@ -536,7 +555,7 @@ RSpec.describe Identity::Entities::User do
         id: user_id,
         email: "john@example.com",
         password_digest: "$2a$12$hash",
-        user_roles: [seller_user_role]
+        user_roles: [ seller_user_role ]
       )
 
       expect(user.seller?).to be true
@@ -568,7 +587,7 @@ RSpec.describe Identity::Entities::User do
         id: user_id,
         email: "john@example.com",
         password_digest: "$2a$12$hash",
-        user_roles: [admin_user_role]
+        user_roles: [ admin_user_role ]
       )
 
       expect(user.admin?).to be true
