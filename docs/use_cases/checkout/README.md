@@ -124,7 +124,7 @@ Documentar o fluxo completo de checkout, desde a intenção de compra até a con
 **Integrações**:
 - Gateway de pagamento externo
 - Webhooks para confirmação de pagamento
-- Processamento assíncrono via Sidekiq
+- Processamento assíncrono via Active Job com Solid Queue
 
 ---
 

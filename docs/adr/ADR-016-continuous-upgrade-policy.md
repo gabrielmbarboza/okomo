@@ -5,7 +5,7 @@ Aceito
 
 ## Contexto
 
-O Okomo é construído sobre Ruby on Rails 8, PostgreSQL 16, Redis 7 e um ecossistema de gems que formam a base técnica do projeto. Como aplicação de longa vida, é fundamental manter as dependências atualizadas para garantir:
+O Okomo é construído sobre Ruby on Rails 8, PostgreSQL 16, Solid Queue e um ecossistema de gems que formam a base técnica do projeto. Redis permanece como dependência opcional futura para cache e cenários de escala. Como aplicação de longa vida, é fundamental manter as dependências atualizadas para garantir:
 
 - **Segurança:** Vulnerabilidades em bibliotecas antigas podem comprometer a plataforma
 - **Performance:** Novas versões frequentemente incluem otimizações críticas
@@ -38,7 +38,7 @@ O Okomo adota uma **política contínua de atualização** de Ruby, Rails, gems 
 | Gems minor releases | Média | Trimestral | Planejado, conforme relevância |
 | Rails major upgrades | Baixa | Anual ou sob demanda | Projeto dedicado, planning específico |
 | Ruby major upgrades | Baixa | Anual ou sob demanda | Projeto dedicado, planning específico |
-| Infraestrutura (PostgreSQL, Redis, Docker) | Média a Alta | 6 meses a anual | Coordenado com períodos de menor atividade |
+| Infraestrutura (PostgreSQL, Solid Queue, Redis opcional, Docker) | Média a Alta | 6 meses a anual | Coordenado com períodos de menor atividade |
 
 ### Dependências em Escopo
 
@@ -48,12 +48,13 @@ O Okomo adota uma **política contínua de atualização** de Ruby, Rails, gems 
 
 2. **Infraestrutura:**
    - PostgreSQL
-   - Redis
+   - Solid Queue
+   - Redis, quando introduzido como cache ou otimização de escala
    - Docker
    - Thruster
 
 3. **Gems Críticas (Aplicação):**
-   - sidekiq
+   - solid_queue
    - jwt
    - bcrypt
    - active-record-encryption

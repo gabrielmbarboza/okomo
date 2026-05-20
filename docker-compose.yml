@@ -19,12 +19,10 @@ services:
       - DATABASE_USERNAME=${POSTGRES_USER:-okomo}
       - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-okomo_dev}
       - DATABASE_NAME=${POSTGRES_DB:-okomo_development}
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_QUEUE_NAME=${POSTGRES_QUEUE_DB:-okomo_development_queue}
       - RAILS_LOG_TO_STDOUT=true
     depends_on:
       db:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     stdin_open: true
     tty: true
@@ -46,6 +44,36 @@ services:
       timeout: 5s
       retries: 5
 
+  solid_queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: okomo_solid_queue
+    command: bin/jobs start
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    environment:
+      - RAILS_ENV=${RAILS_ENV:-development}
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=${POSTGRES_USER:-okomo}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-okomo_dev}
+      - DATABASE_NAME=${POSTGRES_DB:-okomo_development}
+      - DATABASE_QUEUE_NAME=${POSTGRES_QUEUE_DB:-okomo_development_queue}
+      - RAILS_LOG_TO_STDOUT=true
+      - SOLID_QUEUE_THREADS=${SOLID_QUEUE_THREADS:-3}
+      - SOLID_QUEUE_PROCESSES=${SOLID_QUEUE_PROCESSES:-1}
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - with-jobs
+
   redis:
     image: redis:7-alpine
     container_name: okomo_redis
@@ -59,36 +87,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  sidekiq:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      network: host
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
-    container_name: okomo_sidekiq
-    command: bundle exec sidekiq
-    volumes:
-      - .:/app
-      - bundle_cache:/usr/local/bundle
-    environment:
-      - RAILS_ENV=${RAILS_ENV:-development}
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_USERNAME=${POSTGRES_USER:-okomo}
-      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-okomo_dev}
-      - DATABASE_NAME=${POSTGRES_DB:-okomo_development}
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     profiles:
-      - with-sidekiq
+      - with-redis
 
 volumes:
   postgres_data:
+  bundle_cache:
   redis_data:

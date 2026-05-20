@@ -68,16 +68,6 @@ jobs:
         ports:
           - 5432:5432
 
-      redis:
-        image: redis:7
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -91,7 +81,12 @@ jobs:
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://okomo:okomo_test@localhost:5432/okomo_test
-          REDIS_URL: redis://localhost:6379/0
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USERNAME: okomo
+          DATABASE_PASSWORD: okomo_test
+          DATABASE_NAME: okomo_test
+          DATABASE_QUEUE_NAME: okomo_test_queue
         run: |
           bin/rails db:create
           bin/rails db:schema:load
@@ -100,6 +95,10 @@ jobs:
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://okomo:okomo_test@localhost:5432/okomo_test
-          REDIS_URL: redis://localhost:6379/0
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USERNAME: okomo
+          DATABASE_PASSWORD: okomo_test
+          DATABASE_NAME: okomo_test
+          DATABASE_QUEUE_NAME: okomo_test_queue
         run: bin/rspec --format documentation
-

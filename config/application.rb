@@ -51,13 +51,15 @@ module Okomo
     # -----------------------------------------------------------------
     config.time_zone = "America/Sao_Paulo"
     config.i18n.default_locale = :"pt-BR"
-    config.i18n.available_locales = [:"pt-BR", :en]
-    config.i18n.fallbacks = [:en]
+    config.i18n.available_locales = [ :"pt-BR", :en ]
+    config.i18n.fallbacks = [ :en ]
 
     # -----------------------------------------------------------------
-    # Active Job (prepared for Sidekiq)
+    # Active Job
     # -----------------------------------------------------------------
-    config.active_job.queue_adapter = :sidekiq
+    # Solid Queue é o backend inicial. A aplicação deve depender da abstração
+    # Active Job para preservar portabilidade futura de infraestrutura.
+    config.active_job.queue_adapter = :solid_queue
 
     # -----------------------------------------------------------------
     # Structured logging
