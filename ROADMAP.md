@@ -155,7 +155,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 ## Implementação de Casos de Uso (Próxima Fase)
 - [x] Implementar `RegisterUser`
-- [ ] Implementar confirmação de e-mail com concessão automática de role `buyer`
+- [x] Implementar confirmação de e-mail com concessão automática de role `buyer`
 - [ ] Implementar `AuthenticateUser`
 - [ ] Implementar geração e validação de JWT
 - [ ] Implementar `RequestPasswordRecovery` e `ResetPassword`
