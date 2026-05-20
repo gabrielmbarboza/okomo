@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Identity::Services::RegisterUser do
-  class InMemoryUserRepository
+  class RegisterUserInMemoryUserRepository
     attr_reader :users
 
     def initialize(existing_emails: [])
@@ -19,7 +19,7 @@ RSpec.describe Identity::Services::RegisterUser do
     end
   end
 
-  class FakePasswordHasher
+  class RegisterUserFakePasswordHasher
     attr_reader :passwords
 
     def initialize
@@ -32,7 +32,7 @@ RSpec.describe Identity::Services::RegisterUser do
     end
   end
 
-  class FakeConfirmationTokenGenerator
+  class RegisterUserFakeConfirmationTokenGenerator
     attr_reader :requests
 
     def initialize(token:)
@@ -46,7 +46,7 @@ RSpec.describe Identity::Services::RegisterUser do
     end
   end
 
-  class FakeConfirmationDelivery
+  class RegisterUserFakeConfirmationDelivery
     attr_reader :deliveries
 
     def initialize
@@ -59,7 +59,7 @@ RSpec.describe Identity::Services::RegisterUser do
     end
   end
 
-  class FakeEventPublisher
+  class RegisterUserFakeEventPublisher
     attr_reader :events
 
     def initialize
@@ -73,8 +73,8 @@ RSpec.describe Identity::Services::RegisterUser do
   end
 
   let(:now) { Time.zone.parse("2026-05-19 10:00:00") }
-  let(:repository) { InMemoryUserRepository.new }
-  let(:password_hasher) { FakePasswordHasher.new }
+  let(:repository) { RegisterUserInMemoryUserRepository.new }
+  let(:password_hasher) { RegisterUserFakePasswordHasher.new }
   let(:confirmation_token) do
     Identity::ValueObjects::ConfirmationToken.new(
       raw_token: "raw-token",
@@ -82,9 +82,9 @@ RSpec.describe Identity::Services::RegisterUser do
       expires_at: now + described_class::CONFIRMATION_TOKEN_TTL
     )
   end
-  let(:token_generator) { FakeConfirmationTokenGenerator.new(token: confirmation_token) }
-  let(:confirmation_delivery) { FakeConfirmationDelivery.new }
-  let(:event_publisher) { FakeEventPublisher.new }
+  let(:token_generator) { RegisterUserFakeConfirmationTokenGenerator.new(token: confirmation_token) }
+  let(:confirmation_delivery) { RegisterUserFakeConfirmationDelivery.new }
+  let(:event_publisher) { RegisterUserFakeEventPublisher.new }
 
   def call_service(email: "Jane.Doe@Example.com ", password: "abc12345", name: "Jane Doe")
     described_class.call(
@@ -143,7 +143,7 @@ RSpec.describe Identity::Services::RegisterUser do
   end
 
   it "rejects an already registered email after normalization" do
-    existing_repository = InMemoryUserRepository.new(existing_emails: [ "jane.doe@example.com" ])
+    existing_repository = RegisterUserInMemoryUserRepository.new(existing_emails: [ "jane.doe@example.com" ])
 
     expect {
       described_class.call(

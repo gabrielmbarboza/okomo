@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Identity::Services::ConfirmUser do
-  class InMemoryUserRepository
+  class ConfirmUserInMemoryUserRepository
     attr_reader :users
 
     def initialize(users: [])
@@ -24,7 +24,7 @@ RSpec.describe Identity::Services::ConfirmUser do
     end
   end
 
-  class FakeTokenStore
+  class ConfirmUserFakeTokenStore
     def initialize
       @tokens = {}
     end
@@ -42,7 +42,7 @@ RSpec.describe Identity::Services::ConfirmUser do
     end
   end
 
-  class FakeEventPublisher
+  class ConfirmUserFakeEventPublisher
     attr_reader :events
 
     def initialize
@@ -75,10 +75,10 @@ RSpec.describe Identity::Services::ConfirmUser do
       created_at: now - 1.hour,
       updated_at: now - 1.hour
     )
-    InMemoryUserRepository.new(users: [user])
+    ConfirmUserInMemoryUserRepository.new(users: [user])
   end
-  let(:token_store) { FakeTokenStore.new }
-  let(:event_publisher) { FakeEventPublisher.new }
+  let(:token_store) { ConfirmUserFakeTokenStore.new }
+  let(:event_publisher) { ConfirmUserFakeEventPublisher.new }
 
   before do
     token_store.store_token(user_id, confirmation_token)
@@ -261,7 +261,7 @@ RSpec.describe Identity::Services::ConfirmUser do
           created_at: now - 2.hours,
           updated_at: now - 1.hour
         )
-        InMemoryUserRepository.new(users: [user])
+        ConfirmUserInMemoryUserRepository.new(users: [user])
       end
 
       it "raises UserAlreadyConfirmed error" do
