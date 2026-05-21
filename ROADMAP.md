@@ -161,7 +161,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Implementar geração e validação de JWT
 - [x] Implementar `RequestPasswordRecovery` e `ResetPassword`
 - [x] Implementar `RequestSellerApplication`
-- [ ] Implementar `ApproverSeller`, `RejectSeller` e `SuspendSeller`
+- [x] Implementar `ApproverSeller`, `RejectSeller` e `SuspendSeller`
 - [ ] Implementar RBAC (buyer, seller, admin)
 - [ ] Implementar `ReactivateSeller`
 
