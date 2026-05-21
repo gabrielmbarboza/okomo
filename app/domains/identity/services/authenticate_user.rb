@@ -23,7 +23,7 @@ module Identity
         password:,
         user_repository:,
         password_verifier: BCryptPasswordVerifier.new,
-        access_token_generator: JwtAccessTokenGenerator.new,
+        access_token_generator: nil,
         event_publisher: NullEventPublisher.new,
         clock: -> { Time.current }
       )
@@ -31,9 +31,9 @@ module Identity
         @password = password
         @user_repository = user_repository
         @password_verifier = password_verifier
-        @access_token_generator = access_token_generator
         @event_publisher = event_publisher
         @clock = clock
+        @access_token_generator = access_token_generator || JwtAccessTokenGenerator.new(clock: @clock)
       end
 
       def call
@@ -113,30 +113,19 @@ module Identity
       end
 
       class JwtAccessTokenGenerator
-        def initialize(secret: nil)
+        def initialize(secret: nil, clock: -> { Time.current })
           @secret = secret
+          @clock = clock
         end
 
         def generate(user:, roles:, expires_at:)
-          require "jwt"
-
-          JWT.encode(
-            {
-              sub: user.id,
-              roles: roles,
-              exp: expires_at.to_i
-            },
-            secret,
-            "HS256"
-          )
-        rescue LoadError
-          raise MissingDependency, "jwt is required to generate access tokens"
-        end
-
-        private
-
-        def secret
-          @secret || Rails.application.secret_key_base
+          Identity::Services::GenerateJwtToken.call(
+            user: user,
+            roles: roles,
+            expires_at: expires_at,
+            secret: @secret,
+            clock: @clock
+          ).access_token
         end
       end
 

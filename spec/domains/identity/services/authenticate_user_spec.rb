@@ -272,19 +272,35 @@ RSpec.describe Identity::Services::AuthenticateUser do
     )).to be false
   end
 
-  it "generates a JWT access token with minimal claims" do
+  it "generates a JWT access token with authentication claims" do
     expires_at = now + described_class::ACCESS_TOKEN_TTL
-    token = described_class::JwtAccessTokenGenerator.new(secret: "secret").generate(
+    token = described_class::JwtAccessTokenGenerator.new(secret: "secret", clock: -> { now }).generate(
       user: user,
       roles: [ Identity::Entities::Role::BUYER ],
       expires_at: expires_at
     )
-    payload, = JWT.decode(token, "secret", true, algorithm: "HS256", verify_expiration: false)
+    payload, = JWT.decode(
+      token,
+      "secret",
+      true,
+      {
+        algorithm: Identity::Services::GenerateJwtToken::ALGORITHM,
+        iss: Identity::Services::GenerateJwtToken::ISSUER,
+        verify_iss: true,
+        aud: Identity::Services::GenerateJwtToken::AUDIENCE,
+        verify_aud: true,
+        verify_expiration: false
+      }
+    )
 
-    expect(payload).to eq(
+    expect(payload).to include(
       "sub" => user.id,
       "roles" => [ Identity::Entities::Role::BUYER ],
-      "exp" => expires_at.to_i
+      "iat" => now.to_i,
+      "exp" => expires_at.to_i,
+      "iss" => Identity::Services::GenerateJwtToken::ISSUER,
+      "aud" => Identity::Services::GenerateJwtToken::AUDIENCE
     )
+    expect(payload.fetch("jti")).to be_present
   end
 end
