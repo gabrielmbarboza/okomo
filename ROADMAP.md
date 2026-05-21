@@ -159,7 +159,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Implementar confirmação de e-mail com concessão automática de role `buyer`
 - [x] Implementar `AuthenticateUser`
 - [x] Implementar geração e validação de JWT
-- [ ] Implementar `RequestPasswordRecovery` e `ResetPassword`
+- [x] Implementar `RequestPasswordRecovery` e `ResetPassword`
 - [ ] Implementar `RequestSellerApplication`
 - [ ] Implementar `ApproverSeller`, `RejectSeller` e `SuspendSeller`
 - [ ] Implementar RBAC (buyer, seller, admin)
