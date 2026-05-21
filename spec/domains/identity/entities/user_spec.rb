@@ -458,6 +458,117 @@ RSpec.describe Identity::Entities::User do
     end
   end
 
+  describe "#effective_roles" do
+    it "returns active roles when user is active and email confirmed" do
+      user_id = SecureRandom.uuid
+      buyer_user_role = Identity::Entities::UserRole.new(
+        id: SecureRandom.uuid,
+        user_id: user_id,
+        role_id: Identity::Entities::Role::BUYER,
+        revoked_at: nil
+      )
+
+      user = described_class.new(
+        id: user_id,
+        email: "john@example.com",
+        password_digest: "$2a$12$hash",
+        status: described_class::ACTIVE,
+        email_confirmed_at: Time.current,
+        user_roles: [ buyer_user_role ]
+      )
+
+      expect(user.effective_roles).to eq([ Identity::Entities::Role::BUYER ])
+    end
+
+    it "returns no effective roles when user is blocked" do
+      user_id = SecureRandom.uuid
+      buyer_user_role = Identity::Entities::UserRole.new(
+        id: SecureRandom.uuid,
+        user_id: user_id,
+        role_id: Identity::Entities::Role::BUYER,
+        revoked_at: nil
+      )
+
+      user = described_class.new(
+        id: user_id,
+        email: "john@example.com",
+        password_digest: "$2a$12$hash",
+        status: described_class::BLOCKED,
+        email_confirmed_at: Time.current,
+        user_roles: [ buyer_user_role ]
+      )
+
+      expect(user.active_roles).to eq([ Identity::Entities::Role::BUYER ])
+      expect(user.effective_roles).to eq([])
+    end
+
+    it "returns no effective roles when user is deactivated" do
+      user_id = SecureRandom.uuid
+      admin_user_role = Identity::Entities::UserRole.new(
+        id: SecureRandom.uuid,
+        user_id: user_id,
+        role_id: Identity::Entities::Role::PLATFORM_ADMIN,
+        revoked_at: nil
+      )
+
+      user = described_class.new(
+        id: user_id,
+        email: "admin@example.com",
+        password_digest: "$2a$12$hash",
+        status: described_class::DEACTIVATED,
+        email_confirmed_at: Time.current,
+        user_roles: [ admin_user_role ]
+      )
+
+      expect(user.effective_roles).to eq([])
+    end
+
+    it "returns no effective roles when email is not confirmed" do
+      user_id = SecureRandom.uuid
+      seller_user_role = Identity::Entities::UserRole.new(
+        id: SecureRandom.uuid,
+        user_id: user_id,
+        role_id: Identity::Entities::Role::SELLER,
+        revoked_at: nil
+      )
+
+      user = described_class.new(
+        id: user_id,
+        email: "seller@example.com",
+        password_digest: "$2a$12$hash",
+        status: described_class::ACTIVE,
+        email_confirmed_at: nil,
+        user_roles: [ seller_user_role ]
+      )
+
+      expect(user.effective_roles).to eq([])
+    end
+  end
+
+  describe "#has_effective_role?" do
+    it "returns true only for an effective active role" do
+      user_id = SecureRandom.uuid
+      buyer_user_role = Identity::Entities::UserRole.new(
+        id: SecureRandom.uuid,
+        user_id: user_id,
+        role_id: Identity::Entities::Role::BUYER,
+        revoked_at: nil
+      )
+
+      user = described_class.new(
+        id: user_id,
+        email: "buyer@example.com",
+        password_digest: "$2a$12$hash",
+        status: described_class::ACTIVE,
+        email_confirmed_at: Time.current,
+        user_roles: [ buyer_user_role ]
+      )
+
+      expect(user.has_effective_role?(Identity::Entities::Role::BUYER)).to be true
+      expect(user.has_effective_role?(Identity::Entities::Role::SELLER)).to be false
+    end
+  end
+
   describe "#has_role?" do
     it "returns true if the user has the active role" do
       user_id = SecureRandom.uuid

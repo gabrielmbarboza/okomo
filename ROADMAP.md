@@ -162,7 +162,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Implementar `RequestPasswordRecovery` e `ResetPassword`
 - [x] Implementar `RequestSellerApplication`
 - [x] Implementar `ApproverSeller`, `RejectSeller` e `SuspendSeller`
-- [ ] Implementar RBAC (buyer, seller, admin)
+- [x] Implementar RBAC (buyer, seller, admin)
 - [ ] Implementar `ReactivateSeller`
 
 ---

@@ -88,7 +88,11 @@ module Identity
       end
 
       def validate_reviewer!(reviewer)
-        return if reviewer.has_role?(Identity::Entities::Role::PLATFORM_ADMIN)
+        Identity::Services::AuthorizeUser.call(
+          user: reviewer,
+          required_roles: [ Identity::Entities::Role::PLATFORM_ADMIN ]
+        )
+      rescue Identity::Services::AuthorizeUser::Error
 
         raise PermissionDenied, "reviewer must have platform_admin role"
       end

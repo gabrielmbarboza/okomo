@@ -108,9 +108,20 @@ module Identity
         @user_roles.select(&:active?).map { |ur| ur.role_id }
       end
 
+      # Retorna roles que produzem autorização efetiva na plataforma.
+      def effective_roles
+        return [] unless can_login?
+
+        active_roles
+      end
+
       # Verifica se user tem um role específico (ativo)
       def has_role?(role_name)
         @user_roles.any? { |ur| ur.active? && ur.role_id == role_name }
+      end
+
+      def has_effective_role?(role_name)
+        effective_roles.include?(role_name)
       end
 
       def grant_role(role_name, granted_by_user_id: nil, reason: nil, granted_at: Time.current)
@@ -154,14 +165,26 @@ module Identity
         has_role?("buyer")
       end
 
+      def effective_buyer?
+        has_effective_role?(Role::BUYER)
+      end
+
       # Verifica se user é seller
       def seller?
         has_role?("seller")
       end
 
+      def effective_seller?
+        has_effective_role?(Role::SELLER)
+      end
+
       # Verifica se user é admin
       def admin?
         has_role?("platform_admin")
+      end
+
+      def effective_admin?
+        has_effective_role?(Role::PLATFORM_ADMIN)
       end
 
       # Verifica se user tem um SellerProfile

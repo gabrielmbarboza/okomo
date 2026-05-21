@@ -153,6 +153,28 @@ RSpec.describe Identity::Services::ApproveSeller do
     }.to raise_error(described_class::PermissionDenied, "reviewer must have platform_admin role")
   end
 
+  it "requires reviewer admin role to be effective" do
+    reviewer = Identity::Entities::User.new(
+      id: reviewer_user_id,
+      name: "Blocked Admin",
+      email: "admin@example.com",
+      password_digest: "hashed-password",
+      status: Identity::Entities::User::BLOCKED,
+      email_confirmed_at: now - 1.day,
+      user_roles: [
+        Identity::Entities::UserRole.new(
+          user_id: reviewer_user_id,
+          role_id: Identity::Entities::Role::PLATFORM_ADMIN
+        )
+      ]
+    )
+    user_repository = ApproveSellerInMemoryUserRepository.new(users: [ seller_user, reviewer ])
+
+    expect {
+      call_service(user_repository: user_repository)
+    }.to raise_error(described_class::PermissionDenied, "reviewer must have platform_admin role")
+  end
+
   it "requires pending seller profile" do
     seller_profile.approve!(reviewed_by_user_id: reviewer_user_id, reviewed_at: now - 1.minute)
 
