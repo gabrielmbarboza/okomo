@@ -163,7 +163,7 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 - [x] Implementar `RequestSellerApplication`
 - [x] Implementar `ApproverSeller`, `RejectSeller` e `SuspendSeller`
 - [x] Implementar RBAC (buyer, seller, admin)
-- [ ] Implementar `ReactivateSeller`
+- [x] Implementar `ReactivateSeller`
 
 ---
 
