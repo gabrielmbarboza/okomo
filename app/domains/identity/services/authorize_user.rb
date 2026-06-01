@@ -3,10 +3,10 @@
 module Identity
   module Services
     class AuthorizeUser < Shared::Services::BaseService
-      class Error < StandardError; end
-      class UserRequired < Error; end
-      class InvalidRole < Error; end
-      class AccessDenied < Error; end
+      Error = Identity::Errors::Error
+      UserRequired = Identity::Errors::UserRequired
+      InvalidRole = Identity::Errors::InvalidRole
+      AccessDenied = Identity::Errors::AccessDenied
 
       Result = Struct.new(:user, :required_roles, :effective_roles, :matched_roles, keyword_init: true) do
         def success?

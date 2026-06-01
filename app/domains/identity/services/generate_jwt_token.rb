@@ -10,8 +10,8 @@ module Identity
       ISSUER = "okomo"
       AUDIENCE = "okomo-api"
 
-      class Error < StandardError; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:access_token, :expires_at, :issued_at, :payload, keyword_init: true) do
         def success?

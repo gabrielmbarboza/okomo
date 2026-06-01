@@ -8,8 +8,8 @@ module Identity
     class RequestPasswordRecovery < Shared::Services::BaseService
       PASSWORD_RESET_TOKEN_TTL = 2.hours
 
-      class Error < StandardError; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:user, :password_reset_token, :events, keyword_init: true) do
         def success?

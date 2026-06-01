@@ -3,15 +3,17 @@
 module Identity
   module Services
     class ReactivateSeller < Shared::Services::BaseService
-      class Error < StandardError; end
-      class SellerProfileNotFound < Error; end
-      class UserNotFound < Error; end
-      class ReviewerNotFound < Error; end
-      class PermissionDenied < Error; end
-      class InvalidSellerProfileState < Error; end
-      class SellerRoleAlreadyActive < Error; end
-      class InvalidReason < Error; end
-      class MissingDependency < Error; end
+      include Identity::Services::ServiceHelpers
+
+      Error = Identity::Errors::Error
+      SellerProfileNotFound = Identity::Errors::SellerProfileNotFound
+      UserNotFound = Identity::Errors::UserNotFound
+      ReviewerNotFound = Identity::Errors::ReviewerNotFound
+      PermissionDenied = Identity::Errors::PermissionDenied
+      InvalidSellerProfileState = Identity::Errors::InvalidSellerProfileState
+      SellerRoleAlreadyActive = Identity::Errors::SellerRoleAlreadyActive
+      InvalidReason = Identity::Errors::InvalidReason
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:seller_profile, :user, :events, keyword_init: true) do
         def success?
@@ -76,42 +78,19 @@ module Identity
       private
 
       def find_seller_profile!
-        ensure_repository_method!(@seller_profile_repository, :find_by_id, "seller_profile_repository")
-
-        seller_profile = @seller_profile_repository.find_by_id(@seller_profile_id)
-        raise SellerProfileNotFound, "seller profile not found" if seller_profile.nil?
-
-        seller_profile
+        find_seller_profile_by_id!(@seller_profile_id)
       end
 
       def find_reviewer!
-        reviewer = find_user_record(@reactivated_by_user_id)
-        raise ReviewerNotFound, "reviewer not found" if reviewer.nil?
-
-        reviewer
+        find_user_by_id!(@reactivated_by_user_id, not_found_error: ReviewerNotFound, not_found_message: "reviewer not found")
       end
 
       def find_user!(user_id)
-        user = find_user_record(user_id)
-        raise UserNotFound, "user not found" if user.nil?
-
-        user
-      end
-
-      def find_user_record(user_id)
-        ensure_repository_method!(@user_repository, :find_by_id, "user_repository")
-
-        @user_repository.find_by_id(user_id)
+        find_user_by_id!(user_id, not_found_error: UserNotFound, not_found_message: "user not found")
       end
 
       def validate_reviewer!(reviewer)
-        Identity::Services::AuthorizeUser.call(
-          user: reviewer,
-          required_roles: [ Identity::Entities::Role::PLATFORM_ADMIN ]
-        )
-      rescue Identity::Services::AuthorizeUser::Error
-
-        raise PermissionDenied, "reviewer must have platform_admin role"
+        authorize_platform_admin!(reviewer)
       end
 
       def validate_suspended!(seller_profile)
@@ -130,12 +109,6 @@ module Identity
         return unless user.has_role?(Identity::Entities::Role::SELLER)
 
         raise SellerRoleAlreadyActive, "seller role is already active"
-      end
-
-      def ensure_repository_method!(repository, method_name, dependency_name)
-        return if repository.respond_to?(method_name)
-
-        raise MissingDependency, "#{dependency_name} must respond to #{method_name}"
       end
 
       class NullEventPublisher

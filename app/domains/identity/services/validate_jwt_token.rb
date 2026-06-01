@@ -5,11 +5,11 @@ module Identity
     class ValidateJwtToken < Shared::Services::BaseService
       REQUIRED_CLAIMS = %w[sub roles exp iat jti].freeze
 
-      class Error < StandardError; end
-      class InvalidToken < Error; end
-      class ExpiredToken < Error; end
-      class InvalidClaims < Error; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      InvalidToken = Identity::Errors::InvalidToken
+      ExpiredToken = Identity::Errors::ExpiredToken
+      InvalidClaims = Identity::Errors::InvalidClaims
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:user_id, :roles, :expires_at, :issued_at, :token_id, :payload, keyword_init: true) do
         def success?

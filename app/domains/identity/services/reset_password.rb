@@ -7,13 +7,13 @@ module Identity
     class ResetPassword < Shared::Services::BaseService
       MIN_PASSWORD_LENGTH = 8
 
-      class Error < StandardError; end
-      class InvalidToken < Error; end
-      class TokenExpired < Error; end
-      class TokenAlreadyUsed < Error; end
-      class UserNotFound < Error; end
-      class WeakPassword < Error; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      InvalidToken = Identity::Errors::InvalidToken
+      TokenExpired = Identity::Errors::TokenExpired
+      TokenAlreadyUsed = Identity::Errors::TokenAlreadyUsed
+      UserNotFound = Identity::Errors::UserNotFound
+      WeakPassword = Identity::Errors::WeakPassword
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:user, :events, keyword_init: true) do
         def success?

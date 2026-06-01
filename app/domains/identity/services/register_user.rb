@@ -10,11 +10,11 @@ module Identity
       CONFIRMATION_TOKEN_TTL = 24.hours
       MIN_PASSWORD_LENGTH = 8
 
-      class Error < StandardError; end
-      class InvalidEmail < Error; end
-      class EmailAlreadyRegistered < Error; end
-      class WeakPassword < Error; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      InvalidEmail = Identity::Errors::InvalidEmail
+      EmailAlreadyRegistered = Identity::Errors::EmailAlreadyRegistered
+      WeakPassword = Identity::Errors::WeakPassword
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:user, :confirmation_token, :events, keyword_init: true) do
         def success?

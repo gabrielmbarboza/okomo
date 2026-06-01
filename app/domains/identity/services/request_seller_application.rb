@@ -5,15 +5,17 @@ require "uri"
 module Identity
   module Services
     class RequestSellerApplication < Shared::Services::BaseService
+      include Identity::Services::ServiceHelpers
+
       REQUIRED_ADDRESS_FIELDS = %w[street number city state zip_code].freeze
 
-      class Error < StandardError; end
-      class UserNotFound < Error; end
-      class UserNotAllowed < Error; end
-      class SellerProfileAlreadyExists < Error; end
-      class InvalidDocument < Error; end
-      class InvalidSellerApplication < Error; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      UserNotFound = Identity::Errors::UserNotFound
+      UserNotAllowed = Identity::Errors::UserNotAllowed
+      SellerProfileAlreadyExists = Identity::Errors::SellerProfileAlreadyExists
+      InvalidDocument = Identity::Errors::InvalidDocument
+      InvalidSellerApplication = Identity::Errors::InvalidSellerApplication
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:seller_profile, :events, keyword_init: true) do
         def success?
@@ -80,14 +82,13 @@ module Identity
       private
 
       def find_user!
-        unless @user_repository.respond_to?(:find_by_id)
-          raise MissingDependency, "user_repository must respond to find_by_id"
-        end
-
-        user = @user_repository.find_by_id(@user_id)
-        raise UserNotFound, "user not found" if user.nil?
-
-        user
+        find_record!(
+          repository: @user_repository,
+          id: @user_id,
+          dependency_name: "user_repository",
+          not_found_error: UserNotFound,
+          not_found_message: "user not found"
+        )
       end
 
       def validate_user_can_apply!(user)

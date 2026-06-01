@@ -5,12 +5,12 @@ module Identity
     class AuthenticateUser < Shared::Services::BaseService
       ACCESS_TOKEN_TTL = 15.minutes
 
-      class Error < StandardError; end
-      class InvalidCredentials < Error; end
-      class EmailNotConfirmed < Error; end
-      class UserBlocked < Error; end
-      class UserDeactivated < Error; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      InvalidCredentials = Identity::Errors::InvalidCredentials
+      EmailNotConfirmed = Identity::Errors::EmailNotConfirmed
+      UserBlocked = Identity::Errors::UserBlocked
+      UserDeactivated = Identity::Errors::UserDeactivated
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:user, :access_token, :expires_at, :roles, :events, keyword_init: true) do
         def success?

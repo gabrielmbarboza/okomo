@@ -5,12 +5,12 @@ require "digest"
 module Identity
   module Services
     class ConfirmUser < Shared::Services::BaseService
-      class Error < StandardError; end
-      class InvalidToken < Error; end
-      class TokenExpired < Error; end
-      class UserNotFound < Error; end
-      class UserAlreadyConfirmed < Error; end
-      class MissingDependency < Error; end
+      Error = Identity::Errors::Error
+      InvalidToken = Identity::Errors::InvalidToken
+      TokenExpired = Identity::Errors::TokenExpired
+      UserNotFound = Identity::Errors::UserNotFound
+      UserAlreadyConfirmed = Identity::Errors::UserAlreadyConfirmed
+      MissingDependency = Identity::Errors::MissingDependency
 
       Result = Struct.new(:user, :events, keyword_init: true) do
         def success?
