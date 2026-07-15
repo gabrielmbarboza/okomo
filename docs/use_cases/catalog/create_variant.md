@@ -17,21 +17,20 @@ Seller acessa painel → Seleciona produto → Clica em "Adicionar Variante"
 
 ### 2. Preencher Dados
 Seller preenche formulário com:
-- Cor
-- Tamanho
-- Material
-- Peso
-- Preço (opcional - usa preço base se não informado)
-- Quantidade inicial em estoque
-- SKU (opcional - gerado automaticamente)
+- Nome
+- SKU (obrigatório, fornecido pelo seller)
+- Preço
+- Peso e dimensões (opcionais)
 - Imagens
+
+> Preço e SKU pertencem exclusivamente à Variant (ADR-007) — Product não define preço base.
 
 ### 3. Validação
 Sistema valida:
-- Formato de dados obrigatórios
-- Nome único dentro do produto
-- Preço positivo
-- Quantidade não negativa
+- Nome obrigatório
+- SKU obrigatório e único dentro do produto (BR-CAT-010)
+- Preço maior que zero (BR-CAT-011)
+- Peso e dimensões, quando informados, positivos (BR-CAT-012)
 
 ### 4. Criar Variante
 Sistema cria variante com:
@@ -68,27 +67,23 @@ Acesso a produto inexistente:
 ## 📊 Regras de Negócio
 
 ### Nome da Variante
-- Deve ser único dentro do produto
+- Obrigatório
 - Máximo 100 caracteres
-- Pode conter números e letras
 
 ### SKU
-- Formato: [PRODUTO]-[VARIANTE]-[COR-TAMANHO]
-- Exemplo: [CAMISA]-[AZUL]-[P]
-- Gerado automaticamente se não informado
+- Obrigatório, fornecido pelo seller (BR-CAT-010)
+- Único dentro do produto (não globalmente); formato não é fixado nesta fase
+- Sem geração automática
 
 ### Preços
-- Preço base do produto é usado se variante não tiver preço
-- Variações podem ter preços diferentes
-- Preços devem ser positivos
+- Obrigatório, exclusivo da Variant (ADR-007) — Product não possui preço
+- Deve ser maior que zero (BR-CAT-011)
 
 ### Estoque
-- Quantidade inicial deve ser positiva
-- Estoque é gerenciado por variante
+- Fora de escopo na Fase 3 (BR-CAT-013, bounded context Inventory)
 
 ### Dimensões
-- Peso deve ser positivo
-- Dimensões devem ser válidas para categoria
+- Peso e dimensões, quando informados, devem ser positivos (BR-CAT-012)
 
 ## 🔗 Integrações
 
@@ -98,14 +93,12 @@ Acesso a produto inexistente:
 - `GET /api/v1/products/:id/variants` - Listar variantes
 
 ### Domain Events
-- `VariantCreated` - Variante criada
-- `VariantUpdated` - Variante atualizada
-- `InventoryUpdated` - Estoque atualizado
+- `VariantCreated` - Variante criada (Fase 3)
+
+Ver `docs/domain_events.md` para a lista completa, incluindo eventos futuros fora do escopo desta fase.
 
 ### Serviços Envolvidos
-- `VariantService` - Lógica de negócio
-- `InventoryService` - Gestão de estoque
-- `ValidationService` - Validações
+- `Catalog::Services::CreateVariant`
 
 ## 📝 Observações
 

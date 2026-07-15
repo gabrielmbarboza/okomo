@@ -21,18 +21,14 @@ Seller preenche formulário com:
 - Nome do produto
 - Descrição
 - Categoria
-- SKU (opcional)
-- Preço base
-- Dimensões
-- Peso
 - Imagens
+
+> Preço, SKU, dimensões e peso pertencem à Variant, não ao Product (ADR-007) — são definidos ao criar cada variante, não nesta etapa.
 
 ### 3. Validação
 Sistema valida:
-- Nome obrigatório e único
-- Categoria deve existir
-- Preço deve ser maior que zero
-- Dimensões devem ser positivas
+- Nome obrigatório
+- Categoria deve existir (fora de escopo na Fase 3 — Category não modelada)
 
 ### 4. Criar Produto
 Sistema cria produto com status "draft"
@@ -69,34 +65,27 @@ Validação falha:
 
 ### Produto Criado
 - Produto disponível no painel
-- SKU gerado automaticamente
 - Status inicial: "draft"
 
 ### Produto Publicado
 - Produto visível para Buyers
-- Estoque disponível para venda
 - Notificação de sucesso enviada
 
 ## 📊 Regras de Negócio
 
 ### Nome de Produto
-- Deve ser único por Store
+- Obrigatório
 - Máximo 255 caracteres
 - Caracteres especiais permitidos
 
 ### SKU
-- Deve ser único globalmente
-- Formato: [LOJA-PRODUTO-COR-TAMANHO]
-- Máximo 50 caracteres
+- Não se aplica a Product; SKU é atributo da Variant, único por produto (BR-CAT-010) — ver `create_variant.md`. Formato não é fixado nesta fase.
 
 ### Preços
-- Preço base deve ser positivo
-- Variantes podem ter preços diferentes
-- Preços podem ser decimais (2 casas)
+- Não se aplica a Product (ADR-007); preço é atributo exclusivo da Variant, deve ser maior que zero (BR-CAT-011)
 
 ### Estoque
-- Quantidade não pode ser negativa
-- Estoque inicial definido por variante
+- Fora de escopo na Fase 3 (BR-CAT-013, bounded context Inventory)
 
 ## 🔗 Integrações
 
@@ -107,15 +96,14 @@ Validação falha:
 - `POST /api/v1/products/:id/variants` - Adicionar variante
 
 ### Domain Events
-- `ProductCreated` - Produto criado
-- `ProductUpdated` - Produto atualizado
-- `ProductActivated` - Produto ativado
-- `InventoryUpdated` - Estoque atualizado
+- `ProductCreated` - Produto criado (Fase 3)
+- `ProductPublished` - Produto publicado (Fase 3)
+
+Ver `docs/domain_events.md` para a lista completa, incluindo eventos futuros fora do escopo desta fase.
 
 ### Serviços Envolvidos
-- `ProductService` - Lógica de negócio
-- `InventoryService` - Gestão de estoque
-- `ValidationService` - Validações
+- `Catalog::Services::CreateProduct`
+- `Catalog::Services::PublishProduct`
 
 ## 📝 Observações
 

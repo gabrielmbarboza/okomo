@@ -163,18 +163,20 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 ### Catálogo (Catalog)
 
 #### Product Events
-- `ProductCreated` - Novo produto criado
-- `ProductUpdated` - Produto atualizado
-- `ProductPriceChanged` - Preço do produto alterado
-- `ProductActivated` - Produto ativado
-- `ProductDeactivated` - Produto desativado
-- `ProductDiscontinued` - Produto descontinuado
-- `ProductInventoryUpdated` - Estoque do produto atualizado
+- `ProductCreated` - Novo produto criado (implementado, Fase 3)
+- `ProductPublished` - Produto publicado no catálogo (implementado, Fase 3)
+
+Futuro / Fora de Escopo (Fase 3):
+- `ProductUpdated` - edição de dados do produto, sem caso de uso implementado ainda
+- `ProductActivated` / `ProductDeactivated` / `ProductDiscontinued` - ciclo de vida além de draft/published/archived, sem state machine definida
+- `ProductInventoryUpdated` - pertence ao bounded context Inventory (Fase 5), não a Catalog
+- `ProductPriceChanged` - preço pertence à Variant (ADR-007), não ao Product; ver `VariantPriceChanged` como candidato futuro
+
+#### Variant Events
+- `VariantCreated` - Nova variante criada (implementado, Fase 3)
 
 #### Category Events
-- `CategoryCreated` - Nova categoria criada
-- `CategoryUpdated` - Categoria atualizada
-- `CategoryDeleted` - Categoria removida
+Fora de escopo — Category não possui entidade, tabela ou regra de negócio definida em nenhum outro documento do projeto.
 
 ### Pedidos (Orders)
 
@@ -227,36 +229,22 @@ Event Storming é uma técnica para descobrir eventos de domínio através de wo
 
 ### Formato
 
+> O exemplo abaixo é ilustrativo do formato conceitual. A implementação real usa `Shared::Events::BaseEvent` (`app/domains/shared/events/base_event.rb`): eventos concretos são subclasses vazias com `payload` (Hash) e `occurred_at` injetável, não classes com `attr_reader` por campo. Note também que `price`/`sku` NÃO pertencem a `ProductCreated` (ADR-007 — pertencem à Variant); o exemplo abaixo foi corrigido para refletir isso.
+
 ```ruby
 # frozen_string_literal: true
 
 module Catalog
   module Events
-    class ProductCreated
-      attr_reader :product_id, :name, :description, :price, :sku, :occurred_at
-
-      def initialize(product_id:, name:, description:, price:, sku:, occurred_at: Time.current)
-        @product_id = product_id
-        @name = name
-        @description = description
-        @price = price
-        @sku = sku
-        @occurred_at = occurred_at
-      end
-
-      def to_h
-        {
-          product_id: product_id,
-          name: name,
-          description: description,
-          price: price,
-          sku: sku,
-          occurred_at: occurred_at
-        }
-      end
+    class ProductCreated < Shared::Events::BaseEvent
     end
   end
 end
+
+# Uso: Catalog::Events::ProductCreated.new(
+#   { product_id: product.id, seller_profile_id: product.seller_profile_id, created_at: now },
+#   occurred_at: now
+# )
 ```
 
 ### Metadados Comuns
@@ -321,23 +309,20 @@ end
 
 ### 3. Aggregate Roots
 
+> Exemplo conceitual. Na implementação real, a construção do evento e a publicação ocorrem no Service (`Catalog::Services::CreateProduct`), não na entidade — ver `app/domains/identity/services/register_user.rb` para o padrão seguido.
+
 ```ruby
-# app/domains/catalog/entities/product.rb
-class Product < BaseEntity
-  def self.create(params)
-    product = new(**params)
-
-    # Publicar evento
+# app/domains/catalog/services/create_product.rb
+class CreateProduct < Shared::Services::BaseService
+  def call
+    product = Catalog::Entities::Product.new(seller_profile_id: @seller_profile_id, name: @name, description: @description)
     event = Catalog::Events::ProductCreated.new(
-      product_id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      sku: product.sku
+      { product_id: product.id, seller_profile_id: product.seller_profile_id, created_at: @clock.call },
+      occurred_at: @clock.call
     )
-
-    EventStore.publish(event)
-    product
+    @product_repository.save(product)
+    @event_publisher.publish(event)
+    Result.new(product: product, events: [event])
   end
 end
 ```

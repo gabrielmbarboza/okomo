@@ -787,3 +787,116 @@ Consumidores típicos:
 9. Cadastro exige consentimento versionado para documentos obrigatórios.
 10. User anonimizado não pode fazer login.
 11. Dados pessoais diretos devem ser removidos ou substituídos em anonimização, preservando registros transacionais obrigatórios.
+
+---
+
+# 6. Bounded Context: Catalog
+
+## Responsabilidade
+
+Gerenciamento de produtos e variantes vendáveis oferecidos por sellers no marketplace.
+
+## Agregados
+
+### Product (Aggregate Root)
+
+`Product` representa um produto conceitual cadastrado por um seller. Agrupa uma ou mais `Variant`, mas não define preço nem estoque diretamente (ADR-007).
+
+**Atributos:**
+
+* `id` (UUID) - Identificador único
+* `seller_profile_id` (UUID, FK) - Referência ao SellerProfile dono do produto
+* `name` (string) - Nome do produto
+* `description` (text, nullable) - Descrição do produto
+* `status` (enum: draft, published, archived) - Estado de publicação
+* `created_at` (datetime)
+* `updated_at` (datetime)
+
+**Relacionamentos:**
+
+* `has_many :variants`
+
+**Invariantes:**
+
+* Todo produto novo inicia como `draft` (BR-CAT-002)
+* Produto `draft` não aparece no catálogo público (BR-CAT-003)
+* Produto só pode ser publicado com dados obrigatórios preenchidos, ao menos uma `Variant` vendável e descrição suficiente para compra informada (BR-CAT-004)
+* Cada produto pertence a exatamente um seller (BR-CAT-007)
+
+---
+
+### Variant (Entity)
+
+`Variant` é a unidade vendável do catálogo. Por decisão da ADR-007, preço e estoque pertencem exclusivamente à Variant, nunca ao Product.
+
+**Atributos:**
+
+* `id` (UUID) - Identificador único
+* `product_id` (UUID, FK) - Referência ao Product pai
+* `name` (string) - Nome da variante
+* `sku` (string) - Identificador único dentro do escopo do produto
+* `price` (decimal) - Preço da variante
+* `weight_grams` (integer, nullable) - Peso, quando informado
+* `height_cm` / `width_cm` / `length_cm` (decimal, nullable) - Dimensões, quando informadas
+* `status` (enum: draft, published, archived) - Estado de publicação
+* `created_at` (datetime)
+* `updated_at` (datetime)
+
+**Relacionamentos:**
+
+* `belongs_to :product`
+
+**Invariantes:**
+
+* Uma variant representa a unidade vendável do catálogo (BR-CAT-009)
+* SKU deve ser único dentro do escopo do produto ao qual pertence (BR-CAT-010)
+* Preço deve ser maior que zero (BR-CAT-011)
+* Dimensões e peso, quando informados, devem ser positivos (BR-CAT-012)
+
+---
+
+## Casos de Uso
+
+### Create Product
+
+Cadastro de um novo produto por um seller.
+
+**Fluxo:**
+
+1. Valida `seller_profile_id` e `name` presentes
+2. Cria Product com `status = draft`
+3. Publica evento `ProductCreated`
+
+### Create Variant
+
+Adição de uma variante vendável a um produto existente.
+
+**Fluxo:**
+
+1. Localiza o Product pelo `product_id`
+2. Valida `name`, `sku`, `price` e dimensões (quando informadas)
+3. Valida unicidade do `sku` dentro do escopo do produto (BR-CAT-010)
+4. Cria Variant com `status = draft`
+5. Publica evento `VariantCreated`
+
+### Publish Product
+
+Publicação de um produto no catálogo.
+
+**Fluxo:**
+
+1. Localiza o Product pelo `id`
+2. Valida que o Product está `draft` e possui descrição
+3. Valida que existe ao menos uma Variant vendável (BR-CAT-004)
+4. Transiciona o Product para `published`
+5. Publica evento `ProductPublished`
+
+## Fora de Escopo (Fase 3)
+
+* **Category/taxonomia** - conceito referenciado em documentos antigos, mas sem entidade, tabela ou regra de negócio definida.
+* **Store** - `docs/ubiquitous_language.md` mencionava Product pertencente a uma Store, mas nenhuma tabela `stores` existe no modelo de dados; Product referencia `seller_profile_id` diretamente.
+* **Autorização de seller (BR-CAT-001)** - exigiria consulta cross-context ao status do `SellerProfile` no Identity; não implementado nesta fase.
+* **Inventory/estoque (BR-CAT-013)** - fica a cargo do bounded context Inventory (Fase 5).
+* **Promoções e preços exibidos (BR-CAT-017)** - fica a cargo do bounded context Promotions (Fase 6).
+* **Busca, visibilidade e exibição pública (BR-CAT-003, 005, 006, 015, 016, 018)** - camada de apresentação/API, fora do escopo domain-only.
+* **Imagens/mídia** - nenhuma entidade modelada até o momento.

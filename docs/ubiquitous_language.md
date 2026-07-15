@@ -566,8 +566,8 @@ Exemplos:
 Um Product:
 
 * agrupa variantes vendáveis
-* não necessariamente define o preço final
-* pertence a uma Store
+* não define preço nem estoque (ADR-007 — pertencem à Variant)
+* pertence a um Seller, via `seller_profile_id`; o conceito de Store permanece não modelado nesta fase (não existe tabela `stores`)
 
 ---
 

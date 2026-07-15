@@ -37,9 +37,8 @@
 
 ## Eventos Esperados
 
-* `ProductCreated`
-* `ProductUpdated`
-* `ProductPublished`
-* `ProductActivated`
-* `VariantCreated`
-* `InventoryUpdated`
+* `ProductCreated` (Fase 3)
+* `ProductPublished` (Fase 3)
+* `VariantCreated` (Fase 3)
+
+Ver `docs/domain_events.md` para a lista completa, incluindo eventos futuros fora do escopo desta fase.
