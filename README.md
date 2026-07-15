@@ -262,13 +262,18 @@ Generates `app/domains/orders/events/order_created.rb` with payload and timestam
 
 ## Git Commit Convention
 
-This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification to standardize commit messages and facilitate reading the change history.
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification to standardize commit messages and facilitate reading the change history. All commits are written in **English**.
 
-The basic structure is:
+The structure is:
 
 ```
 <type>(<scope>): <description>
+
+<body>
 ```
+
+- **Description:** imperative mood, lowercase, no period, max 72 chars.
+- **Body is mandatory:** one bullet per file or logical change made in the commit — no exceptions, even for small commits.
 
 ### Common Types
 
@@ -279,15 +284,16 @@ The basic structure is:
 - `refactor`: Code refactoring
 - `chore`: Maintenance or configuration tasks
 
-### Examples
+### Example
 
 ```
-feat(identity): implement user registration
-fix(inventory): prevent overselling with pessimistic locking
-docs(adr): add ADR-014 for authentication
-test(orders): add CreateOrder service specs
-refactor(payments): extract gateway interface
-chore(ci): configure GitHub Actions
+feat(catalog): implement product creation use case
+
+- Add Catalog::Entities::Product with pricing validation
+- Add Catalog::Services::CreateProduct
+- Add ProductCreated domain event
+- Add unit tests for Product entity and CreateProduct service
+- Update docs/domain_events.md with ProductCreated
 ```
 
 ---
