@@ -169,12 +169,20 @@ Rails 8, PostgreSQL e Docker, com foco simultâneo em:
 
 # Fase 3 — Domínio de Catálogo (Catalog)
 
-- [ ] Criar `Product`
-- [ ] Criar `Variant`
-- [ ] Implementar `Pricing` em `Variant`
-- [ ] Implementar SKU
-- [ ] Implementar publicação de produtos
-- [ ] Publicar `ProductCreated`, `VariantCreated` e `ProductPublished`
+## Documentação (Completa ✅)
+- [x] Adicionar seção `Bounded Context: Catalog` em `docs/domain.md`
+- [x] Corrigir `docs/use_cases/catalog/create_product.md` e `create_variant.md` (remover preço/SKU de Product, alinhar com ADR-007)
+- [x] Reconciliar lista de eventos entre `docs/domain_events.md` e `docs/business_rules/catalog.md`
+- [x] Corrigir referência a "Store" em `docs/ubiquitous_language.md`
+- [x] Criar `docs/state_machines/product_state_machine.md`
+
+## Implementação (domain-only, mesmo escopo da Fase 2)
+- [x] Criar `Product`
+- [x] Criar `Variant`
+- [x] Implementar `Pricing` em `Variant`
+- [x] Implementar SKU
+- [x] Implementar publicação de produtos
+- [x] Publicar `ProductCreated`, `VariantCreated` e `ProductPublished`
 
 ---
 
