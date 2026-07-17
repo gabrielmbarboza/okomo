@@ -20,7 +20,7 @@ gem "dotenv-rails", "~> 3.0"
 
 # Performance
 gem "bootsnap", require: false
-gem "oj", "~> 3.16"
+gem "oj", "~> 3.17"
 
 # Windows timezone data
 gem "tzinfo-data", platforms: %i[windows jruby]
